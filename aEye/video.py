@@ -25,8 +25,6 @@ class Video:
         self.shape = self.image.shape
         self.width = self.shape[0]
         self.height = self.shape[1]
-        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
-        self.frame_array = []
         
 
 
@@ -55,8 +53,7 @@ class Video:
             _ ,image = self.cap.read()
             if image is None:
                 break
-            resized = cv2.resize(image , (400,400), interpolation = cv2.INTER_AREA)
-            self.frame_array.append(resized)
+            resized = cv2.resize(image , dim, interpolation = cv2.INTER_AREA)
             out.write(resized)
         out.release()
         self.cap.release()
