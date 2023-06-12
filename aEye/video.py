@@ -25,6 +25,7 @@ class Video:
         self.width = self.shape[0]
         self.height = self.shape[1]
         self.title = title
+        self.frame_array = None
 
 
     def resize_by_ratio(self, x_ratio, y_ratio):
@@ -44,7 +45,7 @@ class Video:
         dim = (new_width, new_height)
 
         fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-        out = cv2.VideoWriter('data/output.mp4', fourcc, 30.0, dim)
+        out = cv2.VideoWriter('data/' +self.title+'.mp4', fourcc, 30.0, dim)
         
         while True:
             _ ,image = self.cap.read()
