@@ -7,6 +7,7 @@ import numpy as np
 
 class Video:
     """
+<<<<<<< HEAD
     Video class stores all relevant informations from video file.
 
     Attributes
@@ -43,15 +44,25 @@ class Video:
             Clean up memory from cv2 video capture.
 
 
+=======
+    @:constructor file, title
+        file is the path name for the video file,
+        title is the title of the video if given
+>>>>>>> 4b229f3 (add more comments)
     """
 
     def __init__(self,file , title = None ) -> None:
         self.file = file
         self.meta_data = 'insert by James'
 
+<<<<<<< HEAD
         self.capture = cv2.VideoCapture(file)
 
         _ , self.image = self.capture.read()
+=======
+        self.cap = cv2.VideoCapture(file)
+        _ , self.image = self.cap.read()
+>>>>>>> 4b229f3 (add more comments)
         self.shape = self.image.shape
         self.width = self.shape[0]
         self.height = self.shape[1]
