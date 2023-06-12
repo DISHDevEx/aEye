@@ -45,7 +45,7 @@ class Video:
         dim = (new_width, new_height)
 
         fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-        out = cv2.VideoWriter('data/' +self.title+'.mp4', fourcc, 30.0, dim)
+        out = cv2.VideoWriter('data/out_put' +self.title, fourcc, 30.0, dim)
         
         while True:
             _ ,image = self.cap.read()
@@ -81,10 +81,3 @@ class Video:
               "frames! (" + str(self.fps) + " FPS)")   
     """
 
-
-if __name__ == "__main__":
-    print('@@')
-    data = Video("data/sample1.mp4")
-    data.resize_by_ratio(.8,.8)
-    print(len(data.frame_array))
-    print(data.fps)

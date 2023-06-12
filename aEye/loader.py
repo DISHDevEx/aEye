@@ -1,4 +1,4 @@
-from video import Video
+from aEye.video import Video
 import boto3
 
 def loader(bucket=  'aeye-data-bucket', prefix='input_video/'):
