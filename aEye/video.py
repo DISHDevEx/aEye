@@ -8,11 +8,10 @@ class Video:
         file is the path name for the file
     """
 
-    def __init__(self,file ) -> None:
+    def __init__(self,file , title = None ) -> None:
         """name:str, codec: str, width: int, height: int, duration: float, frames: int"""
         self.file = file
         self.meta_data = 'insert by James'
-        #self.name = name
         #self.codec = codec
         #self.width = int(width)
         #self.height = int(height)
@@ -25,9 +24,7 @@ class Video:
         self.shape = self.image.shape
         self.width = self.shape[0]
         self.height = self.shape[1]
-        
-
-
+        self.title = title
 
 
     def resize_by_ratio(self, x_ratio, y_ratio):

@@ -10,7 +10,8 @@ def loader(bucket=  'aeye-data-bucket', prefix='input_video/'):
     for i in result["Contents"]:
         if i["Key"] == prefix:
             continue
-        url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': key } ,ExpiresIn=5)
-        video_list.append(Video(url))
-        
+        title = i["Key"].split(prefix)[1]
+        url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
+        video_list.append(Video(url, title))
+
     return video_list
