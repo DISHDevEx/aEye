@@ -4,21 +4,15 @@ import os
 
 class Video:
     """
-    @:constructor file
-        file is the path name for the file
+    @:constructor file, title
+        file is the path name for the video file,
+        title is the title of the video if given
     """
 
     def __init__(self,file , title = None ) -> None:
-        """name:str, codec: str, width: int, height: int, duration: float, frames: int"""
         self.file = file
         self.meta_data = 'insert by James'
-        #self.codec = codec
-        #self.width = int(width)
-        #self.height = int(height)
-        #self.duration = float(duration)
-        #self.frames = int(frames)
-        #self.fps = self.frames / self.duration
-        #self.meta_data = 'insert by James'
+
         self.cap = cv2.VideoCapture(file)
         _ , self.image = self.cap.read()
         self.shape = self.image.shape
@@ -38,21 +32,25 @@ class Video:
 
         """
 
-        
-
+        #convert ratio into actual dimension 
         new_width = int(self.width * x_ratio )
         new_height = int(self.height * y_ratio )
         dim = (new_width, new_height)
 
+        #using cv2 encode the saved video as mp4
         fourcc = cv2.VideoWriter.fourcc(*'mp4v')
         out = cv2.VideoWriter('data/out_put' +self.title, fourcc, 30.0, dim)
-        
+
+        #loop through each frame and resizing it by on the parameter ratio
+        #right now, this function also writes the new video (I will update and change it later)
         while True:
             _ ,image = self.cap.read()
+            #if there is no more frames, break from this loop
             if image is None:
                 break
             resized = cv2.resize(image , dim, interpolation = cv2.INTER_AREA)
             out.write(resized)
+            
         out.release()
         self.cap.release()
         
@@ -68,16 +66,4 @@ class Video:
 
     def write_video(self,path):
         """write output video """
-
-
-    """
-    def getSize(self):
-        print("Video Resolution:", self.width, 'x', self.height)
-
-    def getVideoDetails(self):
-        print("Metadata for video: " + self.name)
-        self.getSize()
-        print("Encoding Format:", self.codec, "Duration (s):", self.duration, "with a total of", self.frames,
-              "frames! (" + str(self.fps) + " FPS)")   
-    """
 
