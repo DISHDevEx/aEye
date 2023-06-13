@@ -1,2 +1,2 @@
 from video import Video
-from loader import loader
+from processor import Processor
