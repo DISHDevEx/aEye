@@ -86,7 +86,7 @@ class Processor:
  
             response = s3.upload_file( path, bucket,  path)
             os.remove(path)
-
+        print("successfully upload the output files and remove them from local machine")
 
 
 
