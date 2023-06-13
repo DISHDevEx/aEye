@@ -50,11 +50,22 @@ class Video:
     #    self.cap.release()
             
  
-
             
     def write_video(self,path):
-        """write output video """
+        """
+        This method will write the video into local machine
+
+        input:
+            path: STRING
+            the desired for video file to be at
+        
+        """
 
         fourcc = cv2.VideoWriter.fourcc(*'mp4v')
         out = cv2.VideoWriter(path, fourcc, self.fps, (self.width,self.height))
 
+    def cleanup(self):
+        """
+        This method will release the current view of video object from RAM
+        """
+        self.cap.release()
