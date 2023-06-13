@@ -27,11 +27,20 @@ class Video:
         self.split_interval = 0
 
     def getfile(self):
+        """
+        getter method for file path
+        """
         return self.file
 
-    def splitclips(self, interval):
+    def split_clips(self, interval):
+        """
+        sets the split interval of the object so it
+        can be accessed by the subprocess it sends it
+        down to
+        """
         self.split_interval = interval
         exec(open("/Users/James.Fagan/Desktop/git/aEye/aEye/split.py").read())
+        # stdout.PIPE this shit into something useful !!!!
 
     def resize_by_ratio(self, x_ratio, y_ratio):
         """
@@ -88,7 +97,8 @@ class Video:
 if __name__ == "__main__":
     print('@@')
     data = Video("/Users/James.Fagan/Documents/longvid.mp4")
-    data.splitclips(12)
+    x = data.split_clips(10)
+
     # data.resize_by_ratio(.8,.8)
     # print(len(data.frame_array))
     # print(data.fps)
