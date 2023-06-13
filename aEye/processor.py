@@ -166,15 +166,10 @@ class Processor:
 
         for video in self.video_list:
 
-<<<<<<< HEAD
             path = 'modified/output_' + video.title
             response = self._s3.upload_file( path, bucket,  path)
 
             #This will delete all file from RAM and local machine.
-=======
- 
-            response = s3.upload_file( path, bucket,  path)
->>>>>>> 529393a (fixed resizing method)
             os.remove(path)
             video.cleanup()
 
