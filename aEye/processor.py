@@ -6,16 +6,12 @@ Module contains the Processor class that, loads, uploads, and facilitates all vi
 import boto3
 import os
 import cv2
-<<<<<<< HEAD
 import logging
-=======
->>>>>>> 529393a (fixed resizing method)
 from aEye.video import Video
 
 class Processor:
 
     """
-<<<<<<< HEAD
     Processor is the class that works act a pipeline to load, process, and upload all video from S3 bucket.
 
     Attributes
@@ -42,10 +38,6 @@ class Processor:
         upload(bucket) -> None:
             Upload the modified video to S3.
    
-=======
-    This Processor is the class that works act a pipeline to load, process, and upload all video from S3 bucket
-
->>>>>>> 9d81d49 (add docstring and comments)
     """
     def __init__(self) -> None:
         self.video_list = []
@@ -55,16 +47,11 @@ class Processor:
         self._s3 = boto3.client('s3')
 
     
-<<<<<<< HEAD
     def load(self, bucket=  'aeye-data-bucket', prefix='input_video/') -> list:
-=======
-    def loader(self, bucket=  'aeye-data-bucket', prefix='input_video/'):
->>>>>>> 9d81d49 (add docstring and comments)
         """
         This method will load the video files from S3 and save them 
         into a list of video classes. 
 
-<<<<<<< HEAD
          Parameters
         ----------
             bucket: string
@@ -76,37 +63,22 @@ class Processor:
         -------
             video_list: list
                 The list of all video files loaded from S3 bucket.
-=======
-        input:
-            bucket: STRING
-                this is the bucket name
-            prefix: STRING
-                this is the folder in the bucket
->>>>>>> 9d81d49 (add docstring and comments)
         """
 
         result = self._s3.list_objects(Bucket = bucket, Prefix = prefix)
 
         for i in result["Contents"]:
 
-<<<<<<< HEAD
 
                        
             #When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
             #This if-statement is to skip over the folder object since we are only interested in the video files.
-=======
->>>>>>> 9d81d49 (add docstring and comments)
             if i["Key"] == prefix:
                 continue
 
             title = i["Key"].split(prefix)[1]
-<<<<<<< HEAD
             #In order to convert video file from S3 to cv2 video class, we need its url.
             url = self._s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
-=======
-            #in order to convert video file from S3 to cv2 video class, we need its url
-            url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
->>>>>>> 9d81d49 (add docstring and comments)
             self.video_list.append(Video(url, title))
 
         logging.info(f"Successfully loaded video data from {bucket}")
@@ -117,24 +89,8 @@ class Processor:
 
     def resize_by_ratio(self, x_ratio = .8, y_ratio = .8) -> None:
         """
-<<<<<<< HEAD
         This method will resize the video by multiplying the width by x_ratio and height by y_ratio.
         Both values have to be non negative and non zero value.
-=======
-        this method will resize the current video by multiplying 
-        the current x and y by the input x_ratio 
-
-        input: 
-            x_ratio: FLOAT
-                the ratio for x/width value
-            y_ratio: FLOAT
-                the ratio for y/height value
-
-            
-        both has to be non negative and non zero value
-
-        currently version also write the resized video
->>>>>>> 9d81d49 (add docstring and comments)
 
         Parameters
         ----------
@@ -146,11 +102,7 @@ class Processor:
         
         """
 
-<<<<<<< HEAD
         #This will loop to the list of videos to apply the resizing feature. 
-=======
-        #go to each video to apply resizing
->>>>>>> 9d81d49 (add docstring and comments)
         for video in self.video_list:
 
             new_width = int(video.width * x_ratio )
