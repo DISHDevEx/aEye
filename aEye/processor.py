@@ -6,7 +6,10 @@ Module contains the Processor class that, loads, uploads, and facilitates all vi
 import boto3
 import os
 import cv2
+<<<<<<< HEAD
 import logging
+=======
+>>>>>>> 529393a (fixed resizing method)
 from aEye.video import Video
 
 class Processor:
@@ -80,6 +83,7 @@ class Processor:
             #In order to convert video file from S3 to cv2 video class, we need its url.
             url = self._s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
             self.video_list.append(Video(url, title))
+            print("///")
 
         logging.info(f"Successfully loaded video data from {bucket}")
         logging.info(f"There are total of {len(self.video_list)} video files")
@@ -162,10 +166,15 @@ class Processor:
 
         for video in self.video_list:
 
+<<<<<<< HEAD
             path = 'modified/output_' + video.title
             response = self._s3.upload_file( path, bucket,  path)
 
             #This will delete all file from RAM and local machine.
+=======
+ 
+            response = s3.upload_file( path, bucket,  path)
+>>>>>>> 529393a (fixed resizing method)
             os.remove(path)
             video.cleanup()
 
