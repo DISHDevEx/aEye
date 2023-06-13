@@ -1,7 +1,8 @@
 import ast
 import cv2
 import subprocess
-
+from extractmd import extract_metadata
+from split import split_on_time
 
 class Video:
     """
@@ -12,11 +13,7 @@ class Video:
     def __init__(self, file) -> None:
         """name:str, codec: str, width: int, height: int, duration: float, frames: int"""
         self.file = file
-        self.meta_data = subprocess.run(["python", "/Users/James.Fagan/Desktop/git/aEye/aEye/extractmd.py"],
-                                        capture_output=True, text=True).stdout
-        self.codec = (ast.literal_eval(self.meta_data)['streams'][0]['codec_name'])
-        self.duration = (ast.literal_eval(self.meta_data)["streams"][0]['duration'])
-        self.frames = ast.literal_eval(self.meta_data)["streams"][0]['nb_frames']
+        self.meta_data = None
         self.cap = cv2.VideoCapture(file)
         _, self.image = self.cap.read()
         self.shape = self.image.shape
@@ -26,9 +23,20 @@ class Video:
         self.frame_array = []
         self.split_interval = 0
 
+
+    def get_metadata(self):
+        self.meta_data = extract_metadata(self.file)
+        print(self.meta_data)
+
+    def get_codec(self):
+        return self.meta_data['streams'][0]['codec_name']
+
+    def get_duration(self):
+        return self.meta_data['streams'][0]['duration']
+
     def getfile(self):
         """
-        getter method for file path
+        returns da file path
         """
         return self.file
 
@@ -40,7 +48,15 @@ class Video:
         """
         self.split_interval = interval
         exec(open("/Users/James.Fagan/Desktop/git/aEye/aEye/split.py").read())
+        split_on_time(interval,self.file)
         # stdout.PIPE this shit into something useful !!!!
+
+    def pipe_test(self):
+        cmd = "cat test | ffprobe -i pipe:0"
+        out = subprocess.check_output(cmd, shell=True)
+        print("NO WAY THIS WORKS YET: ",out)
+
+
 
     def resize_by_ratio(self, x_ratio, y_ratio):
         """
@@ -97,8 +113,9 @@ class Video:
 if __name__ == "__main__":
     print('@@')
     data = Video("/Users/James.Fagan/Documents/longvid.mp4")
-    x = data.split_clips(10)
-
+    data.get_metadata()
+    data.split_clips(10)
+    #data.pipe_test()
     # data.resize_by_ratio(.8,.8)
     # print(len(data.frame_array))
     # print(data.fps)
