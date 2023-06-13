@@ -19,51 +19,25 @@ class Video:
         self.width = self.shape[0]
         self.height = self.shape[1]
         self.title = title
-        self.frame_array = None
+        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+        self.frame_array = []
 
 
-    def resize_by_ratio(self, x_ratio, y_ratio):
-        """
-        this method will resize the current video by multiplying 
-        the current x and y by the input x_ratio 
+    def set_dim(self,dim):
+        self.shape = dim
+        self.width = self.shape[0]
+        self.height = self.shape[1]
 
-        input: FLOAT
-        non negative and non zero value
-
-        """
-
-        #convert ratio into actual dimension 
-        new_width = int(self.width * x_ratio )
-        new_height = int(self.height * y_ratio )
-        dim = (new_width, new_height)
-
-        #using cv2 encode the saved video as mp4
-        fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-        out = cv2.VideoWriter('data/out_put' +self.title, fourcc, 30.0, dim)
-
-        #loop through each frame and resizing it by on the parameter ratio
-        #right now, this function also writes the new video (I will update and change it later)
-        while True:
-            _ ,image = self.cap.read()
-            #if there is no more frames, break from this loop
-            if image is None:
-                break
-            resized = cv2.resize(image , dim, interpolation = cv2.INTER_AREA)
-            out.write(resized)
-            
-        out.release()
-        self.cap.release()
         
-    def extract_time_frame(self):
-        """
-        this method will extract frames with time
-        """
+    def set_frame_array(self, array):
+        self.frame_array = array
 
-    def extract_index_frame(self):
-        """
-        this method will extract frames with index
-        """
+    def get_frame_array(self):
+        return self.frame_array
 
     def write_video(self,path):
         """write output video """
+
+        fourcc = cv2.VideoWriter.fourcc(*'mp4v')
+        out = cv2.VideoWriter(path, fourcc, self.fps, (self.width,self.height))
 
