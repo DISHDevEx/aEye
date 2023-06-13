@@ -1,5 +1,6 @@
 import boto3
 import os
+import cv2
 from aEye.video import Video
 
 class Processor:
@@ -33,10 +34,12 @@ class Processor:
 
             #in order to convert video file from S3 to cv2 video class, we need its url
             url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
+            print("@@@")
             self.video_list.append(Video(url, title))
+            print("///")
 
         print("Successfully loaded video data from " + bucket)
-        print("There are total of " + len(self.video_list) + " video files")
+        print("There are total of " + str(len(self.video_list)) + " video files")
 
 
     def resize_by_ratio(self, x_ratio, y_ratio):
@@ -48,22 +51,30 @@ class Processor:
 
         """
 
-        #convert ratio into actual dimension 
-        new_width = int(self.width * x_ratio )
-        new_height = int(self.height * y_ratio )
-        dim = (new_width, new_height)
+
 
         for video in self.video_list:
-            frame_list = video.get_frame_array()
-            temp = []
-
-
-            for frame in frame_list:
-                resized = cv2.resize(frame , dim, interpolation = cv2.INTER_AREA)
-                temp.append(resized)
+            new_width = int(video.width * x_ratio )
+            new_height = int(video.height * y_ratio )
+            dim = (new_width, new_height)
             
-            video.set_frame_array(temp)
+            fourcc = cv2.VideoWriter.fourcc(*'mp4v')
+            out = cv2.VideoWriter('data/out_put_' +video.title, fourcc, 30.0, dim)
+            
+            while True:
+                _ ,image = video.cap.read()
+                if image is None:
+                    break
+                resized = cv2.resize(image , dim, interpolation = cv2.INTER_AREA)
+ 
+                out.write(resized)
+
+            out.release()
+            video.cap.release()
+
+
             video.set_dim(dim)
+        print("successfully resized all video by ratio of " + str(x_ratio) + " and " + str(y_ratio))
 
 
     def upload(self, bucket=  'aeye-data-bucket'):
@@ -72,7 +83,7 @@ class Processor:
         for video in self.video_list:
             path = 'data/out_put_' + video.title
 
-            video.write_video(path)
+ 
             response = s3.upload_file( path, bucket,  path)
             os.remove(path)
 
