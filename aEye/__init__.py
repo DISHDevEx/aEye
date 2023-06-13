@@ -1,3 +1,2 @@
-#from aEye import video, extractmd, split
-from .video import Video
-from .extract import *
+from video import Video
+from processor import Processor
