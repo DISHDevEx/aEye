@@ -7,7 +7,6 @@ import numpy as np
 
 class Video:
     """
-<<<<<<< HEAD
     Video class stores all relevant informations from video file.
 
     Attributes
@@ -44,25 +43,15 @@ class Video:
             Clean up memory from cv2 video capture.
 
 
-=======
-    @:constructor file, title
-        file is the path name for the video file,
-        title is the title of the video if given
->>>>>>> 4b229f3 (add more comments)
     """
 
     def __init__(self,file , title = None ) -> None:
         self.file = file
         self.meta_data = 'insert by James'
 
-<<<<<<< HEAD
         self.capture = cv2.VideoCapture(file)
 
         _ , self.image = self.capture.read()
-=======
-        self.cap = cv2.VideoCapture(file)
-        _ , self.image = self.cap.read()
->>>>>>> 4b229f3 (add more comments)
         self.shape = self.image.shape
         self.width = self.shape[0]
         self.height = self.shape[1]
@@ -121,12 +110,27 @@ class Video:
     #    self.cap.release()
             
  
-
             
     def write_video(self,path):
+<<<<<<< HEAD
         """write output video """
 >>>>>>> 18f9ed4 (modified processor into a class)
+=======
+        """
+        This method will write the video into local machine
+
+        input:
+            path: STRING
+            the desired for video file to be at
+        
+        """
+>>>>>>> 9d81d49 (add docstring and comments)
 
         fourcc = cv2.VideoWriter.fourcc(*'mp4v')
         out = cv2.VideoWriter(path, fourcc, self.fps, (self.width,self.height))
 
+    def cleanup(self):
+        """
+        This method will release the current view of video object from RAM
+        """
+        self.cap.release()
