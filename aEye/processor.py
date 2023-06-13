@@ -39,6 +39,8 @@ class Processor:
             Upload the modified video to S3.
    
     """
+    def __init__(self) -> None:
+        self.video_list = []
 
     def __init__(self) -> None:
         self.video_list = []

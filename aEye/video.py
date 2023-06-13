@@ -68,6 +68,7 @@ class Video:
         self.height = self.shape[1]
 
         self.title = title
+<<<<<<< HEAD
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
 
             
@@ -88,4 +89,27 @@ class Video:
         This method will release the current view of video object from RAM.
         """
         self.capture.release()
+=======
+        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+        self.frame_array = []
+
+
+    def set_dim(self,dim):
+        self.shape = dim
+        self.width = self.shape[0]
+        self.height = self.shape[1]
+
+        
+    def set_frame_array(self, array):
+        self.frame_array = array
+
+    def get_frame_array(self):
+        return self.frame_array
+
+    def write_video(self,path):
+        """write output video """
+>>>>>>> 18f9ed4 (modified processor into a class)
+
+        fourcc = cv2.VideoWriter.fourcc(*'mp4v')
+        out = cv2.VideoWriter(path, fourcc, self.fps, (self.width,self.height))
 
