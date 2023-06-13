@@ -84,7 +84,7 @@ class Processor:
             video.cleanup()
 
 
-            video.set_dim(dim)
+            #video.set_dim(dim)
         print("successfully resized all video by ratio of " + str(x_ratio) + " and " + str(y_ratio))
 
 
