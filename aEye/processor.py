@@ -1,6 +1,7 @@
 import boto3
 import os
 import cv2
+import logging
 from aEye.video import Video
 
 class Processor:
@@ -38,8 +39,11 @@ class Processor:
             url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
             self.video_list.append(Video(url, title))
 
-        print("Successfully loaded video data from " + bucket)
-        print("There are total of " + str(len(self.video_list)) + " video files")
+        logging.info(f"Successfully loaded video data from {bucket}")
+        logging.info(f"There are total of {len(self.video_list)} video files")
+
+        print(f"Successfully loaded video data from {bucket}")
+        print(f"There are total of {len(self.video_list)} video files")
 
 
     def resize_by_ratio(self, x_ratio, y_ratio):
@@ -85,7 +89,8 @@ class Processor:
 
 
             #video.set_dim(dim)
-        print("successfully resized all video by ratio of " + str(x_ratio) + " and " + str(y_ratio))
+        logging.info(
+        print(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
 
 
     def upload(self, bucket=  'aeye-data-bucket'):
@@ -108,6 +113,7 @@ class Processor:
             os.remove(path)
             video.cleanup()
 
+        logging.info("successfully upload the output files and remove them from local machine")
         print("successfully upload the output files and remove them from local machine")
 
 
