@@ -24,10 +24,10 @@ git clone https://github.com/DISHDevEx/aEye.git
 2. Install the necessary requirements
 
 ```console
-!pip install -r requirement.txt
+!pip install -r requirements.txt
 ```
 
-3. Run below in jyputer-notebook to import
+3. Run below to import in jyputer-notebook
 
 ```console
 import boto3
@@ -39,7 +39,7 @@ from aEye.processor import Processor
 4. Initalize the processor class
 
 ```console
-P = processor()
+P = Processor()
 ```
 
 5. Load the video from the desired bucket and folder and resize them to desired ratio
