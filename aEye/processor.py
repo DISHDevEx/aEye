@@ -14,7 +14,7 @@ class Processor:
         self.video_list = []
 
     
-    def loader(self, bucket=  'aeye-data-bucket', prefix='input_video/'):
+    def load(self, bucket=  'aeye-data-bucket', prefix='input_video/'):
         """
         This function will load the video data from S3 and save them 
         into a list of video class. 
@@ -46,7 +46,7 @@ class Processor:
         print(f"There are total of {len(self.video_list)} video files")
 
 
-    def resize_by_ratio(self, x_ratio, y_ratio):
+    def resize_by_ratio(self, x_ratio = .8, y_ratio = .8):
         """
         this method will resize the current video by multiplying 
         the current x and y by the input x_ratio 
@@ -89,9 +89,13 @@ class Processor:
 
 
             #video.set_dim(dim)
-        logging.info(
+        logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
         print(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
 
+    def load_and_resize(self, bucket=  'aeye-data-bucket', prefix='input_video/', x_ratio = .8, y_ratio = .8):
+
+        self.load(bucket,prefix)
+        self.resize_by_ratio(x_ratio,y_ratio)
 
     def upload(self, bucket=  'aeye-data-bucket'):
         """
