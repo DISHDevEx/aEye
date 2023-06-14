@@ -16,6 +16,7 @@ class Video:
         self.file = file
         self.meta_data = None
 
+
     def get_metadata(self):
         self.meta_data = extract_metadata(self.file)
 
@@ -27,6 +28,7 @@ class Video:
 
     def get_frames(self):
         return self.meta_data['streams'][0]['nb_frames']
+
 
     def getfile(self):
         """
@@ -46,6 +48,7 @@ class Video:
             split_on_time(interval, end, self.file)
 
     def split_by_frame(self, sframe, frame_dur=None):
+
         """
         Basically just a wrapper func for split stuff
         """
@@ -97,8 +100,12 @@ class Video:
             os.remove(os.path.join(path, f))
 
 
+
+
 if __name__ == "__main__":
     print('@@')
-    data = Video("/Users/James.Fagan/Documents/longvid.mp4")
+    data = Video("data/sample1.mp4")
     data.get_metadata()
-
+    data.resize_by_ratio(.8,.8)
+    print(len(data.frame_array))
+    print(data.fps)

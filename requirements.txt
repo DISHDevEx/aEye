@@ -1,0 +1,3 @@
+boto3>=1.26.29
+opencv-python>=4.7.0.00
+numpy>=1.24.3
