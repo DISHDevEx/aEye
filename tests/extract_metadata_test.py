@@ -1,5 +1,5 @@
 from aEye import Video
-from aEye import MetaData
+from aEye import *
 
 
 mdCheck = "{'streams': [{'index': 0, 'codec_name': 'h264', 'codec_long_name': 'H.264 / AVC / MPEG-4 AVC / MPEG-4 part "\
@@ -32,6 +32,6 @@ mdCheck = "{'streams': [{'index': 0, 'codec_name': 'h264', 'codec_long_name': 'H
           "'2019-11-19T16:35:35.000000Z'}}}\n"
 
 new_vid_obj = Video("/Users/James.Fagan/Documents/longvid.mp4")
-tocheck = MetaData.extract_metadata(new_vid_obj.getfile())
+tocheck = extract_metadata(new_vid_obj.getfile())
 assert(tocheck == mdCheck)
 

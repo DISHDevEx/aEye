@@ -1,7 +1,8 @@
 import os
 import cv2
-from extractmd import MetaData
+from extract import *
 from split import *
+from crop import *
 
 
 class Video:
@@ -16,7 +17,7 @@ class Video:
         self.meta_data = None
 
     def get_metadata(self):
-        self.meta_data = MetaData.extract_metadata(self.file)
+        self.meta_data = extract_metadata(self.file)
 
     def get_codec(self):
         return self.meta_data['streams'][0]['codec_name']
@@ -53,6 +54,15 @@ class Video:
         else:
             split_on_frame(sframe, frame_dur, self)
 
+    def crop_section(self, width, height, start_x, start_y):
+        crop_video_section(width, height, start_x, start_y, self)
+
+    def extract_time_frame(self, time):
+        extract_frame_at_time(time, self)
+
+    def extract_by_frame(self, frame):
+        extract_frame_at_frame(frame, self)
+
     def resize_by_ratio(self, x_ratio, y_ratio):
         """
         this method will resize the current video by multiplying
@@ -80,18 +90,6 @@ class Video:
         out.release()
         self.cap.release()
 
-    def extract_time_frame(self):
-        """
-        this method will extract frames with time
-        """
-
-    def extract_index_frame(self):
-        """
-        this method will extract frames with index
-        """
-
-    def write_video(self, path):
-        """write output video """
 
     def flush_output(self):
         path = 'outputs'
@@ -103,7 +101,4 @@ if __name__ == "__main__":
     print('@@')
     data = Video("/Users/James.Fagan/Documents/longvid.mp4")
     data.get_metadata()
-    data.split_by_time(10, 12)
-    # data.resize_by_ratio(.8,.8)
-    # print(len(data.frame_array))
-    # print(data.fps)
+
