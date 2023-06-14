@@ -12,6 +12,7 @@ class Processor:
     """
     def __init__(self) -> None:
         self.video_list = []
+        self.pipeline = ['ffmpeg']
 
     
     def load(self, bucket=  'aeye-data-bucket', prefix='input_video/'):

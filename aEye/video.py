@@ -14,38 +14,14 @@ class Video:
 
         self.cap = cv2.VideoCapture(file)
 
-        self.width = self.cap.CV_CAP_PROP_FRAME_WIDTH
-        self.height = self.cap.CAP_PROP_FRAME_HEIGHT
+        _ , self.image = self.cap.read()
+        self.shape = self.image.shape
+        self.width = self.shape[0]
+        self.height = self.shape[1]
+
         self.title = title
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.frame_array = []
-        
-
-        
-        
-
-    
-    #def set_dim(self,dim):
-    #    self.shape = dim
-    #    self.width = self.shape[0]
-    #    self.height = self.shape[1]
-
-        
-    #def set_frame_array(self, array):
-    #    self.frame_array = array
-
-    #def get_frame_array(self):
-    #    return self.frame_array
-    
-    #def reset_frame_array(self):
-    #    self.frame_array = []
-    #    self.cap = cv2.VideoCapture(self.file)
-    #    while True:
-    #        _ ,frame = self.cap.read()
-    #        if frame is None:
-    #            break
-    #        self.frame_array.append(frame)
-    #    self.cap.release()
             
  
             
