@@ -57,7 +57,6 @@ class Video:
         self.height = self.shape[1]
 
         self.title = title
-<<<<<<< HEAD
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
 
             
@@ -78,7 +77,6 @@ class Video:
         This method will release the current view of video object from RAM.
         """
         self.capture.release()
-=======
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.frame_array = []
         
@@ -112,10 +110,7 @@ class Video:
  
             
     def write_video(self,path):
-<<<<<<< HEAD
-        """write output video """
->>>>>>> 18f9ed4 (modified processor into a class)
-=======
+
         """
         This method will write the video into local machine
 
@@ -124,7 +119,6 @@ class Video:
             the desired for video file to be at
         
         """
->>>>>>> 9d81d49 (add docstring and comments)
 
         fourcc = cv2.VideoWriter.fourcc(*'mp4v')
         out = cv2.VideoWriter(path, fourcc, self.fps, (self.width,self.height))
@@ -134,3 +128,8 @@ class Video:
         This method will release the current view of video object from RAM
         """
         self.cap.release()
+
+    def update(self,file, title):
+        self.file = file
+        self.cap = cv2.VideoCapture(file)
+        self.title = title
