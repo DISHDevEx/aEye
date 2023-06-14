@@ -10,6 +10,7 @@ Extensible Video Processing Framework with Additional Features Continuously Depl
 │   ├── video.py
 ├──  tests				contains unit tests
 │   ├── test.py
+├──  data				contains a temp location for video to save before deleting and uploading to S3
 ```
 
 ### **inital project setup**
@@ -44,7 +45,7 @@ P = processor()
 5. Load the video from the desired bucket and folder and resize them to desired ratio
 
 ```console
-P.load(bucket = 'aeye-data-bucket', prefix = 'input_video/', x_ratio = .6, y_ratio = .5)
+P.load_and_resize(bucket = 'aeye-data-bucket', prefix = 'input_video/', x_ratio = .6, y_ratio = .5)
 ```
 
 6. Upload the result to the desire bucket
