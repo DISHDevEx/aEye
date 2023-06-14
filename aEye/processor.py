@@ -47,7 +47,7 @@ class Processor:
         self._s3 = boto3.client('s3')
 
     
-    def load(self, bucket=  'aeye-data-bucket', prefix='input_video/') -> list:
+    def load(self, bucket=  'aeye-data-bucket', prefix='input_video/'):
         """
         This method will load the video files from S3 and save them 
         into a list of video classes. 
@@ -87,7 +87,7 @@ class Processor:
         return self.video_list
 
 
-    def resize_by_ratio(self, x_ratio = .8, y_ratio = .8) -> None:
+    def resize_by_ratio(self, x_ratio = .8, y_ratio = .8):
         """
         This method will resize the video by multiplying the width by x_ratio and height by y_ratio.
         Both values have to be non negative and non zero value.
