@@ -1,2 +1,3 @@
 #from aEye import video, extractmd, split
 from .video import Video
+from .extractmd import MetaData
