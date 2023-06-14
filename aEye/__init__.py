@@ -1,2 +1,2 @@
-from video import Video
-from processor import Processor
+from aEye.video import Video
+from aEye.processor import Processor
