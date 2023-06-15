@@ -1,8 +1,12 @@
-import os
 import cv2
-from extract import *
-from split import *
-from crop import *
+from aEye.extract import (
+    extract_metadata,
+    cv_extract_frame_at_time,
+    extract_many_frames,
+    cv_extract_specific_frame,
+)
+from aEye.split import *
+from aEye.crop import *
 
 
 class Video:
@@ -12,21 +16,29 @@ class Video:
     """
 
     def __init__(self, file) -> None:
-        """name:str, codec: str, width: int, height: int, duration: float, frames: int"""
         self.file = file
         self.meta_data = None
+        self.cv_video = cv2.VideoCapture(file)
 
     def get_metadata(self):
         self.meta_data = extract_metadata(self.file)
 
     def get_codec(self):
-        return self.meta_data['streams'][0]['codec_name']
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["codec_name"]
+        else:
+            self.get_metadata()
+            self.get_codec()
 
     def get_duration(self):
-        return self.meta_data['streams'][0]['duration']
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["duration"]
+        else:
+            self.get_metadata()
+            self.get_duration()
 
     def get_frames(self):
-        return self.meta_data['streams'][0]['nb_frames']
+        return self.cv_video.get(cv2.CAP_PROP_FPS)
 
     def getfile(self):
         """
@@ -34,34 +46,41 @@ class Video:
         """
         return self.file
 
-    def split_by_time(self, interval, end=None):
+    def split_by_time(self, interval, end):
         """
-        sets the split interval of the object so it
-        can be accessed by the subprocess it sends it
-        down to
+        time split wrapper
         """
-        if (end is None):
-            split_on_time(interval, self.file)
-        else:
-            split_on_time(interval, end, self.file)
+        split_on_time(interval, end, self.file)
 
-    def split_by_frame(self, sframe, frame_dur=None):
+    def split_interval(self, interval):
         """
-        Basically just a wrapper func for split stuff
+        Split video into interval long clips
         """
-        if frame_dur is None:
-            split_on_frame(sframe, self)
-        else:
-            split_on_frame(sframe, frame_dur, self)
+        split_on_interval(interval, self)
+
+    def split_on_frame(self, frame):
+        """
+        capture everything after frome
+        """
+        split_on_frame(frame, self)
+
+    def split_by_frames(self, sframe, frame_dur):
+        """
+        starting @ sframe, capture the next frame_dur frames
+        """
+        split_on_frame(sframe, frame_dur, self)
 
     def crop_section(self, width, height, start_x, start_y):
         crop_video_section(width, height, start_x, start_y, self)
 
     def extract_time_frame(self, time):
-        extract_frame_at_time(time, self)
+        cv_extract_frame_at_time(time, self.cv_video)  # need to specify for cv
 
     def extract_by_frame(self, frame):
-        extract_frame_at_frame(frame, self)
+        cv_extract_specific_frame(frame, self.cv_video)
+
+    def extract_frames(self, start_frame, num_frames):
+        extract_many_frames(start_frame, num_frames, self)
 
     def resize_by_ratio(self, x_ratio, y_ratio):
         """
@@ -77,8 +96,8 @@ class Video:
         new_height = int(self.height * y_ratio)
         dim = (new_width, new_height)
 
-        fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-        out = cv2.VideoWriter('data/output.mp4', fourcc, 30.0, dim)
+        fourcc = cv2.VideoWriter.fourcc(*"mp4v")
+        out = cv2.VideoWriter("data/output.mp4", fourcc, 30.0, dim)
 
         while True:
             _, image = self.cap.read()
@@ -90,15 +109,35 @@ class Video:
         out.release()
         self.cap.release()
 
-
     def flush_output(self):
-        path = 'outputs'
+        """
+        static method to clear outputs because I get lazy
+        probably a temp thing
+        """
+        path = "outputs"
         for f in os.listdir(path):
             os.remove(os.path.join(path, f))
 
+    def cmd_multi_test(self):
+        """
+        Tests multiple commands, just gonna leave it here to figure it out for
+        real later
+        """
+        cmds = [
+            f"ffmpeg -y -i {self.getfile()} -v quiet -filter:v 'crop={600}:{400}:{1000}:{200}' "
+            f"-c:a copy outputs/domore.mp4",
+            f"ffmpeg -y -ss {15} -i outputs/domore.mp4 -v quiet -t {10} "
+            f"-c copy outputs/timesplit.mp4",
+        ]
+        for cmd in cmds:
+            subprocess.call(cmd, shell=True)
+        print("Done, output timesplit should also be cropped")
+
 
 if __name__ == "__main__":
-    print('@@')
-    data = Video("/Users/James.Fagan/Documents/longvid.mp4")
+    print("@@")
+    data = Video("inputs/testVid.mp4")
     data.get_metadata()
-
+    data.extract_by_frame(544)
+    data.extract_time_frame(12)
+    data.split_interval(10)
