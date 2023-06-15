@@ -1,6 +1,10 @@
 import cv2
-from aEye.extract import extract_metadata,  cv_extract_frame_at_time, \
-    extract_many_frames, cv_extract_specific_frame
+from aEye.extract import (
+    extract_metadata,
+    cv_extract_frame_at_time,
+    extract_many_frames,
+    cv_extract_specific_frame,
+)
 from aEye.split import *
 from aEye.crop import *
 
@@ -119,9 +123,12 @@ class Video:
         Tests multiple commands, just gonna leave it here to figure it out for
         real later
         """
-        cmds = [f"ffmpeg -y -i {self.getfile()} -v quiet -filter:v 'crop={600}:{400}:{1000}:{200}' "
-                f"-c:a copy outputs/domore.mp4", f"ffmpeg -y -ss {15} -i outputs/domore.mp4 -v quiet -t {10} "
-                                                 f"-c copy outputs/timesplit.mp4"]
+        cmds = [
+            f"ffmpeg -y -i {self.getfile()} -v quiet -filter:v 'crop={600}:{400}:{1000}:{200}' "
+            f"-c:a copy outputs/domore.mp4",
+            f"ffmpeg -y -ss {15} -i outputs/domore.mp4 -v quiet -t {10} "
+            f"-c copy outputs/timesplit.mp4",
+        ]
         for cmd in cmds:
             subprocess.call(cmd, shell=True)
         print("Done, output timesplit should also be cropped")
@@ -134,5 +141,3 @@ if __name__ == "__main__":
     data.extract_by_frame(544)
     data.extract_time_frame(12)
     data.split_interval(10)
-
-

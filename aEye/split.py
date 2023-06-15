@@ -19,8 +19,10 @@ def split_on_interval(interval, video):
     will produce 5 outputs: 4 ten second clips, and one three second long one, rather than filling with
     black space. *Probably can be changed if need be but idk why you'd want that?
     """
-    cmd = f"{ffmpeg} -y -i {video.getfile()} -c copy -v quiet -map 0 -segment_time {interval} " \
-           f"-f segment -reset_timestamps 1 outputs/output%02d.mp4"
+    cmd = (
+        f"{ffmpeg} -y -i {video.getfile()} -c copy -v quiet -map 0 -segment_time {interval} "
+        f"-f segment -reset_timestamps 1 outputs/output%02d.mp4"
+    )
     subprocess.call(cmd, shell=True)
 
 
@@ -40,7 +42,7 @@ def split_on_frame(frame, video):
     split_on_frame(frame, video)
     Given a passed frame, this method will create a video starting at that specific
     frame and running all the way until the end. Again, might not be the stupidest idea to
-    add in some safety/edgecase stuff here
+    add in some safety/edge case stuff here
     """
     fps = float(video.get_frames()) / float(video.get_duration())
     time_stamp = frame / fps
@@ -58,6 +60,9 @@ def split_num_frames(start_frame, num_frames, video):
     """
     fps = float(video.get_frames()) / float(video.get_duration())
     time_stamp = start_frame / fps
-    cmd = f"{ffmpeg} -y -ss {str(time_stamp)} -i {video.getfile()} -v quiet -c:v libx264 -frames:v {num_frames} outputs/extract.mp4"
+    cmd = (
+        f"{ffmpeg} -y -ss {str(time_stamp)} -i {video.getfile()} -v quiet -c:v libx264 -frames:v {num_frames}"
+        f" outputs/extract.mp4"
+    )
     print("Encoding ", num_frames, " from ", start_frame)
     subprocess.call(cmd, shell=True)
