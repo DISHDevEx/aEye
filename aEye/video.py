@@ -71,15 +71,28 @@ class Video:
         split_on_frame(sframe, frame_dur, self)
 
     def crop_section(self, width, height, start_x, start_y):
+        """
+        Crops a width x height section starting at x, y
+        """
         crop_video_section(width, height, start_x, start_y, self)
 
     def extract_time_frame(self, time):
+        """
+        Grabs a frame at a given time using OpenCV (faster than FFMpeg)
+        """
         cv_extract_frame_at_time(time, self.cv_video)  # need to specify for cv
 
     def extract_by_frame(self, frame):
+        """
+        Given a specific frame, extract that frame.
+        """
         cv_extract_specific_frame(frame, self.cv_video)
 
     def extract_frames(self, start_frame, num_frames):
+        """
+        Extracts num_frames from start, still works using FFMpeg, need
+        to test and see if openCv runs this faster.
+        """
         extract_many_frames(start_frame, num_frames, self)
 
     def resize_by_ratio(self, x_ratio, y_ratio):

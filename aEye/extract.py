@@ -51,6 +51,9 @@ def cv_extract_frame_at_time(time, cv_video):
 
 
 def cv_extract_specific_frame(frame, cv_video):
+    """
+    OpenCv method to grab a single frame (very cool)
+    """
     cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
     ret, output = cv_video.read()
     cv2.imwrite("outputs/cv2specific.png", output)

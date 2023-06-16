@@ -3,11 +3,9 @@ from static_ffmpeg import run
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 """
-Split Class:    Contains all utility to split up/trim video, both by time and by frame
+Split:    Contains all utility to split up/trim video, both by time and by frame
                 All method docs describe in further detail what they're supposed to do, and
                 all videos are sent to the outputs folder. 
-                *This was done bc only RAW Video can be moved via stdout, and I don't wanna pipe
-                 400 gigs of video ya dig?
 """
 
 
