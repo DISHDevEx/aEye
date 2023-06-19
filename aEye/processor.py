@@ -67,14 +67,15 @@ class Processor:
 
         for i in result["Contents"]:
 
-            #the prefix, aka folder object, which will pop up when we request from S3
-            #we only want the video object from the request
-            #this if-statement is to skip over prefix in S3
+
+                       
+            #When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
+            #This if-statement is to skip over the folder object since we are only interested in the video files.
             if i["Key"] == prefix:
                 continue
 
             title = i["Key"].split(prefix)[1]
-            #in order to convert video file from S3 to cv2 video class, we need its url
+            #In order to convert video file from S3 to cv2 video class, we need its url.
             url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
             self.video_list.append(Video(url, title))
 
@@ -99,7 +100,7 @@ class Processor:
         
         """
 
-        #go to each video to apply resizing
+        #This will loop to the list of videos to apply the resizing feature. 
         for video in self.video_list:
 
             new_width = int(video.width * x_ratio )
@@ -109,7 +110,7 @@ class Processor:
             fourcc = cv2.VideoWriter.fourcc(*'mp4v')
             out = cv2.VideoWriter('modified/out_put_' +video.title, fourcc, 30.0, dim)
             
-            #loop to each frames to resize
+            #This loops to each frame of a video and resizes the current dimension to the new dimension.
             while True:
                 _ ,image = video.cap.read()
 
@@ -162,7 +163,7 @@ class Processor:
             path = 'modified/output_' + video.title
             response = self._s3.upload_file( path, bucket,  path)
 
-            #delete all file from RAM and local machine
+            #This will delete all file from RAM and local machine.
             os.remove(path)
             video.cleanup()
 
