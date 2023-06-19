@@ -12,7 +12,7 @@ class Processor:
     """
     def __init__(self) -> None:
         self.video_list = []
-        self.pipeline = ['ffmpeg']
+        self._s3 = boto3.client('s3')
 
     
     def load(self, bucket=  'aeye-data-bucket', prefix='input_video/'):
@@ -27,11 +27,13 @@ class Processor:
                 this is the folder in the bucket
         """
 
-        s3 = boto3.client('s3')
-        result = s3.list_objects(Bucket = bucket, Prefix = prefix)
+        result = self._s3.list_objects(Bucket = bucket, Prefix = prefix)
 
         for i in result["Contents"]:
-
+            
+            #the prefix, aka folder object, which will pop up when we request from S3
+            #we only want the video object from the request
+            #this if-statement is to skip over prefix in S3
             if i["Key"] == prefix:
                 continue
 
@@ -43,8 +45,7 @@ class Processor:
         logging.info(f"Successfully loaded video data from {bucket}")
         logging.info(f"There are total of {len(self.video_list)} video files")
 
-        print(f"Successfully loaded video data from {bucket}")
-        print(f"There are total of {len(self.video_list)} video files")
+        return self.video_list
 
 
     def resize_by_ratio(self, x_ratio = .8, y_ratio = .8):
@@ -91,7 +92,6 @@ class Processor:
 
             #video.set_dim(dim)
         logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
-        print(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
 
     def load_and_resize(self, bucket=  'aeye-data-bucket', prefix='input_video/', x_ratio = .8, y_ratio = .8):
 
@@ -108,19 +108,20 @@ class Processor:
         
         """
 
-        s3 = boto3.client('s3')
+
         for video in self.video_list:
 
-            path = 'data/out_put_' + video.title
-            response = s3.upload_file( path, bucket,  path)
+            path = 'modified/output_' + video.title
+            response = self._s3.upload_file( path, bucket,  path)
 
             #delete all file from RAM and local machine
             os.remove(path)
             video.cleanup()
 
         logging.info("successfully upload the output files and remove them from local machine")
-        print("successfully upload the output files and remove them from local machine")
 
+        print("successfully upload the output files S3 bucket: s3://aeye-data-bucket/modified/")
+        print("successfully remove the output file from local machine")
 
 
 

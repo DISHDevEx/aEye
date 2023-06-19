@@ -12,7 +12,7 @@ class Video:
         self.file = file
         self.meta_data = 'insert by James'
 
-        self.cap = cv2.VideoCapture(file)
+        self.capture = cv2.VideoCapture(file)
 
         _ , self.image = self.cap.read()
         self.shape = self.image.shape
@@ -23,7 +23,8 @@ class Video:
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.frame_array = []
             
- 
+    def __repr__(self):
+        return self.title
             
     def write_video(self,path):
         """
