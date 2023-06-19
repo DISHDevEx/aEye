@@ -1,11 +1,48 @@
+"""
+Module contains the Video class that stores and represents video files as objects.
+
+"""
 import cv2
 import numpy as np
 
 class Video:
     """
-    @:constructor file, title
-        file is the path name for the video file,
-        title is the title of the video if given
+    Video class stores all relevant informations from video file.
+
+    Attributes
+    ----------
+        file: string
+            The path/file name of the video.
+
+        title: string
+            The title that represents the video file.
+
+        capture: cv2.VideoCapture
+            The video capture of the video file from cv2 package.
+
+        image: numpy.ndarray
+            The representaion of first frame of video file as numpy ndarray.
+
+        width: int
+            The width value of the video file.
+
+        height: int
+            The height value of the video file.
+        
+        fps: int
+            The fps of the video file.
+
+
+    Methods
+    -------
+    
+        __repr__() -> string:
+            A native python method to represent the Video class.
+
+        cleanup() -> None:
+            Clean up memory from cv2 video capture.
+
+
     """
 
     def __init__(self,file , title = None ) -> None:
@@ -21,31 +58,23 @@ class Video:
 
         self.title = title
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
-        self.frame_array = []
+
             
     def __repr__(self):
+        """
+        This method will implement the video title name as object representation.
+        
+        Returns
+        ---------
+            The title of video file.
+            
+        """
         return self.title
             
-    def write_video(self,path):
-        """
-        This method will write the video into local machine
 
-        input:
-            path: STRING
-            the desired for video file to be at
-        
+    def cleanup(self) -> None:
         """
-
-        fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-        out = cv2.VideoWriter(path, fourcc, self.fps, (self.width,self.height))
-
-    def cleanup(self):
+        This method will release the current view of video object from RAM.
         """
-        This method will release the current view of video object from RAM
-        """
-        self.cap.release()
+        self.capture.release()
 
-    def update(self,file, title):
-        self.file = file
-        self.cap = cv2.VideoCapture(file)
-        self.title = title
