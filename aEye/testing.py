@@ -9,7 +9,7 @@ if __name__ == "__main__":
     the sake of speed. Video join doesnt work currently. 
     """
     print("--- Video Processing Framework ---")
-    video = Video("inputs/testVid.mp4")
+    video = Video("testVid.mp4") # or path it to a local video file, idc 
     video.get_metadata()
     ### Test Video Functions ###
     # All video features come as methods to the Video object, use looks like
