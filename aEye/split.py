@@ -1,6 +1,6 @@
 import subprocess
 from static_ffmpeg import run
-
+import cv2
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 """
 Split:    Contains all utility to split up/trim video, both by time and by frame
@@ -64,3 +64,42 @@ def split_num_frames(start_frame, num_frames, video):
     )
     print("Encoding ", num_frames, " from ", start_frame)
     subprocess.call(cmd, shell=True)
+
+
+def join_videos(video_list):
+    """
+    WIP sorta works but is so slow it doesn't really work
+    """
+    cmd = ""
+    inputs = ""
+    mapping = ""
+    streams = 0
+    to_write = ""
+    far_cmd = 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2[v0]; [v0]'
+    for video in video_list:
+        video.get_metadata()
+        to_write += f"file '{video.getfile()}'\n"
+        inputs += "-i "+video.getfile()+" "
+        mapping += f"[{streams}:v]{far_cmd} [{streams}:a] "
+        streams += 1
+        far_cmd = ''
+    cmd = f"{ffmpeg} {inputs}-y -filter_complex '{mapping}concat=n={streams}:v=1:a=1 [v] [a]' " \
+          f"-map '[v]' -map '[a]' outputs/joined.mp4"
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+def cv_join(videos_list, fps, resolution):
+    """
+    WIP doesnt work
+    """
+    new_video = cv2.VideoWriter("new_video.mp4", cv2.VideoWriter_fourcc(*"MPEG"), fps, resolution)
+
+    for video in videos_list:
+        cur_v = cv2.VideoCapture(video)
+        while cur_v.isOpened():
+            r, frame = cur_v.read()
+            if not r:
+                break
+            new_video.write(frame)
+    new_video.release()

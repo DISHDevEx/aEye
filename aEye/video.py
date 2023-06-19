@@ -95,6 +95,10 @@ class Video:
         """
         extract_many_frames(start_frame, num_frames, self)
 
+    def join_videos(self, video_list):
+        #join_videos(video_list)
+        cv_join(video_list, 25, "1920x1080")
+
     def resize_by_ratio(self, x_ratio, y_ratio):
         """
         this method will resize the current video by multiplying
@@ -147,10 +151,4 @@ class Video:
         print("Done, output timesplit should also be cropped")
 
 
-if __name__ == "__main__":
-    print("@@")
-    data = Video("inputs/testVid.mp4")
-    data.get_metadata()
-    data.extract_by_frame(544)
-    data.extract_time_frame(12)
-    data.split_interval(10)
+
