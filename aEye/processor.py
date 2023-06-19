@@ -122,7 +122,7 @@ class Processor:
         logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
         print(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
     
-    def trimmed_from_for(self,star, duration):
+    def trimmed_from_for(self,start, duration):
         for video in self.video_list:
 
             video.add_mod(f"-ss {start} -t {duration} ")

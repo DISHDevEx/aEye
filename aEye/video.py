@@ -98,6 +98,6 @@ class Video:
         result = ''
         if '-vf' in self.modification:
             result += "resized_"
-        if '-ss' in self.modification
+        if '-ss' in self.modification:
             result += "trimmed_"
         return result + self.title
