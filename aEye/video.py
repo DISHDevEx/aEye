@@ -3,8 +3,11 @@ Module contains the Video class that stores and represents video files as object
 
 """
 import cv2
+impoty boto3
 import numpy as np
 
+
+s3 = boto3.client('s3')
 class Video:
     """
     Video class stores all relevant informations from video file.
@@ -45,8 +48,10 @@ class Video:
 
     """
 
-    def __init__(self,file , title = None ) -> None:
-        self.file = file
+    def __init__(self, bucket , key,  title = None ) -> None:
+        
+
+        '''
         self.meta_data = 'insert by James'
 
         self.capture = cv2.VideoCapture(file)
@@ -79,7 +84,12 @@ class Video:
         self.capture.release()
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.frame_array = []
-            
+        '''
+        self.bucket = bucket
+        self.key = key
+        self.title = title
+        self.meta_data = None
+        self.modification = ''
  
             
     def write_video(self,path):
@@ -106,3 +116,27 @@ class Video:
         self.file = file
         self.cap = cv2.VideoCapture(file)
         self.title = title
+    
+    
+    def get_meta_data(self):
+        self.meta_data = [1000,400]
+
+
+    def get_presigned_url(self):
+        url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=60)
+        return url
+    
+    def add_mod(self, mod):
+        self.modification += mod
+
+    def reset_mod(self):
+        self.modification = ''
+
+    def get_modification(self):
+        return self.modification
+    
+    def get_output_title(self):
+        result = ''
+        if '-r' in self.modification:
+            result += "resized"
+        return result + self.title
