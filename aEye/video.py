@@ -1,3 +1,7 @@
+"""
+Module contains the Video class that stores and represents video files as objects.
+
+"""
 import cv2
 import os
 import json
@@ -69,6 +73,15 @@ class Video:
         self.file = file
         self.meta_data = None
         self.cv_video = cv2.VideoCapture(file)
+        self.capture = cv2.VideoCapture(file)
+
+        _ , self.image = self.cap.read()
+        self.shape = self.image.shape
+        self.width = self.shape[0]
+        self.height = self.shape[1]
+        self.title = title
+        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+
 
     def extract_metadata(self):
         """
@@ -269,8 +282,19 @@ class Video:
 
         input: FLOAT
         non negative and non zero value
-
         """
+    def __repr__(self):
+    """
+    This method will implement the video title name as object representation.
+
+    Returns
+    ---------
+        The title of video file.
+
+    """
+    return self.title
+
+    def cleanup(self) -> None:
 
         new_width = int(self.width * x_ratio)
         new_height = int(self.height * y_ratio)
@@ -288,68 +312,3 @@ class Video:
             out.write(resized)
         out.release()
         self.cap.release()
-
-    ##############################################
-    #  TESTING FUNCTIONS BELOW, WORK IN PROGRESS #
-    ##############################################
-
-    def flush_output(self):
-        """
-        static method to clear outputs because I get lazy
-        probably a temp thing
-        """
-        path = "outputs"
-        for f in os.listdir(path):
-            os.remove(os.path.join(path, f))
-
-    def join_videos(self, video_list):
-        """
-        WIP sorta works but is so slow it doesn't really work
-        """
-        cmd = ""
-        inputs = ""
-        mapping = ""
-        streams = 0
-        to_write = ""
-        far_cmd = 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2[v0]; [v0]'
-        for video in video_list:
-            video.get_metadata()
-            to_write += f"file '{video.getfile()}'\n"
-            inputs += "-i " + video.getfile() + " "
-            mapping += f"[{streams}:v]{far_cmd} [{streams}:a] "
-            streams += 1
-            far_cmd = ''
-        cmd = f"{ffmpeg} {inputs}-y -filter_complex '{mapping}concat=n={streams}:v=1:a=1 [v] [a]' " \
-              f"-map '[v]' -map '[a]' outputs/joined.mp4"
-        print(cmd)
-        subprocess.call(cmd, shell=True)
-
-    def cv_join(self, videos_list, fps, resolution):
-        """
-        WIP doesnt work
-        """
-        new_video = cv2.VideoWriter("new_video.mp4", cv2.VideoWriter_fourcc(*"MPEG"), fps, resolution)
-
-        for video in videos_list:
-            cur_v = cv2.VideoCapture(video)
-            while cur_v.isOpened():
-                r, frame = cur_v.read()
-                if not r:
-                    break
-                new_video.write(frame)
-        new_video.release()
-
-    def cmd_multi_test(self):
-        """
-        Tests multiple commands, just gonna leave it here to figure it out for
-        real later
-        """
-        cmds = [
-            f"ffmpeg -y -i {self.getfile()} -v quiet -filter:v 'crop={600}:{400}:{1000}:{200}' "
-            f"-c:a copy outputs/domore.mp4",
-            f"ffmpeg -y -ss {15} -i outputs/domore.mp4 -v quiet -t {10} "
-            f"-c copy outputs/timesplit.mp4",
-        ]
-        for cmd in cmds:
-            subprocess.call(cmd, shell=True)
-        print("Done, output timesplit should also be cropped")
