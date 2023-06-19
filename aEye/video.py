@@ -3,11 +3,12 @@ Module contains the Video class that stores and represents video files as object
 
 """
 import cv2
-impoty boto3
+import boto3
 import subprocess
 import json
 import numpy as np
-
+from static_ffmpeg import run
+ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 s3 = boto3.client('s3')
 class Video:
@@ -95,6 +96,8 @@ class Video:
     
     def get_output_title(self):
         result = ''
-        if '-r' in self.modification:
+        if '-vf' in self.modification:
             result += "resized_"
+        if '-ss' in self.modification
+            result += "trimmed_"
         return result + self.title

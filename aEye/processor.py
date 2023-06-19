@@ -9,6 +9,7 @@ import cv2
 import logging
 from aEye.video import Video
 from static_ffmpeg import run
+import math
 import subprocess
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
@@ -112,23 +113,21 @@ class Processor:
         #This will loop to the list of videos to apply the resizing feature. 
         for video in self.video_list:
 
-            new_width = int(video.width * x_ratio )
-            new_height = int(video.height * y_ratio )
-            dim = (new_width, new_height)
-            
-            fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-            out = cv2.VideoWriter('modified/output_' +video.title, fourcc, 30.0, dim)
-            
-            #This loops to each frame of a video and resizes the current dimension to the new dimension.
-            while True:
-                _ ,image = video.capture.read()
-            video.get_metadada()
+            video.get_meta_data()
             new_width = int(video.meta_data['width'] * x_ratio )
             new_height = int(video.meta_data['height'] * y_ratio )
 
-            video.add_mod(f"-r 'scale={new_width}:{new_height},setsar=1:1'")
+            video.add_mod(f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
 
         logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
+        print(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
+    
+    def trimmed_from_for(self,star, duration):
+        for video in self.video_list:
+
+            video.add_mod(f"-ss {start} -t {duration} ")
+        print(f"Trimming from {start} for {duration} seconds" )
+
 
     def load_and_resize(self, bucket=  'aeye-data-bucket', prefix='input_video/', x_ratio = .8, y_ratio = .8) -> None:
         """
@@ -170,7 +169,7 @@ class Processor:
 
             #This will delete all file from RAM and local machine.
             os.remove(path)
-            video.cleanup()
+            #video.cleanup()
 
         logging.info("successfully upload the output files and remove them from local machine")
 
@@ -180,8 +179,9 @@ class Processor:
     def execute(self):
         
         for video in self.video_list:
-            command = f"{ffmpeg} -i '{video.get_presigned_url()}'" + video.get_modification() + video.get_output_title()
+            command = f"{ffmpeg} -i '{video.get_presigned_url()}' " + video.get_modification() + video.get_output_title()
             subprocess.run(command, shell=True)
+            print(command)
 
 
 
