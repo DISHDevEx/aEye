@@ -4,6 +4,8 @@ Module contains the Video class that stores and represents video files as object
 """
 import cv2
 impoty boto3
+import subprocess
+import json
 import numpy as np
 
 
@@ -49,62 +51,13 @@ class Video:
     """
 
     def __init__(self, bucket , key,  title = None ) -> None:
-        
-
-        '''
-        self.meta_data = 'insert by James'
-
-        self.capture = cv2.VideoCapture(file)
-
-        _ , self.image = self.capture.read()
-        self.shape = self.image.shape
-        self.width = self.shape[0]
-        self.height = self.shape[1]
-
-        self.title = title
-        self.fps = self.capture.get(cv2.CAP_PROP_FPS)
-
-            
-    def __repr__(self):
-        """
-        This method will implement the video title name as object representation.
-        
-        Returns
-        ---------
-            The title of video file.
-            
-        """
-        return self.title
-            
-
-    def cleanup(self) -> None:
-        """
-        This method will release the current view of video object from RAM.
-        """
-        self.capture.release()
-        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
-        self.frame_array = []
-        '''
         self.bucket = bucket
         self.key = key
         self.title = title
         self.meta_data = None
         self.modification = ''
  
-            
-    def write_video(self,path):
 
-        """
-        This method will write the video into local machine
-
-        input:
-            path: STRING
-            the desired for video file to be at
-        
-        """
-
-        fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-        out = cv2.VideoWriter(path, fourcc, self.fps, (self.width,self.height))
 
     def cleanup(self):
         """
@@ -112,24 +65,29 @@ class Video:
         """
         self.cap.release()
 
-    def update(self,file, title):
-        self.file = file
-        self.cap = cv2.VideoCapture(file)
-        self.title = title
     
     
     def get_meta_data(self):
-        self.meta_data = [1000,400]
+
+        if self.meta_data is None:
+            cmd = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.get_presigned_url()}'"
+            out = subprocess.check_output(cmd, shell=True)
+            out = json.loads(out)
+            self.meta_data = out['streams'][0]
+            
+        return self.meta_data
 
 
-    def get_presigned_url(self):
-        url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=60)
+
+    def get_presigned_url(self, time = 60):
+        url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=time)
         return url
     
     def add_mod(self, mod):
         self.modification += mod
 
     def reset_mod(self):
+
         self.modification = ''
 
     def get_modification(self):
@@ -138,5 +96,5 @@ class Video:
     def get_output_title(self):
         result = ''
         if '-r' in self.modification:
-            result += "resized"
+            result += "resized_"
         return result + self.title
