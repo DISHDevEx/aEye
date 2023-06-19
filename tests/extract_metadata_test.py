@@ -11,4 +11,4 @@ def test_extract_metadata():
     codec = to_check["streams"][0]["codec_name"]
     assert codec == "h264"
     duration = to_check["streams"][0]["duration"]
-    assert duration == "37.280000"
+    assert duration == "10.040000"
