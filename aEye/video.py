@@ -86,33 +86,37 @@ class Video:
 
     def get_codec(self):
         """
-        Returns video codec as a string
+        Returns the video codec as a string
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["codec_name"]
         else:
-            self.get_metadata()
-            self.get_codec()
+            self.meta_data = self.get_metadata()
+            return self.meta_data["streams"][0]["codec_name"]
 
     def get_duration(self):
         """
-        Returns video duration as a string
+        Returns the video duration as a string
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["duration"]
         else:
-            self.get_metadata()
-            self.get_duration()
+            self.meta_data = self.get_metadata()
+            return self.meta_data["streams"][0]["duration"]
 
     def get_frames(self):
         """
         Returns # of frames in video as a string
         """
-        return self.cv_video.get(cv2.CAP_PROP_FPS)
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["nb_frames"]
+        else:
+            self.meta_data = self.extract_metadata()
+            return self.meta_data["streams"][0]["nb_frames"]
 
     def getfile(self):
         """
-        returns da file path as a string
+        Returns the file path as a string
         """
         return self.file
 
