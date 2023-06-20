@@ -219,13 +219,11 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
-        x = 1
         for video in self.video_list:
             duration = end - start
             cmd = f"{ffmpeg} -y -ss {start} -i '{video.getfile()}' -v quiet -t {duration} -c copy " \
-                  f"modified/split_on_time_{x}"
+                  f"modified/split_on_time_{video.title}"
             subprocess.call(cmd, shell=True)
-            x += 1
 
     def split_on_interval(self, interval):
         """
@@ -238,15 +236,13 @@ class Processor:
         -------
         None, but creates interval second long videos in output folder
         """
-        x = 1
         for video in self.video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.getfile()}' -c copy -map 0 -segment_time {interval} "
-                f"-f segment -reset_timestamps 1 modified/interval_split{x}%02d.mp4"
+                f"-f segment -reset_timestamps 1 modified/interval_split{video.title}%02d.mp4"
             )
             print(cmd)
             subprocess.call(cmd, shell=True)
-            x += 1
 
     def split_on_frame(self, frame):
         """
@@ -258,14 +254,12 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
-        x = 1
         for video in self.video_list:
             fps = float(video.get_frames()) / float(video.get_duration())
             time_stamp = frame / fps
             cmd = f"{ffmpeg} -y -ss {time_stamp} -i '{video.getfile()}' -v quiet -c:v libx264 -c:a aac" \
-                  f" modified/split_on_frame_{x}.mp4"
+                  f" modified/split_on_frame_{video.title}.mp4"
             subprocess.call(cmd, shell=True)
-            x += 1
 
     def split_num_frames(self, start_frame, num_frames):
         """
@@ -278,17 +272,15 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
-        x = 1
         for video in self.video_list:
             fps = float(video.get_frames()) / float(video.get_duration())
             time_stamp = start_frame / fps
             cmd = (
                 f"{ffmpeg} -y -ss {str(time_stamp)} -i '{video.getfile()}' -v quiet -c:v libx264 -frames:v {num_frames}"
-                f" modified/frames_{start_frame}_to{(start_frame + num_frames)}_{x}.mp4"
+                f" modified/frames_{start_frame}_to{(start_frame + num_frames)}_{video.title}.mp4"
             )
             logging.info("Encoding ", num_frames, " from ", start_frame)
             subprocess.call(cmd, shell=True)
-            x += 1
 
     def crop_video_section(self, section_width, section_height, start_x, start_y):
         """
@@ -300,14 +292,12 @@ class Processor:
         -------
         None, but creates cropped video in output folder
         """
-        x = 1
         for video in self.video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.getfile()}' -v quiet -filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' "
-                f"-c:a copy modified/section_crop_{x}.mp4"
+                f"-c:a copy modified/section_crop_{video.title}.mp4"
             )
             subprocess.call(cmd, shell=True)
-            x += 1
 
     def moving_crop(self):
         """
@@ -319,7 +309,6 @@ class Processor:
         -------
         None, but creates cropped video in output folder
         """
-        x = 1
         for video in self.video_list:
             script = (
                 "swaprect=720:480:0:0:400:400:enable='between(n,0,100)',"
@@ -333,10 +322,9 @@ class Processor:
                 file.write(script)
             cmd = (
                 f"{ffmpeg} -y -v quiet -ss 0 -t 30 -i '{video.getfile()}' -filter_complex_script filter_script.txt -acodec copy "
-                f"modified/moving_crop_{x}.mp4"
+                f"modified/moving_crop_{video.title}.mp4"
             )
             subprocess.call(cmd, shell=True)
-            x += 1
             os.remove("filter_script.txt")
 
     def cv_extract_frame_at_time(self, time):
@@ -346,15 +334,13 @@ class Processor:
         -------
         None, but frame grabbed is displayed in output folder
         """
-        x = 1
         for video in self.video_list:
             cv_video = video.cv_video
             fps = cv_video.get(cv2.CAP_PROP_FPS)
             frame_id = int(fps * time)
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
             ret, frame = cv_video.read()
-            cv2.imwrite(f"modified/cv2frame_at_time_{x}.png", frame)
-            x += 1
+            cv2.imwrite(f"modified/cv2frame_at_time_{video.title}.png", frame)
 
     def cv_extract_specific_frame(self, frame):
         """
@@ -363,13 +349,11 @@ class Processor:
         -------
         None, but frame grabbed is displayed in output folder
         """
-        x = 1
         for video in self.video_list:
             cv_video = video.cv_video
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
             ret, output = cv_video.read()
-            cv2.imwrite(f"modified/cv2specific_frame_{x}.png", output)
-            x += 1
+            cv2.imwrite(f"modified/cv2specific_frame_{video.title}.png", output)
 
     def extract_many_frames(self, start_frame, num_frames):
         """
@@ -380,12 +364,10 @@ class Processor:
         -------
         None, but frames are displayed in output folder
         """
-        x = 1
         for video in self.video_list:
             cmd = f"{ffmpeg} -i '{video.getfile()}' -vf select='eq(n\,{start_frame})' -frames:v {num_frames} " \
-                  f"modified/extract_many_frames{x}%02d.png"
+                  f"modified/extract_many_frames{video.title}%02d.png"
             subprocess.call(cmd, shell=True)
-            x += 1
 
     def cleanup(self) -> None:
         """
