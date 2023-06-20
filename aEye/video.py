@@ -51,13 +51,13 @@ class Video:
 
         self.capture = cv2.VideoCapture(file)
 
-        _ , self.image = self.cap.read()
+        _ , self.image = self.capture.read()
         self.shape = self.image.shape
         self.width = self.shape[0]
         self.height = self.shape[1]
 
         self.title = title
-        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+        self.fps = self.capture.get(cv2.CAP_PROP_FPS)
 
             
     def __repr__(self):

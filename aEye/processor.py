@@ -45,7 +45,7 @@ class Processor:
         self._s3 = boto3.client('s3')
 
     
-    def load(self, bucket=  'aeye-data-bucket', prefix='input_video/') -> list[Video]:
+    def load(self, bucket=  'aeye-data-bucket', prefix='input_video/') -> list:
         """
         This method will load the video files from S3 and save them 
         into a list of video classes. 
@@ -76,7 +76,7 @@ class Processor:
 
             title = i["Key"].split(prefix)[1]
             #In order to convert video file from S3 to cv2 video class, we need its url.
-            url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
+            url = self._s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
             self.video_list.append(Video(url, title))
 
         logging.info(f"Successfully loaded video data from {bucket}")
