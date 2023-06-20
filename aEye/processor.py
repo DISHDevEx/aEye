@@ -108,7 +108,7 @@ class Processor:
             dim = (new_width, new_height)
             
             fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-            out = cv2.VideoWriter('modified/out_put_' +video.title, fourcc, 30.0, dim)
+            out = cv2.VideoWriter('modified/output_' +video.title, fourcc, 30.0, dim)
             
             #This loops to each frame of a video and resizes the current dimension to the new dimension.
             while True:
