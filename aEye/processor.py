@@ -112,7 +112,7 @@ class Processor:
             
             #This loops to each frame of a video and resizes the current dimension to the new dimension.
             while True:
-                _ ,image = video.cap.read()
+                _ ,image = video.capture.read()
 
                 if image is None:
                     break
