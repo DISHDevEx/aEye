@@ -10,10 +10,11 @@ import logging
 from aEye.video import Video
 import subprocess
 from static_ffmpeg import run
+
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
-class Processor:
 
+class Processor:
     """
     Processor is the class that works act a pipeline to load, process, and upload all video from S3 bucket.
 
@@ -87,7 +88,7 @@ class Processor:
     def get_video_list(self):
         return self.video_list
 
-    def load(self, bucket=  'aeye-data-bucket', prefix='input_video/'):
+    def load(self, bucket='aeye-data-bucket', prefix='input_video/'):
         """
         This method will load the video files from S3 and save them
         into a list of video classes.
@@ -105,20 +106,19 @@ class Processor:
                 The list of all video files loaded from S3 bucket.
         """
 
-        result = self._s3.list_objects(Bucket = bucket, Prefix = prefix)
+        result = self._s3.list_objects(Bucket=bucket, Prefix=prefix)
 
         for i in result["Contents"]:
 
-
-
-            #When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
-            #This if-statement is to skip over the folder object since we are only interested in the video files.
+            # When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
+            # This if-statement is to skip over the folder object since we are only interested in the video files.
             if i["Key"] == prefix:
                 continue
 
             title = i["Key"].split(prefix)[1]
-            #In order to convert video file from S3 to cv2 video class, we need its url.
-            url = self._s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] }, ExpiresIn=100000)
+            # In order to convert video file from S3 to cv2 video class, we need its url.
+            url = self._s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': bucket, 'Key': i["Key"]},
+                                                  ExpiresIn=100000)
             self.video_list.append(Video(url, title))
 
         logging.info(f"Successfully loaded video data from {bucket}")
@@ -126,8 +126,7 @@ class Processor:
 
         return self.video_list
 
-
-    def resize_by_ratio(self, x_ratio = .8, y_ratio = .8) -> None:
+    def resize_by_ratio(self, x_ratio=.8, y_ratio=.8) -> None:
         """
         This method will resize the video by multiplying the width by x_ratio and height by y_ratio.
         Both values have to be non negative and non zero value.
@@ -142,32 +141,32 @@ class Processor:
 
         """
 
-        #This will loop to the list of videos to apply the resizing feature.
+        # This will loop to the list of videos to apply the resizing feature.
         for video in self.video_list:
 
-            new_width = int(video.width * x_ratio )
-            new_height = int(video.height * y_ratio )
+            new_width = int(video.width * x_ratio)
+            new_height = int(video.height * y_ratio)
             dim = (new_width, new_height)
 
             fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-            out = cv2.VideoWriter('modified/out_put_' +video.title, fourcc, 30.0, dim)
+            out = cv2.VideoWriter('modified/out_put_' + video.title, fourcc, 30.0, dim)
 
-            #This loops to each frame of a video and resizes the current dimension to the new dimension.
+            # This loops to each frame of a video and resizes the current dimension to the new dimension.
             while True:
-                _ ,image = video.cap.read()
+                _, image = video.cap.read()
 
                 if image is None:
                     break
 
-                resized = cv2.resize(image , dim, interpolation = cv2.INTER_AREA)
+                resized = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
                 out.write(resized)
 
             out.release()
             video.cleanup()
 
-        logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
+        logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}")
 
-    def load_and_resize(self, bucket=  'aeye-data-bucket', prefix='input_video/', x_ratio = .8, y_ratio = .8) -> None:
+    def load_and_resize(self, bucket='aeye-data-bucket', prefix='input_video/', x_ratio=.8, y_ratio=.8) -> None:
         """
         This method will call on load() and resize_by_ratio() methods to load and resize by the input parameters.
         Both values have to be non negative and non zero value.
@@ -185,11 +184,10 @@ class Processor:
                 The ratio for y/height value.
         """
 
+        self.load(bucket, prefix)
+        self.resize_by_ratio(x_ratio, y_ratio)
 
-        self.load(bucket,prefix)
-        self.resize_by_ratio(x_ratio,y_ratio)
-
-    def upload(self, bucket=  'aeye-data-bucket') -> None:
+    def upload(self, bucket='aeye-data-bucket') -> None:
         """
         This method will push all modified videos to the S3 bucket and delete all video files from local machine.
 
@@ -199,13 +197,11 @@ class Processor:
                 The bucket name/location to upload on S3.
         """
 
-
         for video in self.video_list:
-
             path = 'modified/output_' + video.title
-            response = self._s3.upload_file( path, bucket,  path)
+            response = self._s3.upload_file(path, bucket, path)
 
-            #This will delete all file from RAM and local machine.
+            # This will delete all file from RAM and local machine.
             os.remove(path)
             video.cleanup()
 
@@ -213,7 +209,6 @@ class Processor:
 
         print("successfully upload the output files S3 bucket: s3://aeye-data-bucket/modified/")
         print("successfully remove the output file from local machine")
-
 
     def split_on_time(self, start, end):
         """
@@ -224,11 +219,13 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
+        x = 1
         for video in self.video_list:
             duration = end - start
             cmd = f"{ffmpeg} -y -ss {start} -i '{video.getfile()}' -v quiet -t {duration} -c copy " \
-                  f"modified/split_on_time_" + video.title
+                  f"modified/split_on_time_{x}"
             subprocess.call(cmd, shell=True)
+            x += 1
 
     def split_on_interval(self, interval):
         """
@@ -241,13 +238,15 @@ class Processor:
         -------
         None, but creates interval second long videos in output folder
         """
+        x = 1
         for video in self.video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.getfile()}' -c copy -map 0 -segment_time {interval} "
-                f"-f segment -reset_timestamps 1 modified/interval_split%02d.mp4"
+                f"-f segment -reset_timestamps 1 modified/interval_split{x}%02d.mp4"
             )
             print(cmd)
             subprocess.call(cmd, shell=True)
+            x += 1
 
     def split_on_frame(self, frame):
         """
@@ -259,12 +258,14 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
+        x = 1
         for video in self.video_list:
             fps = float(video.get_frames()) / float(video.get_duration())
             time_stamp = frame / fps
             cmd = f"{ffmpeg} -y -ss {time_stamp} -i '{video.getfile()}' -v quiet -c:v libx264 -c:a aac" \
-                  f" modified/split_on_frame.mp4"
+                  f" modified/split_on_frame_{x}.mp4"
             subprocess.call(cmd, shell=True)
+            x += 1
 
     def split_num_frames(self, start_frame, num_frames):
         """
@@ -277,15 +278,17 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
+        x = 1
         for video in self.video_list:
             fps = float(video.get_frames()) / float(video.get_duration())
             time_stamp = start_frame / fps
             cmd = (
                 f"{ffmpeg} -y -ss {str(time_stamp)} -i '{video.getfile()}' -v quiet -c:v libx264 -frames:v {num_frames}"
-                f" modified/frames_{start_frame}_to{(start_frame + num_frames)}.mp4"
+                f" modified/frames_{start_frame}_to{(start_frame + num_frames)}_{x}.mp4"
             )
             logging.info("Encoding ", num_frames, " from ", start_frame)
             subprocess.call(cmd, shell=True)
+            x += 1
 
     def crop_video_section(self, section_width, section_height, start_x, start_y):
         """
@@ -297,12 +300,14 @@ class Processor:
         -------
         None, but creates cropped video in output folder
         """
+        x = 1
         for video in self.video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.getfile()}' -v quiet -filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' "
-                f"-c:a copy modified/section_crop.mp4"
+                f"-c:a copy modified/section_crop_{x}.mp4"
             )
             subprocess.call(cmd, shell=True)
+            x += 1
 
     def moving_crop(self):
         """
@@ -314,6 +319,7 @@ class Processor:
         -------
         None, but creates cropped video in output folder
         """
+        x = 1
         for video in self.video_list:
             script = (
                 "swaprect=720:480:0:0:400:400:enable='between(n,0,100)',"
@@ -327,9 +333,10 @@ class Processor:
                 file.write(script)
             cmd = (
                 f"{ffmpeg} -y -v quiet -ss 0 -t 30 -i '{video.getfile()}' -filter_complex_script filter_script.txt -acodec copy "
-                f"modified/moving_crop.mp4"
+                f"modified/moving_crop_{x}.mp4"
             )
             subprocess.call(cmd, shell=True)
+            x += 1
             os.remove("filter_script.txt")
 
     def cv_extract_frame_at_time(self, time):
@@ -339,13 +346,15 @@ class Processor:
         -------
         None, but frame grabbed is displayed in output folder
         """
+        x = 1
         for video in self.video_list:
             cv_video = video.cv_video
             fps = cv_video.get(cv2.CAP_PROP_FPS)
             frame_id = int(fps * time)
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
             ret, frame = cv_video.read()
-            cv2.imwrite("modified/cv2frame_at_time.png", frame)
+            cv2.imwrite(f"modified/cv2frame_at_time_{x}.png", frame)
+            x += 1
 
     def cv_extract_specific_frame(self, frame):
         """
@@ -354,11 +363,13 @@ class Processor:
         -------
         None, but frame grabbed is displayed in output folder
         """
+        x = 1
         for video in self.video_list:
             cv_video = video.cv_video
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
             ret, output = cv_video.read()
-            cv2.imwrite("modified/cv2specific_frame.png", output)
+            cv2.imwrite(f"modified/cv2specific_frame_{x}.png", output)
+            x += 1
 
     def extract_many_frames(self, start_frame, num_frames):
         """
@@ -369,17 +380,15 @@ class Processor:
         -------
         None, but frames are displayed in output folder
         """
+        x = 1
         for video in self.video_list:
             cmd = f"{ffmpeg} -i '{video.getfile()}' -vf select='eq(n\,{start_frame})' -frames:v {num_frames} " \
-                  f"modified/extract_many_frames%02d.png"
+                  f"modified/extract_many_frames{x}%02d.png"
             subprocess.call(cmd, shell=True)
-
+            x += 1
 
     def cleanup(self) -> None:
         """
         This method will release the current view of video object from RAM.
         """
         self.capture.release()
-
-
-

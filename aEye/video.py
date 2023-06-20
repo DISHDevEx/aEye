@@ -65,7 +65,7 @@ class Video:
 
     """
 
-    def __init__(self, file) -> None:
+    def __init__(self, file, title = None) -> None:
         self.file = file
         self.meta_data = None
         self.cv_video = cv2.VideoCapture(file)
