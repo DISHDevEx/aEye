@@ -3,78 +3,97 @@ Module contains the Video class that stores and represents video files as object
 
 """
 import cv2
-import numpy as np
+import os
+import json
+import subprocess
+from static_ffmpeg import run
+
+ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+
 
 class Video:
     """
-    Video class stores all relevant informations from video file.
-
+    Video class that encapsulates all necessary video information.
+    Also contains some useful utility like the ability to grab frames, process
+    video clips, trim them down, crop, etc.
     Attributes
     ----------
-        file: string
-            The path/file name of the video.
-
-        title: string
-            The title that represents the video file.
-
-        capture: cv2.VideoCapture
-            The video capture of the video file from cv2 package.
-
-        image: numpy.ndarray
-            The representaion of first frame of video file as numpy ndarray.
-
-        width: int
-            The width value of the video file.
-
-        height: int
-            The height value of the video file.
-        
-        fps: int
-            The fps of the video file.
-
-
+    file: str
+        path of the video file associated with the object
+    meta_data: str
+        JSON dictionary of video metadata, typically streams[0] is the video metadata
+    cv_video: cv2.VideoCapture
+        OpenCV video object, used for any openCV processing
+    ----------
     Methods
-    -------
-    
-        __repr__() -> string:
-            A native python method to represent the Video class.
-
-        cleanup() -> None:
-            Clean up memory from cv2 video capture.
-
+    ----------
+    extract_metadata -> str:
+        Collects the metadata from all video sources and separates the streams
+        Necessary for basically any processing, but still has to be set (none by default)
+    get_codec -> str:
+        Returns the video codec
+    get_duration -> str:
+        Returns video duration in seconds, but does so as a string
+    get_frames -> str:
+        Returns the amount of frames in the video as a string (via OpenCV)
+    getfile -> str:
+        Returns video file path
 
     """
 
-    def __init__(self,file , title = None ) -> None:
+    def __init__(self, file, title = None) -> None:
         self.file = file
-        self.meta_data = 'insert by James'
-
-        self.capture = cv2.VideoCapture(file)
-
-        _ , self.image = self.capture.read()
-        self.shape = self.image.shape
-        self.width = self.shape[0]
-        self.height = self.shape[1]
-
+        self.meta_data = None
         self.title = title
-        self.fps = self.capture.get(cv2.CAP_PROP_FPS)
+        self.cv_video = cv2.VideoCapture(file)
 
-            
-    def __repr__(self):
+    def extract_metadata(self):
         """
-        This method will implement the video title name as object representation.
-        
+        Probably the most important method, probes a video passed with a
+        file path and returns a json dictionary full of metadata. Video metadata lives in
+        json['streams'][0] because it is the first channel and the dictionary splits streams from error
         Returns
-        ---------
-            The title of video file.
-            
+        -------
+        String of JSON Dictionary full of video metadata
         """
-        return self.title
-            
+        command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.getfile()}'"
+        out = subprocess.check_output(command, shell=True).decode("utf-8")
+        json_data = json.loads(out)
+        return json_data
 
-    def cleanup(self) -> None:
+    def get_codec(self):
         """
-        This method will release the current view of video object from RAM.
+        Returns the video codec as a string
         """
-        self.capture.release()
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["codec_name"]
+        else:
+            self.meta_data = self.get_metadata()
+            return self.meta_data["streams"][0]["codec_name"]
+
+    def get_duration(self):
+        """
+        Returns the video duration as a string
+        """
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["duration"]
+        else:
+            self.meta_data = self.get_metadata()
+            return self.meta_data["streams"][0]["duration"]
+
+    def get_num_frames(self):
+        """
+        Returns # of frames in video as a string
+        """
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["nb_frames"]
+        else:
+            self.meta_data = self.extract_metadata()
+            return self.meta_data["streams"][0]["nb_frames"]
+
+    def get_file(self):
+        """
+        Returns the file path as a string
+        """
+        return self.file
 
