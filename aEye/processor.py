@@ -152,7 +152,7 @@ class Processor:
     
         return video_list
         
-    def trimmed_from_for(self,start, duration, target = ["*"]):
+    def trimmed_from_for(self,video_list, start, duration):
         """
         This method will push all modified videos to the S3 bucket and delete all video files from local machine.
 
@@ -172,10 +172,11 @@ class Processor:
         target_list = self.target_list(target)
 
         #add the trim ffmpeg modification to all desired videos
-        for video in target_list:
+        for video in video_list:
             video.add_modification(f"-ss {start} -t {duration} ")
 
         logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
+        return video_list
 
 
     def load_and_resize(self, bucket=  'aeye-data-bucket', prefix='input_video/', x_ratio = .8, y_ratio = .8, target = ["*"]):

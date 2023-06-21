@@ -22,20 +22,12 @@ class Video:
         title: string
             The title that represents the video file.
 
-        capture: cv2.VideoCapture
-            The video capture of the video file from cv2 package.
+        bucket: string
+            
 
-        image: numpy.ndarray
-            The representaion of first frame of video file as numpy ndarray.
+        key: string
 
-        width: int
-            The width value of the video file.
 
-        height: int
-            The height value of the video file.
-        
-        fps: int
-            The fps of the video file.
 
 
     Methods
@@ -50,11 +42,22 @@ class Video:
         cleanup() -> None:
             Clean up memory from cv2 video capture.
 
-        get_meta_data()-> None:
+        get_meta_data() -> None:
             Retrieve the meta data from video.
 
         get_presigned_url(time) -> string:
             Retrieve the url for video file from S3 bucket. 
+
+        add_modification(self, mod) -> None:
+            Add ffmpeg modification to video object.
+
+        reset_modification() -> None:
+            Reset and remove all modifications.
+
+        get_modification(self) -> string:
+            Get ffmpeg modification from video objects.
+
+        
     """
 
 <<<<<<< HEAD
@@ -114,7 +117,7 @@ class Video:
     def add_mod(self, mod):
         self.modification += mod
 
-    def reset_mod(self):
+    def reset_modification(self):
 
         self.modification = ''
 
