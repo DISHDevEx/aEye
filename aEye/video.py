@@ -50,7 +50,13 @@ class Video:
 
     """
 
+<<<<<<< HEAD
     def __init__(self, bucket , key,  title = None ) -> None:
+=======
+
+    def __init__(self,file = None, bucket = None  , key = None,  title = None ) -> None:
+        self.file = file
+>>>>>>> 2b85f37 (add local functionality)
         self.bucket = bucket
         self.key = key
         self.title = title
@@ -94,8 +100,11 @@ class Video:
 
 
     def get_presigned_url(self, time = 60):
-        url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=time)
-        return url
+        if self.file is None:
+
+            url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=time)
+            return url
+        return self.file
     
     def add_mod(self, mod):
         self.modification += mod

@@ -72,25 +72,39 @@ class Processor:
                 The list of all video files loaded from S3 bucket.
         """
 
-        result = self._s3.list_objects(Bucket = bucket, Prefix = prefix)
 
-        for i in result["Contents"]:
+        if local_path is None:
+            result = self._s3.list_objects(Bucket = bucket, Prefix = prefix)
 
-
-                       
-            #When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
-            #This if-statement is to skip over the folder object since we are only interested in the video files.
-            if i["Key"] == prefix:
-                continue
-
-            title = i["Key"].split(prefix)[1]
-
-            self.video_list.append(Video(bucket, i["Key"], title))
+            for i in result["Contents"]:
 
 
+                        
+                #When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
+                #This if-statement is to skip over the folder object since we are only interested in the video files.
+                if i["Key"] == prefix:
+                    continue
 
-        logging.info(f"Successfully loaded video data from {bucket}")
-        logging.info(f"There are total of {len(self.video_list)} video files")
+                title = i["Key"].split(prefix)[1]
+
+                self.video_list.append(Video(bucket = bucket,key= i["Key"], title = title))
+
+
+
+            logging.info(f"Successfully loaded video data from {bucket}")
+            logging.info(f"There are total of {len(self.video_list)} video files")
+
+            print(f"Successfully loaded video data from {bucket}")
+            print(f"There are total of {len(self.video_list)} video files")
+
+        
+        elif os.path.isdir(local_path):
+            files = os.listdir('data')
+            self.video_list = [ Video(file=  i, title=i) for i in files if (i !='.ipynb_checkpoints' and i != '.gitkeep' ) ]
+
+
+        else:
+            self.video_list.append(Video(file = local_path, title = local_path))
 
         return self.video_list
 
