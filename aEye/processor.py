@@ -311,35 +311,6 @@ class Processor:
             )
             subprocess.call(cmd, shell=True)
 
-    def moving_crop(self):
-        """
-        Very basic version of what should hopefully be very important.
-        Will need to pass a lot more params but right now swaprect looks like:
-        =width:height:x1:y1:x2:y2:....(n,startFrame,endFrame)
-        *** HARDCODED FOR NOW, MAY REPLACE W OPENCV MASK SO IM NOT GONNA WORK ON IT UNTIL I KNOW
-
-        Returns
-        -------
-        None, but creates cropped video in output folder
-        """
-        for video in self.video_list:
-            script = (
-                "swaprect=720:480:0:0:400:400:enable='between(n,0,100)',"
-                "swaprect=720:480:0:0:500:400:enable='between(n,101,150)',"
-                "swaprect=720:480:0:0:600:400:enable='between(n,151,280)',"
-                "swaprect=720:480:0:0:700:300:enable='between(n,281,500)',"
-                "swaprect=720:480:0:0:800:300:enable='between(n,501,750)',"
-                "crop=720:480:0:0"
-            )
-            with open("filter_script.txt", "w") as file:
-                file.write(script)
-            cmd = (
-                f"{ffmpeg} -y -v quiet -ss 0 -t 30 -i '{video.get_file()}' -filter_complex_script filter_script.txt -acodec copy "
-                f"modified/moving_crop_{video.title}.mp4"
-            )
-            subprocess.call(cmd, shell=True)
-            os.remove("filter_script.txt")
-
     def cv_extract_frame_at_time(self, time):
         """
         Img extraction that takes less than half as long as the FFMpeg version
