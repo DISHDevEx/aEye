@@ -100,7 +100,7 @@ class Processor:
         
         elif os.path.isdir(local_path):
             files = os.listdir('data')
-            self.video_list = [ Video(file=  i, title=i) for i in files if (i !='.ipynb_checkpoints' and i != '.gitkeep' ) ]
+            self.video_list = [ Video(file=  local_path + i, title=i) for i in files if (i !='.ipynb_checkpoints' and i != '.gitkeep' ) ]
 
 
         else:
@@ -207,7 +207,7 @@ class Processor:
         
         for video in self.video_list:
             if video.get_modification() != "":
-                command = f"{ffmpeg} -i '{video.get_presigned_url()}' " + video.get_modification() + video.get_output_title()
+                command = f"{ffmpeg} -i {video.get_presigned_url()} " + video.get_modification() + video.get_output_title()
                 subprocess.run(command, shell=True)
                 print(command)
 

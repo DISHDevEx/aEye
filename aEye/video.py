@@ -90,7 +90,7 @@ class Video:
     def get_meta_data(self):
 
         if self.meta_data is None:
-            cmd = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.get_presigned_url()}'"
+            cmd = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i {self.get_presigned_url()}"
             out = subprocess.check_output(cmd, shell=True)
             out = json.loads(out)
             self.meta_data = out['streams'][0]
@@ -103,7 +103,7 @@ class Video:
         if self.file is None:
 
             url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=time)
-            return url
+            return f"'{url}'"
         return self.file
     
     def add_mod(self, mod):
