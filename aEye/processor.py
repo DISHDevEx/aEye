@@ -106,9 +106,9 @@ class Processor:
 
 
         else:
-            local_path = local_path.replace('/', ' ').strip()
-            title = local_path.split(' ')[-1]
-            self.video_list.append(Video(file = local_path, title = local_path))
+            dummy = local_path.replace('/', ' ').strip()
+            title = dummy.split(' ')[-1]
+            self.video_list.append(Video(file = local_path, title = title))
 
         return self.video_list
 
@@ -189,7 +189,7 @@ class Processor:
             if video.get_modification() != "":
 
                 path = self._temp_fold +'/'+video.get_output_title()
-                response = s3.upload_file( path, bucket,  video.get_output_title())
+                response = s3.upload_file( path, bucket, 'modified/' + video.get_output_title())
 
                 #delete all file from RAM and local machine
                 os.remove(path)
