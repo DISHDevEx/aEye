@@ -169,8 +169,6 @@ class Processor:
         """
 
         #generate the desired target list of videos to add modification
-        target_list = self.target_list(target)
-
         #add the trim ffmpeg modification to all desired videos
         for video in video_list:
             video.add_modification(f"-ss {start} -t {duration} ")
