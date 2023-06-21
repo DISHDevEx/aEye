@@ -28,6 +28,9 @@ class Processor:
         _s3: botocore.client.S3
             An internal variable to talk to S3.
 
+        __temp_fold: string
+            An internal variable for temp folder path
+
 
     Methods
     -------
@@ -35,15 +38,26 @@ class Processor:
             Loads in video files as Video classes into a list from S3.
 
 
-        resize_by_ratio(x_ratio, y_ratio) -> None:
-            Resize video by multiplying width by the ratio.
+        resize_by_ratio(x_ratio, y_ratio,target) -> None:
+            Add modification of resizing video by multiplying width by the ratio to video
 
         load_and_resize(bucket, prefix, x_ratio, y_ratio) -> None:
             Load in video files and resize by the x and y ratio.
 
+        trimmed_from_for(start, duration, target) -> None:
+            Add modification of trimming video from start input for duration of seconds to video
+
         upload(bucket) -> None:
             Upload the modified video to S3.
-   
+
+        target_list(target) -> List:
+            Generate a desired list of video based on the target parameter.
+
+        execute() -> None:
+            Execute and run the video's modifications and write the video to temp folder.
+
+        clean_temp() -> None:
+            Clean up the temp folder.
     """
     def __init__(self) -> None:
         self.video_list = []
@@ -91,13 +105,8 @@ class Processor:
 
                 self.video_list.append(Video(bucket = bucket,key= i["Key"], title = title))
 
-
-
             logging.info(f"Successfully loaded video data from {bucket}")
             logging.info(f"There are total of {len(self.video_list)} video files")
-
-            print(f"Successfully loaded video data from {bucket}")
-            print(f"There are total of {len(self.video_list)} video files")
 
         
         elif os.path.isdir(local_path):
@@ -113,9 +122,10 @@ class Processor:
         return self.video_list
 
 
-    def resize_by_ratio(self, x_ratio = .8, y_ratio = .8, target = "all"):
+    def resize_by_ratio(self, x_ratio = .8, y_ratio = .8, target = ["*"]):
         """
-        This method will resize the video by multiplying the width by x_ratio and height by y_ratio.
+        This method will add resizing modification to all target the video that will be multiplying the 
+        width by x_ratio and height by y_ratio.
         Both values have to be non negative and non zero value.
 
         Parameters
@@ -124,12 +134,16 @@ class Processor:
                 The ratio for x/width value.
             y_ratio: float
                 The ratio for y/height value.
+            target: list
+                The list of desired videos that the users want to process.
 
         
         """
+
+        #generate the desired target list of videos to add modification
         target_list = self.target_list(target)
 
-        #go to each video to apply resizing
+        #go to each video and add the resizing ffmpeg modification
         for video in target_list:
 
             video.get_meta_data()
@@ -138,19 +152,35 @@ class Processor:
 
             video.add_modification(f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
 
-        logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}" )
+        logging.info(f"successfully added resizing mod to all video by ratio of {x_ratio} and {y_ratio}")
         
-    def trimmed_from_for(self,start, duration, target = "all"):
+    def trimmed_from_for(self,start, duration, target = ["*"]):
+        """
+        This method will push all modified videos to the S3 bucket and delete all video files from local machine.
 
+        Parameters
+        ----------
+            start: float
+                The start time to trim the video from.
+
+            duration: float
+                The duration of time in seconds to trim the start of video. 
+
+            target: list
+                The list of desired videos that the users want to process.
+        """
+
+        #generate the desired target list of videos to add modification
         target_list = self.target_list(target)
 
+        #add the trim ffmpeg modification to all desired videos
         for video in target_list:
-
             video.add_modification(f"-ss {start} -t {duration} ")
-        print(f"Trimming from {start} for {duration} seconds" )
+
+        logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
 
 
-    def load_and_resize(self, bucket=  'aeye-data-bucket', prefix='input_video/', x_ratio = .8, y_ratio = .8) -> None:
+    def load_and_resize(self, bucket=  'aeye-data-bucket', prefix='input_video/', x_ratio = .8, y_ratio = .8, target = ["*"]):
         """
         This method will call on load() and resize_by_ratio() methods to load and resize by the input parameters.
         Both values have to be non negative and non zero value.
@@ -166,17 +196,18 @@ class Processor:
                 The ratio for x/width value.
             y_ratio: float
                 The ratio for y/height value.
+            target: list
+                The list of desired videos that the users want to process.
         """
 
-
         self.load(bucket = bucket,prefix = prefix)
-        self.resize_by_ratio(x_ratio,y_ratio)
+        self.resize_by_ratio(x_ratio,y_ratio, target = target)
 
     
 
     def upload(self, bucket=  'aeye-data-bucket'):
         """
-        This method will push all modified videos to the S3 bucket and delete all video files from local machine.
+        This method will push all modified videos to the S3 bucket and delete all video files from local temp folder.
 
         Parameters
         ----------
@@ -202,20 +233,43 @@ class Processor:
 
     def target_list(self, target):
 
-        if target != 'all':
-            result = [ i for i in self.video_list if i in target]
-            return result
+        """
+        This method will get all desired videos from the video list. 
+
+        Parameters
+        ----------
+            target: list
+                The list of desired videos that the users want to process.
+
+        Returns
+        -------
+            video_list: list
+                The list of desired video from the video list.
+        """
+
+        if target != ["*"]:
+            video_list = [ i for i in self.video_list if i in target]
+            return video_list
+        
         return self.video_list
 
     def execute(self):
+
+        """
+        This method will execute and write new videos based on all videos that contain ffmpeg modifications. 
+        """
         
         for video in self.video_list:
+            #This if statement will skip over any untouched videos.
             if video.get_modification() != "":
                 command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_modification()} {self._temp_fold}/{video.get_output_title()}"
                 subprocess.run(command, shell=True)
                 print(command)
 
     def clean_temp(self):
-        os.remove(self._temp_fold)
+        """
+        This method will delete the temp folder from local machine. 
+        """
+        os.rmdir(self._temp_fold)
 
 

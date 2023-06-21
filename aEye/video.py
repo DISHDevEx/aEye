@@ -44,10 +44,17 @@ class Video:
         __repr__() -> string:
             A native python method to represent the Video class.
 
+        __eq__() -> string:
+            A native python method to add comparison functionality
+
         cleanup() -> None:
             Clean up memory from cv2 video capture.
 
+        get_meta_data()-> None:
+            Retrieve the meta data from video.
 
+        get_presigned_url(time) -> string:
+            Retrieve the url for video file from S3 bucket. 
     """
 
 <<<<<<< HEAD
