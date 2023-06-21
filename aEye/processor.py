@@ -11,6 +11,7 @@ from aEye.video import Video
 from static_ffmpeg import run
 import math
 import subprocess
+import tempfile
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
@@ -52,6 +53,7 @@ class Processor:
     def __init__(self) -> None:
         self.video_list = []
         self._s3 = boto3.client('s3')
+        self._temp_fold = tempfile.mkdtemp(dir= "")
 
     
     def load(self, bucket=  'aeye-data-bucket', prefix='input_video/'):
@@ -184,8 +186,8 @@ class Processor:
         for video in self.video_list:
             if video.get_modification() != "":
 
-                path = video.get_output_title()
-                response = s3.upload_file( path, bucket,  path)
+                path = self._temp_fold +'/'+video.get_output_title()
+                response = s3.upload_file( path, bucket,  video.get_output_title())
 
                 #delete all file from RAM and local machine
                 os.remove(path)
@@ -207,7 +209,7 @@ class Processor:
         
         for video in self.video_list:
             if video.get_modification() != "":
-                command = f"{ffmpeg} -i {video.get_presigned_url()} " + video.get_modification() + video.get_output_title()
+                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_modification()} {self._temp_fold}/{video.get_output_title}"
                 subprocess.run(command, shell=True)
                 print(command)
 
