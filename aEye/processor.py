@@ -15,6 +15,7 @@ ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 
 class Processor:
+
     """
     Processor is the class that works act a pipeline to load, process, and upload all video from S3 bucket.
 
@@ -79,6 +80,7 @@ class Processor:
 
         resize_by_ratio(x_ratio, y_ratio) -> None:
             Given a ratio between 0 < x < 1, resize the video to that dimension
+
     """
 
     def __init__(self) -> None:
@@ -92,6 +94,7 @@ class Processor:
         """
         This method will load the video files from S3 and save them
         into a list of video classes.
+
 
          Parameters
         ----------
@@ -112,6 +115,7 @@ class Processor:
 
             # When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
             # This if-statement is to skip over the folder object since we are only interested in the video files.
+
             if i["Key"] == prefix:
                 continue
 
@@ -119,6 +123,7 @@ class Processor:
             # In order to convert video file from S3 to cv2 video class, we need its url.
             url = self._s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': bucket, 'Key': i["Key"]},
                                                   ExpiresIn=100000)
+
             self.video_list.append(Video(url, title))
 
         logging.info(f"Successfully loaded video data from {bucket}")
@@ -126,7 +131,9 @@ class Processor:
 
         return self.video_list
 
-    def resize_by_ratio(self, x_ratio=.8, y_ratio=.8) -> None:
+
+
+    def resize_by_ratio(self, x_ratio = .8, y_ratio = .8) -> None:
         """
         This method will resize the video by multiplying the width by x_ratio and height by y_ratio.
         Both values have to be non negative and non zero value.
@@ -155,10 +162,12 @@ class Processor:
             while True:
                 _, image = video.cap.read()
 
+
                 if image is None:
                     break
 
                 resized = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+
                 out.write(resized)
 
             out.release()
@@ -167,6 +176,7 @@ class Processor:
         logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}")
 
     def load_and_resize(self, bucket='aeye-data-bucket', prefix='input_video/', x_ratio=.8, y_ratio=.8) -> None:
+
         """
         This method will call on load() and resize_by_ratio() methods to load and resize by the input parameters.
         Both values have to be non negative and non zero value.
@@ -188,6 +198,7 @@ class Processor:
         self.resize_by_ratio(x_ratio, y_ratio)
 
     def upload(self, bucket='aeye-data-bucket') -> None:
+
         """
         This method will push all modified videos to the S3 bucket and delete all video files from local machine.
 
@@ -202,6 +213,7 @@ class Processor:
             response = self._s3.upload_file(path, bucket, path)
 
             # This will delete all file from RAM and local machine.
+
             os.remove(path)
             video.cleanup()
 
@@ -374,3 +386,4 @@ class Processor:
         This method will release the current view of video object from RAM.
         """
         self.capture.release()
+

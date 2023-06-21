@@ -1,3 +1,7 @@
+"""
+Module contains the Video class that stores and represents video files as objects.
+
+"""
 import cv2
 import os
 import json
@@ -92,4 +96,5 @@ class Video:
         Returns the file path as a string
         """
         return self.file
+
 
