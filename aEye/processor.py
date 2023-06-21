@@ -168,13 +168,14 @@ class Processor:
 
 
         for video in self.video_list:
+            if video.get_modification() != "":
 
-            path = 'modified/output_' + video.title
-            response = self._s3.upload_file( path, bucket,  path)
+                path = video.get_output_title()
+                response = s3.upload_file( path, bucket,  path)
 
-            #This will delete all file from RAM and local machine.
-            os.remove(path)
-            #video.cleanup()
+                #delete all file from RAM and local machine
+                os.remove(path)
+                #video.cleanup()
 
         logging.info("successfully upload the output files and remove them from local machine")
 
@@ -182,7 +183,7 @@ class Processor:
         print("successfully remove the output file from local machine")
 
     def target_list(self, target):
-        
+
         if target != 'all':
             result = [ i for i in self.video_list if i in target]
             return result
@@ -191,9 +192,10 @@ class Processor:
     def execute(self):
         
         for video in self.video_list:
-            command = f"{ffmpeg} -i '{video.get_presigned_url()}' " + video.get_modification() + video.get_output_title()
-            subprocess.run(command, shell=True)
-            print(command)
+            if video.get_modification() != "":
+                command = f"{ffmpeg} -i '{video.get_presigned_url()}' " + video.get_modification() + video.get_output_title()
+                subprocess.run(command, shell=True)
+                print(command)
 
 
 
