@@ -215,5 +215,7 @@ class Processor:
                 subprocess.run(command, shell=True)
                 print(command)
 
+    def clean_temp(self):
+        os.remove(self._temp_fold)
 
 
