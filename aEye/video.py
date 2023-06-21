@@ -23,9 +23,11 @@ class Video:
             The title that represents the video file.
 
         bucket: string
-            
+            The name of the bucket that video exists in.
+
 
         key: string
+            The key that associates with the video file.
 
 
 
@@ -37,7 +39,7 @@ class Video:
             A native python method to represent the Video class.
 
         __eq__() -> string:
-            A native python method to add comparison functionality
+            A native python method to add comparison functionality.
 
         cleanup() -> None:
             Clean up memory from cv2 video capture.
@@ -60,13 +62,9 @@ class Video:
         
     """
 
-<<<<<<< HEAD
-    def __init__(self, bucket , key,  title = None ) -> None:
-=======
 
     def __init__(self,file = None, bucket = None  , key = None,  title = None ) -> None:
         self.file = file
->>>>>>> 2b85f37 (add local functionality)
         self.bucket = bucket
         self.key = key
         self.title = title
@@ -79,24 +77,44 @@ class Video:
         
         Returns
         ---------
-            The title of video file.
+            title: string
+                The title of video file.
             
         """
         return self.title
     
     def __eq__(self, target):
+        """
+        This method will implement comparison functionality for video.
+        This will compare between video's title.
+
+        Returns
+        ---------
+            comparison: boolean
+                Boolean state of whether the target's title is same self's title.
+            
+        """
+
         return self.title == target
     
     
 
     def cleanup(self):
         """
-        This method will release the current view of video object from RAM
+        This method will release the current view of video object from RAM.
         """
         self.cap.release()
 
     def get_meta_data(self):
+        """
+        This method will run ffprobe to cmd and return the meta data of the video.
 
+        Returns
+        ---------
+            meta_data: dictionary
+                The dictionary of meta data.
+
+        """
         if self.meta_data is None:
             cmd = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i {self.get_presigned_url()}"
             out = subprocess.check_output(cmd, shell=True)
@@ -108,23 +126,47 @@ class Video:
 
 
     def get_presigned_url(self, time = 60):
-        if self.file is None:
+        """
+        This method will return the presigned url of video file from S3. 
+        If the video file is from local machine then it will return the local path of the video file.
 
+        Returns
+        ---------
+            url: string
+                The presigned url or file path of the video file.
+
+        """
+
+        if self.file is None:
             url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=time)
             return f"'{url}'"
         return self.file
     
-    def add_mod(self, mod):
+    def add_modification(self, mod):
+        """
+        This method will add ffmpeg modification to the video.
+        """
         self.modification += mod
 
     def reset_modification(self):
+        """
+        This method will reset all ffmpeg modification to empty.
+        """
 
         self.modification = ''
 
     def get_modification(self):
+        """
+        This method will return the all ffmpeg modification from the video.
+        """
         return self.modification
     
     def get_output_title(self):
+        """
+        This method will create the output title for video so the users can know all the modifications that happen to the video.
+        (I have a better implementation of this, it will be in the next pr after james adds all of the features.)
+        """
+
         result = ''
         if 'scale' in self.modification:
             result += "resized_"

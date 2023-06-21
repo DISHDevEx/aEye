@@ -10,12 +10,56 @@ ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 class Aux():
 
+    """
+    Aux is the class that works act a pipeline to load, write, and upload all video from S3 bucket.
+
+    Attributes
+    ----------
+        _s3: botocore.client.S3
+            An internal variable to talk to S3.
+
+        __temp_fold: string
+            An internal variable for temp folder path.
+
+
+    Methods
+    -------
+        load_s3(bucket, prefix) -> list[Video]:
+            Loads in video files as Video classes into a list from S3.
+
+        load_local(path) -> list[Video]:
+            Loads in video files as Video classes into a list from local machine.
+    
+        write() -> None:
+            Execute and run the video's modifications and write the video to temp folder.
+
+        clean_temp() -> None:
+            Clean up the temp folder.
+    
+    
+    """
     def __init__(self):
 
         self._s3 = boto3.client('s3')
         self._temp_fold = tempfile.mkdtemp(dir= "")
 
     def load_s3(self,bucket , prefix):
+        """
+        This method will load the video files from S3 and return them 
+        into a list of video classes. 
+
+         Parameters
+        ----------
+            bucket: string
+                The bucket name to path into S3 to get the video files.
+            prefix: string
+                The folder name where the video files belong in the S3 bucket.
+
+        Returns
+        -------
+            video_list: list
+                The list of all video files loaded from S3 bucket.
+        """
 
         video_list = []
         result = self._s3.list_objects(Bucket = bucket, Prefix = prefix)
@@ -31,6 +75,22 @@ class Aux():
 
 
     def load_local(self,path):
+        """
+        This method will load the video files from the given path parameters. 
+        This method will recognize whether a folder or a single file is given.
+
+        Parameters
+        ----------
+            path: string
+                The bucket name to path into S3 to get the video files.
+            prefix: string
+                The folder name where the video files belong in the S3 bucket.
+
+        Returns
+        -------
+            video_list: list
+                The list of all video files loaded from S3 bucket.
+        """
         video_list = []
         if os.path.isdir(path):
             files = os.listdir('data')
@@ -45,6 +105,10 @@ class Aux():
         return video_list
 
     def write(self, video_list):
+        """
+        This method will execute and write new videos based on all videos that contain ffmpeg modifications. 
+        """
+        
         for video in video_list:
             #This if statement will skip over any untouched videos.
             if video.get_modification() != "":
@@ -52,7 +116,23 @@ class Aux():
                 subprocess.run(command, shell=True)
                 print(command)
 
+
     def upload_s3(self, video_list, bucket ,prefix =  'modified/'):
+        """
+        This method will push modified video list to the S3 bucket and delete all video files from local temp folder.
+
+        Parameters
+        ----------
+            video_list: list
+                The list of video that needs to be uploaded.
+            bucket: string
+                The bucket name/location to upload on S3.
+            prefix: string
+                The subfolder name that the video list will be uploaded to.
+            
+        """
+
+
         s3 = boto3.client('s3')
         for video in video_list:
             if video.get_modification() != "":
@@ -64,10 +144,15 @@ class Aux():
                 os.remove(path)
                 #video.cleanup()
 
-        logging.info("successfully upload the output files and remove them from local machine")
         
-        print("successfully upload the output files S3 bucket: s3://aeye-data-bucket/modified/")
-        print("successfully remove the output file from local machine")
+        logging.info(f"successfully upload the output files S3 bucket: s3://{aeye-data-bucket}/{prefix}/")
+        logging.info("successfully remove the output file from local machine")
 
-    def upload(self,path):
-        pass
+
+
+    def clean_temp(self):
+        """
+        This method will delete the temp folder from local machine. 
+        """
+        os.rmdir(self._temp_fold)
+
