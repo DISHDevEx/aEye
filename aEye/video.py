@@ -9,8 +9,7 @@ import json
 import numpy as np
 from static_ffmpeg import run
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
-
-s3 = boto3.client('s3')
+s3 = boto3.client("s3")
 class Video:
     """
     Video class stores all relevant informations from video file.
@@ -58,7 +57,21 @@ class Video:
         self.meta_data = None
         self.modification = ''
  
-
+    def __repr__(self):
+        """
+        This method will implement the video title name as object representation.
+        
+        Returns
+        ---------
+            The title of video file.
+            
+        """
+        return self.title
+    
+    def __eq__(self, target):
+        return self.title == target
+    
+    
 
     def cleanup(self):
         """
@@ -96,7 +109,7 @@ class Video:
     
     def get_output_title(self):
         result = 'modified/'
-        if '-vf' in self.modification:
+        if 'scale' in self.modification:
             result += "resized_"
         if '-ss' in self.modification:
             result += "trimmed_"
