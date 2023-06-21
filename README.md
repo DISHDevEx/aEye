@@ -66,14 +66,20 @@ trimmed = process.trimmed_from_for(video_list,0,5)
 res_trimmed = process.resize_by_ratio(trimmed,.5,.5)
 ```
 
-8 Use auxiliary class to write the resized and trimmed video
+8. Use auxiliary class to write the resized and trimmed video
 
 ```console
 aux.write(res_trimmed)
 ```
 
-6. Upload the result to the desire bucket
+9. Upload the result to the desire bucket
 
 ```console
-process.upload(bucket = 'aeye-data-bucket')
+aux.upload_s3(res_trimmed, bucket = 'aeye-data-bucket')
+```
+
+10. Clean up the temp folder
+
+```console
+aux.clean_temp()
 ```
