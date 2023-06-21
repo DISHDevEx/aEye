@@ -121,7 +121,7 @@ class Processor:
             title = i["Key"].split(prefix)[1]
             # In order to convert video file from S3 to cv2 video class, we need its url.
             url = self._s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': bucket, 'Key': i["Key"]},
-                                                  ExpiresIn=120)  # 2 minute expiration
+                                                  ExpiresIn=300)  # 5 minute expiration
 
             self.video_list.append(Video(url, title))
 
@@ -223,6 +223,7 @@ class Processor:
         trim_video_from_to(start, end, file)
         This method can be used to extract a clip based on a given start and end point in seconds.
         *Error checking and minute conversion would probably be good...
+
         Returns
         -------
         None, but creates trimmed video in output folder
@@ -239,7 +240,8 @@ class Processor:
         This method splits a video into *interval* second long clips, but for any remainder
         the last clip will be truncated. For example: A 43 second long video with a 10 second interval
         will produce 5 modified: 4 ten second clips, and one three second long one, rather than filling with
-        black space. *Probably can be changed if need be but idk why you'd want that?
+        black space.
+
         Returns
         -------
         None, but creates interval second long videos in output folder
@@ -257,6 +259,7 @@ class Processor:
         Given a passed frame, this method will create a video starting at that specific
         frame and running all the way until the end. Again, might not be the stupidest idea to
         add in some safety/edge case stuff here
+
         Returns
         -------
         None, but creates trimmed video in output folder
@@ -275,6 +278,7 @@ class Processor:
         frames to crop to, it will send a cropped video to the output folder.
         *Could change num_frames to a time duration to make more sense to a human user but like
         just use split_on_time???
+
         Returns
         -------
         None, but creates trimmed video in output folder
@@ -295,6 +299,7 @@ class Processor:
         Crops a Width x Height section of the video starting at pixel coordinates x, y
         and just uses the active video object to do so. Note, re-encoding is a necessary
         step for ANY filter application, so there will be noticeable processing time.
+
         Returns
         -------
         None, but creates cropped video in output folder
@@ -312,6 +317,7 @@ class Processor:
         Will need to pass a lot more params but right now swaprect looks like:
         =width:height:x1:y1:x2:y2:....(n,startFrame,endFrame)
         *** HARDCODED FOR NOW, MAY REPLACE W OPENCV MASK SO IM NOT GONNA WORK ON IT UNTIL I KNOW
+
         Returns
         -------
         None, but creates cropped video in output folder
@@ -337,6 +343,7 @@ class Processor:
     def cv_extract_frame_at_time(self, time):
         """
         Img extraction that takes less than half as long as the FFMpeg version
+
         Returns
         -------
         None, but frame grabbed is displayed in output folder
@@ -351,7 +358,8 @@ class Processor:
 
     def cv_extract_specific_frame(self, frame):
         """
-        OpenCv method to grab a single frame (very cool)
+        OpenCv method to grab a single frame as a PNG
+
         Returns
         -------
         None, but frame grabbed is displayed in output folder
@@ -367,6 +375,7 @@ class Processor:
         Given a starting frame, extract the next num_frames from the video, and store the resulting
         collection of frames in the output folder. USE THIS SPARINGLY!!!! Has the potential to create like
         a million images, only use this when you REALLY need a lot of frames or a specific set of frames.
+
         Returns
         -------
         None, but frames are displayed in output folder
@@ -376,22 +385,19 @@ class Processor:
                   f"modified/extract_many_frames{video.title}%02d.png"
             subprocess.call(cmd, shell=True)
 
-    def blur_video(self, blur_level, blur_steps=1, output=None):
+    def blur_video(self, blur_level, blur_steps=1):
         """
         Create a Gaussian blur, with the blur_level being the sigma level for the blur, with the
         blur_steps being the amount of times that sigma level is applied to the video. Might
         add a feature to box blur if needed. Upper limit to steps is 6, default is 1; unsure
         what the upper limit of the sigma is.
+
+        Returns
+        -------
+        None, outputs new videos to modified folder
         """
         for video in self.video_list:
-            if output is None:
-                output = f"modified/blurred_{video.title}"
-            cmd = f"{ffmpeg} -i '{video.getfile()}' -vf 'gblur=sigma={blur_level}:steps={blur_steps}' -c:a copy " \
+            output = f"modified/blurred_{video.title}"
+            cmd = f"{ffmpeg} -i '{video.get_file()}' -vf 'gblur=sigma={blur_level}:steps={blur_steps}' -c:a copy " \
                   f"{output}"
             subprocess.call(cmd, shell=True)
-
-    def cleanup(self) -> None:
-        """
-        This method will release the current view of video object from RAM.
-        """
-        self.capture.release()

@@ -57,7 +57,7 @@ class Video:
         String of JSON Dictionary full of video metadata
         """
         if self.meta_data is None:
-            command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.getfile()}'"
+            command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.file}'"
             out = subprocess.check_output(command, shell=True).decode("utf-8")
             json_data = json.loads(out)
             self.meta_data = json_data
