@@ -36,16 +36,40 @@ from aEye.video import Video
 from aEye.processor import Processor
 ```
 
-4. Initalize the processor class
+4. Initalize the auxiliary class
+
+```console
+aux = Aux()
+```
+
+5. Load the video from the desired bucket and folder
+
+```console
+video_list = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/')
+```
+
+5. Initalize the processor class
 
 ```console
 process = Processor()
 ```
 
-5. Load the video from the desired bucket and folder and resize them to desired ratio
+6. Use the processor to trim the videos
 
 ```console
-process.load_and_resize(bucket = 'aeye-data-bucket', prefix = 'input_video/', x_ratio = .6, y_ratio = .5)
+trimmed = process.trimmed_from_for(video_list,0,5)
+```
+
+7. Use the processor to resize the trimmed videos
+
+```console
+res_trimmed = process.resize_by_ratio(trimmed,.5,.5)
+```
+
+8 Use auxiliary class to write the resized and trimmed video
+
+```console
+aux.write(res_trimmed)
 ```
 
 6. Upload the result to the desire bucket

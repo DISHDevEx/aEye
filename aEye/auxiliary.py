@@ -145,7 +145,7 @@ class Aux():
                 #video.cleanup()
 
         
-        logging.info(f"successfully upload the output files S3 bucket: s3://{aeye-data-bucket}/{prefix}/")
+        logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
         logging.info("successfully remove the output file from local machine")
 
 
@@ -155,4 +155,5 @@ class Aux():
         This method will delete the temp folder from local machine. 
         """
         os.rmdir(self._temp_fold)
+        logging.info("successfully remove the temp folder from local machine")
 
