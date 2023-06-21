@@ -34,6 +34,7 @@ import boto3
 import cv2
 from aEye.video import Video
 from aEye.processor import Processor
+from aEye.auxiliary import Aux
 ```
 
 4. Initalize the auxiliary class
