@@ -106,6 +106,8 @@ class Processor:
 
 
         else:
+            local_path = local_path.replace('/', ' ').strip()
+            title = local_path.split(' ')[-1]
             self.video_list.append(Video(file = local_path, title = local_path))
 
         return self.video_list
