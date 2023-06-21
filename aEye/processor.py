@@ -209,7 +209,7 @@ class Processor:
         
         for video in self.video_list:
             if video.get_modification() != "":
-                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_modification()} {self._temp_fold}/{video.get_output_title}"
+                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_modification()} {self._temp_fold}/{video.get_output_title()}"
                 subprocess.run(command, shell=True)
                 print(command)
 
