@@ -47,6 +47,7 @@ class Video:
         self.title = title
         self.cv_video = cv2.VideoCapture(file)
 
+
     def extract_metadata(self):
         """
         Probably the most important method, probes a video passed with a
@@ -98,4 +99,18 @@ class Video:
         Returns the file path as a string
         """
         return self.file
+
+    def get_width(self):
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["width"]
+        else:
+            self.meta_data = self.extract_metadata()
+            return self.meta_data["streams"][0]["width"]
+
+    def get_height(self):
+        if self.meta_data is not None:
+            return self.meta_data["streams"][0]["height"]
+        else:
+            self.meta_data = self.extract_metadata()
+            return self.meta_data["streams"][0]["height"]
 
