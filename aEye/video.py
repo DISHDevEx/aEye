@@ -4,6 +4,8 @@ Module contains the Video class that stores and represents video files as object
 """
 import cv2
 import numpy as np
+import json
+import subprocess
 from static_ffmpeg import run
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
