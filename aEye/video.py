@@ -47,7 +47,7 @@ class Video:
 
     def __init__(self,file , title = None ) -> None:
         self.file = file
-        self.meta_data = 'insert by James'
+        self.meta_data = None
 
         self.capture = cv2.VideoCapture(file)
 
@@ -70,6 +70,22 @@ class Video:
             
         """
         return self.title
+
+     def extract_metadata(self):
+        """
+        Probably the most important method, probes a video passed with a
+        file path and returns a json dictionary full of metadata. Video metadata lives in
+        json['streams'][0] because it is the first channel and the dictionary splits streams from error
+        Returns
+        -------
+        String of JSON Dictionary full of video metadata
+        """
+        if self.meta_data is None:
+            command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.file}'"
+            out = subprocess.check_output(command, shell=True).decode("utf-8")
+            json_data = json.loads(out)
+            self.meta_data = json_data
+            return json_data
             
 
     def cleanup(self) -> None:
