@@ -71,7 +71,7 @@ class Video:
         """
         return self.title
 
-     def extract_metadata(self):
+    def extract_metadata(self):
         """
         Probably the most important method, probes a video passed with a
         file path and returns a json dictionary full of metadata. Video metadata lives in
@@ -81,11 +81,11 @@ class Video:
         String of JSON Dictionary full of video metadata
         """
         if self.meta_data is None:
-            command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.file}'"
-            out = subprocess.check_output(command, shell=True).decode("utf-8")
-            json_data = json.loads(out)
-            self.meta_data = json_data
-            return json_data
+        command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i '{self.file}'"
+        out = subprocess.check_output(command, shell=True).decode("utf-8")
+        json_data = json.loads(out)
+        self.meta_data = json_data
+        return json_data
             
 
     def cleanup(self) -> None:
