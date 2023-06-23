@@ -76,7 +76,7 @@ class Processor:
 
             title = i["Key"].split(prefix)[1]
             #In order to convert video file from S3 to cv2 video class, we need its url.
-            url = self._s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=5)
+            url = self._s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': bucket, 'Key': i["Key"] } ,ExpiresIn=300)
             self.video_list.append(Video(url, title))
 
         logging.info(f"Successfully loaded video data from {bucket}")
