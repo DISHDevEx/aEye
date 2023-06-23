@@ -8,7 +8,7 @@ basic metadata test to ensure that all the extracted metadata is what it should 
 def test_extract_metadata():
     process = Processor()
     process.load(bucket='aeye-data-bucket', prefix='input_video/')
-    video_list = process.video_list()
+    video_list = process.video_list
     for video in video_list:
         to_check = video.extract_metadata()
         codec = to_check["streams"][0]["codec_name"]
