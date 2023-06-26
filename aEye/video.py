@@ -3,14 +3,14 @@ Module contains the Video class that stores and represents video files as object
 
 """
 import cv2
-
-import boto3
-import subprocess
+import os
 import json
-import numpy as np
+import subprocess
 from static_ffmpeg import run
+
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
-s3 = boto3.client("s3")
+
+
 class Video:
     """
     Video class that encapsulates all necessary video information.
@@ -18,73 +18,49 @@ class Video:
     video clips, trim them down, crop, etc.
     Attributes
     ----------
-
-        file: string
-            The path/file name of the video.
-
-        title: string
-            The title that represents the video file.
-
-        bucket: string
-            The name of the bucket that video exists in.
-
-
-        key: string
-            The key that associates with the video file.
-
-
-
-
-
+    file: str
+        path of the video file associated with the object
+    meta_data: str
+        JSON dictionary of video metadata, typically streams[0] is the video metadata
+    cv_video: cv2.VideoCapture
+        OpenCV video object, used for any openCV processing
+    ----------
     Methods
-    -------
-    
-        __repr__() -> string:
-            A native python method to represent the Video class.
+    ----------
+    extract_metadata -> str:
+        Collects the metadata from all video sources and separates the streams
+        Necessary for basically any processing, but still has to be set (none by default)
+    get_codec -> str:
+        Returns the video codec
+    get_duration -> str:
+        Returns video duration in seconds, but does so as a string
+    get_frames -> str:
+        Returns the amount of frames in the video as a string (via OpenCV)
+    getfile -> str:
+        Returns video file path
 
-        __eq__() -> string:
-            A native python method to add comparison functionality.
-
-        __bool__() -> boolean:
-            A native python method to see whether video can be readed properly.
-
-        cleanup() -> None:
-            Clean up memory from cv2 video capture.
-
-        get_meta_data() -> None:
-            Retrieve the meta data from video.
-
-        get_presigned_url(time) -> string:
-            Retrieve the url for video file from S3 bucket. 
-
-
-        add_label(self, mod) -> None:
-            Add ffmpeg label to video object.
-
-        reset_label() -> None:
-            Reset and remove all labels.
-
-        get_label(self) -> string:
-            Get ffmpeg label from video objects.
-        
     """
 
-
-    def __init__(self,file = None, bucket = None  , key = None,  title = None ) -> None:
+    def __init__(self, file=None, bucket=None, key=None, title=None) -> None:
         self.file = file
         self.bucket = bucket
         self.key = key
         self.title = title
         self.meta_data = None
         self.label = ''
- 
+
     def __repr__(self):
-        """    title: string
+        """
+        This method will implement the video title name as object representation.
+
+        Returns
+        ---------
+            title: string
                 The title of video file.
-            
+
         """
         return self.title
-    
+
     def __eq__(self, target):
         """
         This method will implement comparison functionality for video.
@@ -94,10 +70,25 @@ class Video:
         ---------
             comparison: boolean
                 Boolean state of whether the target's title is same self's title.
-                
+
+
         """
+
         return self.title == target
-        
+
+    def __bool__(self):
+        """
+        This method will check whether the video file can be readed properly.
+
+        Returns
+        ---------
+            condition: boolean
+                Boolean state of whether the video can be readed properly.
+
+        """
+        return cv2.VideoCapture(self.get_presigned_url(time=2)).read()[0]
+
+
     def extract_metadata(self):
         """
         Probably the most important method, probes a video passed with a
@@ -170,23 +161,15 @@ class Video:
             self.meta_data = self.extract_metadata()
             return self.meta_data["streams"][0]["height"]
 
-    
-    def __bool__(self):
+    def cleanup(self) -> None:
         """
-        This method will check whether the video file can be readed properly.
-        
-        Returns
-        ---------
-            condition: boolean
-                Boolean state of whether the video can be readed properly.
-        
+        This method will release the current view of video object from RAM.
         """
-        return cv2.VideoCapture(self.get_presigned_url(time = 2)).read()[0]
+        self.capture.release()
 
-
-    def get_presigned_url(self, time = 60):
+    def get_presigned_url(self, time=60):
         """
-        This method will return the presigned url of video file from S3. 
+        This method will return the presigned url of video file from S3.
         If the video file is from local machine then it will return the local path of the video file.
 
         Returns
@@ -197,10 +180,11 @@ class Video:
         """
 
         if self.file is None:
-            url = s3.generate_presigned_url( ClientMethod='get_object', Params={ 'Bucket': self.bucket, 'Key': self.key} ,ExpiresIn=time)
+            url = s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': self.bucket, 'Key': self.key},
+                                            ExpiresIn=time)
             return f"'{url}'"
         return self.file
-    
+
     def add_label(self, label):
         """
         This method will add ffmpeg label to the video.
@@ -219,7 +203,7 @@ class Video:
         This method will return the all ffmpeg label from the video.
         """
         return self.label
-    
+
     def get_output_title(self):
         """
         This method will create the output title for video so the users can know all the labels that happen to the video.
@@ -237,4 +221,5 @@ class Video:
         if '-ss' in self.label:
             result += "trimmed_"
         return result + self.title
+
 

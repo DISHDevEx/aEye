@@ -4,15 +4,15 @@ Module contains the Processor class that, loads, uploads, and facilitates all vi
 """
 
 import boto3
-import os, shutil
+import os
 import cv2
 import logging
 from aEye.video import Video
-
 from static_ffmpeg import run
 import math
 import subprocess
 import tempfile
+import shutil
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
@@ -43,7 +43,7 @@ class Processor:
         trim_into_clips(interval) -> None:
             Splits the video into X second clips, sends all these clips to output
             folder.
-            *Note this should be done LAST for any multiprocessing
+            *will re-encode
 
         split_on_frame(frame) -> None:
             Given a specific frame, start the video there, removes any preceding frames.
@@ -68,8 +68,11 @@ class Processor:
         extract_many_frames(start_frame, num_frames) -> None:
             Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.
 
-        resize_by_ratio(x_ratio, y_ratio) -> None:
-            Given a ratio between 0 < x < 1, resize the video to that dimension
+        blur_video(blur_level, blur_steps) -> None:
+            Adds the blur_level amount of blur blur_steps amount of times to a video.
+
+        clear_outputs() -> None:
+            Deletes all files in the hardcoded directory for output videos (modified)
 
 
     """
@@ -77,9 +80,7 @@ class Processor:
     def __init__(self) -> None:
         pass
 
-
-
-    def add_label_resizing_by_ratio(self,video_list, x_ratio = .8, y_ratio = .8):
+    def add_label_resizing_by_ratio(self, video_list, x_ratio=.8, y_ratio=.8):
         """
         This method will add resizing label to all target the video that will be multiplying the 
         width by x_ratio and height by y_ratio.
@@ -102,22 +103,19 @@ class Processor:
             
         """
 
-
-        #Go to each video and add the resizing ffmpeg label.
+        # Go to each video and add the resizing ffmpeg label.
         for video in video_list:
-
-
             video.extract_metadata()
-            new_width = int(video.get_width() * x_ratio )
-            new_height = int(video.get_height() * y_ratio )
+            new_width = int(video.get_width() * x_ratio)
+            new_height = int(video.get_height() * y_ratio)
 
-            video.add_label(f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
+            video.add_label(f"-vf scale={math.ceil(new_width / 2) * 2}:{math.ceil(new_height / 2) * 2},setsar=1:1 ")
 
         logging.info(f"successfully added resizing mod to all video by ratio of {x_ratio} and {y_ratio}")
-    
+
         return video_list
-        
-    def add_label_trimming_start_duration(self,video_list, start, duration):
+
+    def add_label_trimming_start_duration(self, video_list, start, duration):
         """
         This method will add the trim label with desired parameters to the video list.
         Parameters
@@ -138,12 +136,12 @@ class Processor:
                 The list of video that contains the trim label.
             
         """
-        #Generate the desired target list of videos to add label.
-        #Add the trim ffmpeg label to all desired videos.
+        # Generate the desired target list of videos to add label.
+        # Add the trim ffmpeg label to all desired videos.
         for video in video_list:
             video.add_label(f"-ss {start} -t {duration} ")
 
-        logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
+        logging.info(f"successfully added trimming mod from {start} for {duration} seconds")
 
         return video_list
 
@@ -154,8 +152,9 @@ class Processor:
 
         Parameters
         -------
-        start : Start time in seconds for the cropped video to begin at
-        end   : End time in seconds for where the clip should end.
+        video_list : List of all video objects loaded for processing.
+        start      : Start time in seconds for the cropped video to begin at
+        end        : End time in seconds for where the clip should end.
 
         Returns
         -------
@@ -177,8 +176,9 @@ class Processor:
 
         Parameters
         -------
-        interval : The clip interval in seconds. Note, this will not be 100% accurate, as it will split on
-                   the nearest frame its possible to split on.
+        video_list : List of all video objects loaded for processing.
+        interval   : The clip interval in seconds. Note, this will not be 100% accurate, as it will split on
+                     the nearest frame its possible to split on.
 
         Returns
         -------
@@ -186,7 +186,7 @@ class Processor:
         """
         for video in video_list:
             cmd = (
-                f"{ffmpeg} -y -i '{video.get_file()}' -c copy -map 0 -segment_time {interval} "
+                f"{ffmpeg} -y -i '{video.get_file()}' -c:v libx264 -map 0 -segment_time {interval} "
                 f"-f segment -reset_timestamps 1 -break_non_keyframes 1 "
                 f"modified/output_trim_into_{interval}s_clips_%02d_{video.title}"
             )
@@ -201,7 +201,8 @@ class Processor:
 
         Parameters
         -------
-        frame : The frame on which the output video will begin on.
+        video_list : List of all video objects loaded for processing.
+        frame      : The frame on which the output video will begin on.
 
         Returns
         -------
@@ -222,6 +223,7 @@ class Processor:
 
         Parameters
         -------
+        video_list  : List of all video objects loaded for processing.
         start_frame : This is the frame that the clip will begin at. Sometimes it will not be possible to get the
                       exact start frame, but if this is the case, it will get the closest without truncating the video.
         num_frames  : This is the number of frames that will be in the clip. For example, if num_frames is 60
@@ -249,6 +251,7 @@ class Processor:
 
         Parameters
         -------
+        video_list     : List of all video objects loaded for processing.
         start_x        :The pixel x coordinate for where the crop frame should originate.
         start_y        :The pixel y coordinate for where the crop frame should originate.
         section_width  :Width in pixels for the cropped section.
@@ -273,7 +276,8 @@ class Processor:
 
         Parameters
         -------
-        time : Time in seconds to extract frame. Can be a float for higher degree of specificity
+        video_list : List of all video objects loaded for processing.
+        time       : Time in seconds to extract frame. Can be a float for higher degree of specificity
 
         Returns
         -------
@@ -296,7 +300,8 @@ class Processor:
 
         Parameters
         -------
-        frame : The frame number to be saved as a PNG
+        video_list : List of all video objects loaded for processing.
+        frame      : The frame number to be saved as a PNG
 
         Returns
         -------
@@ -319,6 +324,7 @@ class Processor:
 
         Parameters
         -------
+        video_list  : List of all video objects loaded for processing.
         start_frame : Number of the frame at which to start all the frame grabs.
         num_frames  : Number of frames to extract. THIS IS THE AMOUNT OF IMAGES PER VIDEO YOU WANT
                       UNLESS YOU NEED A TON OF CONTIGUOUS FRAMES, DO NOT SET THIS TO A HIGH NUMBER.
@@ -345,6 +351,7 @@ class Processor:
 
         Parameters
         -------
+        video_list : List of all video objects loaded for processing.
         blur_level : Integer level to determine the strength of a blur applied. Higher strength is more blur.
         blur_steps : Integer amount of times blur level is applied. 1-6, with each step being a reapplication of
                      the original filter level. Good practice is to have a low blur applied with multiple steps
@@ -360,7 +367,6 @@ class Processor:
                   f"{output}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a blur of strength {blur_level} and applied it {blur_steps} times")
-
 
     def remove_outputs(self):
         """
@@ -380,4 +386,3 @@ class Processor:
                 shutil.rmtree(path)
             except OSError:
                 os.remove(path)
-
