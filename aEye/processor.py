@@ -399,10 +399,9 @@ class Processor:
         None, but frames are displayed in output folder
         """
         for video in self.video_list:
-            actual_title = video.title
-            actual_title.strip(".mp4")
+            actual_title = os.path.splitext(video.title)[0]
             cmd = f"{ffmpeg} -i '{video.get_file()}' -vf select='eq(n\,{start_frame})' -frames:v {num_frames} " \
-                  f"aEye/modified/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}%02d.png"
+                  f"aEye/modified/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}_%02d.png"
             subprocess.call(cmd, shell=True)
             logging.info(f"Extracted {num_frames} from video, saved as PNG's")
 
