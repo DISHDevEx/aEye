@@ -129,7 +129,7 @@ class Aux():
         s3 = boto3.client('s3')
         for video in video_list:
             if video.get_label() != "":
-                if self._local_path:
+                if not self._local_path:
                     path = self._temp_folder +'/'+video.get_output_title() 
                 else:
                     path = self._local_path +'/'+video.get_output_title() 
@@ -155,6 +155,7 @@ class Aux():
 
         """
         
+        #If the user prompts this method with a specific path, then this will save it into the internal variable.
         if path is None:
             path = self._temp_folder
         else:
@@ -164,7 +165,6 @@ class Aux():
             #This if statement will skip over any untouched videos.
             if video.get_label() != "":
                 command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_label()} {path}/{video.get_output_title()}"
-                video.set_output_path(f'{path}/{video.get_output_title()}')
                 subprocess.run(command, shell=True)
                 logging.info(command)
 
@@ -190,4 +190,8 @@ class Aux():
 
 
     def set_local_path(self, path):
+        """
+        This method will set the path as a internal variable
+        
+        """
         self._local_path = path

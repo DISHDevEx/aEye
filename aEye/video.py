@@ -189,11 +189,3 @@ class Video:
             result += "trimmed_"
         return result + self.title
 
-
-
-
-
-
-            
-
-

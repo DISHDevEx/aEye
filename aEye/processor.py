@@ -106,9 +106,3 @@ class Processor:
         logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
 
         return video_list
-
-
-
-    
-
-

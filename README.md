@@ -70,7 +70,7 @@ res_trimmed_s3 = process.add_label_resizing_by_ratio(trimmed_s3,.5,.5)
 8. Use auxiliary class to execute and write the videos with resized and trimmed labels.
 
 ```console
-aux.execute_label_and_write_to(res_trimmed_s3)
+aux.execute_label_and_write_local(res_trimmed_s3)
 ```
 
 9. Upload the result to the desire bucket.
@@ -102,5 +102,5 @@ trimmed_local = process.add_label_trimming_start_duration(video_list_local,0,5)
 12 Execute all labels and write the output to data/ folder.
 
 ```console
-aux.execute_label_and_write_to(trimmed_local,'data/')
+aux.execute_label_and_write_local(trimmed_local,'data/')
 ```
