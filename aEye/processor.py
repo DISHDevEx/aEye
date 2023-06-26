@@ -40,7 +40,7 @@ class Processor:
 
 
 
-    def resize_by_ratio(self,video_list, x_ratio = .8, y_ratio = .8):
+    def add_label_resizing_by_ratio(self,video_list, x_ratio = .8, y_ratio = .8):
         """
         This method will add resizing modification to all target the video that will be multiplying the 
         width by x_ratio and height by y_ratio.
@@ -76,7 +76,7 @@ class Processor:
     
         return video_list
         
-    def trimmed_from_for(self,video_list, start, duration):
+    def add_label_trimming_from_for(self,video_list, start, duration):
         """
         This method will add the trim modification with desired parameters to the video list.
         Parameters

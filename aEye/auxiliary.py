@@ -18,7 +18,7 @@ class Aux():
         _s3: botocore.client.S3
             An internal variable to talk to S3.
 
-        __temp_fold: string
+        __temp_folder: string
             An internal variable for temp folder path.
 
 
@@ -41,7 +41,7 @@ class Aux():
     def __init__(self):
 
         self._s3 = boto3.client('s3')
-        self._temp_fold = tempfile.mkdtemp(dir= "")
+        self._temp_folder = tempfile.mkdtemp(dir= "")
 
     def load_s3(self,bucket , prefix):
         """
@@ -71,6 +71,8 @@ class Aux():
 
             title = i["Key"].split(prefix)[1]
             video_list.append(Video(bucket = bucket,key= i["Key"], title = title))
+        logging.info(f"successfully load the video files from S3 bucket: s3://{bucket}/{prefix}/")
+
         return video_list
 
 
@@ -82,39 +84,26 @@ class Aux():
         Parameters
         ----------
             path: string
-                The bucket name to path into S3 to get the video files.
-            prefix: string
-                The folder name where the video files belong in the S3 bucket.
+                The bucket name to path into local to get the video files.
 
         Returns
         -------
             video_list: list
-                The list of all video files loaded from S3 bucket.
+                The list of all video files loaded from local bucket.
         """
         video_list = []
         if os.path.isdir(path):
             files = os.listdir('data')
-            video_list = [ Video(file=  path + i, title=i) for i in files if (i !='.ipynb_checkpoints' and i != '.gitkeep' ) ]
-
+            video_list = [Video(file=  path + i, title=i) for i in files if Video(file=  path + i, title=i)]
 
         else:
             dummy = path.replace('/', ' ').strip()
             title = dummy.split(' ')[-1]
             video_list.append(Video(file = path, title = title))
 
-        return video_list
-
-    def write(self, video_list):
-        """
-        This method will execute and write new videos based on all videos that contain ffmpeg modifications. 
-        """
+        logging.info(f"successfully load the video files from local path: {path}")
         
-        for video in video_list:
-            #This if statement will skip over any untouched videos.
-            if video.get_modification() != "":
-                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_modification()} {self._temp_fold}/{video.get_output_title()}"
-                subprocess.run(command, shell=True)
-                print(command)
+        return video_list
 
 
     def upload_s3(self, video_list, bucket ,prefix =  'modified/'):
@@ -137,23 +126,52 @@ class Aux():
         for video in video_list:
             if video.get_modification() != "":
 
-                path = self._temp_fold +'/'+video.get_output_title()
-                response = s3.upload_file( path, bucket, prefix  + video.get_output_title())
-
-                #delete all file from RAM and local machine
-                os.remove(path)
-                #video.cleanup()
-
+                s3.upload_file( video.get_output_location() , bucket, prefix  + video.get_output_title())
         
         logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
         logging.info("successfully remove the output file from local machine")
 
 
 
+    def execute_label_and_write_to(self, video_list, location = None):
+        """
+        This method will execute and write new videos based on all videos that contain ffmpeg modifications. 
+        This will default write the output video into a temp folder unless the user provide a local path. 
+        
+        Parameters
+        ----------
+            video_list: list
+                The list of video that needs to be executed and wrote as output files.
+
+            local: string
+                The path to write the output videos to.
+
+        """
+        location = self._temp_folder if location else location
+
+        for video in video_list:
+            #This if statement will skip over any untouched videos.
+            if video.get_modification() != "":
+                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_modification()} {location}/{video.get_output_title()}"
+                video.set_output_location(f'{location}/{video.get_output_title()}')
+                subprocess.run(command, shell=True)
+                logging.info(command)
+
+        
+        logging.info(f"successfully write the output video files to path: {location}")
+
+
     def clean_temp(self):
         """
-        This method will delete the temp folder from local machine. 
+        This method will delete the temp folder and all video files in it from local machine. 
         """
-        os.rmdir(self._temp_fold)
+
+
+        for (path,_ ,files) in os.walk(self._temp_folder, topdown=True):
+            for video in files:
+                os.remove(f'{path}/{video}')
+
+        os.rmdir(self._temp_folder)
+
         logging.info("successfully remove the temp folder from local machine")
 

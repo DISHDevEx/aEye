@@ -32,6 +32,7 @@ class Video:
 
 
 
+
     Methods
     -------
     
@@ -40,6 +41,9 @@ class Video:
 
         __eq__() -> string:
             A native python method to add comparison functionality.
+
+        __bool__() -> boolean:
+            A native python method to see whether video can be readed properly.
 
         cleanup() -> None:
             Clean up memory from cv2 video capture.
@@ -59,6 +63,12 @@ class Video:
         get_modification(self) -> string:
             Get ffmpeg modification from video objects.
 
+        set_output_location(self) -> None:
+            Set output file location for video objects.
+            
+        get_output_location(self) -> string:
+            Get output file location from video objects.
+
         
     """
 
@@ -70,6 +80,7 @@ class Video:
         self.title = title
         self.meta_data = None
         self.modification = ''
+        self.output_location = None
  
     def __repr__(self):
         """
@@ -93,17 +104,24 @@ class Video:
             comparison: boolean
                 Boolean state of whether the target's title is same self's title.
             
+
         """
 
         return self.title == target
     
+    def __bool__(self):
+        """
+        This method will check whether the video file can be readed properly.
+        
+        Returns
+        ---------
+            condition: boolean
+                Boolean state of whether the video can be readed properly.
+        
+        """
+        return cv2.VideoCapture(self.get_presigned_url(time = 2)).read()[0]
     
 
-    def cleanup(self):
-        """
-        This method will release the current view of video object from RAM.
-        """
-        self.cap.release()
 
     def get_meta_data(self):
         """
@@ -165,6 +183,11 @@ class Video:
         """
         This method will create the output title for video so the users can know all the modifications that happen to the video.
         (I have a better implementation of this, it will be in the next pr after james adds all of the features.)
+
+        Returns
+        ---------
+            result: string
+                The output title of video.
         """
 
         result = ''
