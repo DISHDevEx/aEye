@@ -18,16 +18,16 @@ ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 class Processor:
 
     """
-    Processor is the class that works as a labeler that tags and adds ffmpeg modification to video object.
+    Processor is the class that works as a labeler that tags and adds ffmpeg label to video object.
 
     Methods
     -------
 
-        resize_by_ratio(x_ratio, y_ratio,target) -> None:
-            Add modification of resizing video by multiplying width by the ratio to video.
+        add_label_resizing_by_ratio(x_ratio, y_ratio,target) -> None:
+            Add label of resizing video by multiplying width by the ratio to video.
 
-        trimmed_from_for(start, duration, target) -> None:
-            Add modification of trimming video from start input for duration of seconds to video.
+        add_label_trimming_start_duration(start, duration, target) -> None:
+            Add label of trimming video from start input for duration of seconds to video.
 
     """
     def __init__(self) -> None:
@@ -42,7 +42,7 @@ class Processor:
 
     def add_label_resizing_by_ratio(self,video_list, x_ratio = .8, y_ratio = .8):
         """
-        This method will add resizing modification to all target the video that will be multiplying the 
+        This method will add resizing label to all target the video that will be multiplying the 
         width by x_ratio and height by y_ratio.
         Both values have to be non negative and non zero value.
 
@@ -58,27 +58,27 @@ class Processor:
         Returns
         ---------
             video_list: list
-                The list of video that contains the resize modification.
+                The list of video that contains the resize label.
             
         """
 
 
-        #go to each video and add the resizing ffmpeg modification
+        #Go to each video and add the resizing ffmpeg label.
         for video in video_list:
 
             video.get_meta_data()
             new_width = int(video.meta_data['width'] * x_ratio )
             new_height = int(video.meta_data['height'] * y_ratio )
 
-            video.add_modification(f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
+            video.add_label(f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
 
         logging.info(f"successfully added resizing mod to all video by ratio of {x_ratio} and {y_ratio}")
     
         return video_list
         
-    def add_label_trimming_from_for(self,video_list, start, duration):
+    def add_label_trimming_start_duration(self,video_list, start, duration):
         """
-        This method will add the trim modification with desired parameters to the video list.
+        This method will add the trim label with desired parameters to the video list.
         Parameters
         ----------
             video_list: list
@@ -93,15 +93,15 @@ class Processor:
         Returns
         ---------
             video_list: list
-                The list of video that contains the trim modification.
+                The list of video that contains the trim label.
             
         """
 
 
-        #generate the desired target list of videos to add modification
-        #add the trim ffmpeg modification to all desired videos
+        #Generate the desired target list of videos to add label.
+        #Add the trim ffmpeg label to all desired videos.
         for video in video_list:
-            video.add_modification(f"-ss {start} -t {duration} ")
+            video.add_label(f"-ss {start} -t {duration} ")
 
         logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
 

@@ -54,21 +54,14 @@ class Video:
         get_presigned_url(time) -> string:
             Retrieve the url for video file from S3 bucket. 
 
-        add_modification(self, mod) -> None:
-            Add ffmpeg modification to video object.
+        add_label(self, mod) -> None:
+            Add ffmpeg label to video object.
 
-        reset_modification() -> None:
-            Reset and remove all modifications.
+        reset_label() -> None:
+            Reset and remove all labels.
 
-        get_modification(self) -> string:
-            Get ffmpeg modification from video objects.
-
-        set_output_location(self) -> None:
-            Set output file location for video objects.
-            
-        get_output_location(self) -> string:
-            Get output file location from video objects.
-
+        get_label(self) -> string:
+            Get ffmpeg label from video objects.
         
     """
 
@@ -79,8 +72,7 @@ class Video:
         self.key = key
         self.title = title
         self.meta_data = None
-        self.modification = ''
-        self.output_location = None
+        self.label = ''
  
     def __repr__(self):
         """
@@ -160,28 +152,28 @@ class Video:
             return f"'{url}'"
         return self.file
     
-    def add_modification(self, mod):
+    def add_label(self, label):
         """
-        This method will add ffmpeg modification to the video.
+        This method will add ffmpeg label to the video.
         """
-        self.modification += mod
+        self.label += label
 
-    def reset_modification(self):
+    def reset_label(self):
         """
-        This method will reset all ffmpeg modification to empty.
+        This method will reset all ffmpeg label to empty.
         """
 
-        self.modification = ''
+        self.label = ''
 
-    def get_modification(self):
+    def get_label(self):
         """
-        This method will return the all ffmpeg modification from the video.
+        This method will return the all ffmpeg label from the video.
         """
-        return self.modification
+        return self.label
     
     def get_output_title(self):
         """
-        This method will create the output title for video so the users can know all the modifications that happen to the video.
+        This method will create the output title for video so the users can know all the labels that happen to the video.
         (I have a better implementation of this, it will be in the next pr after james adds all of the features.)
 
         Returns
@@ -191,29 +183,14 @@ class Video:
         """
 
         result = ''
-        if 'scale' in self.modification:
+        if 'scale' in self.label:
             result += "resized_"
-        if '-ss' in self.modification:
+        if '-ss' in self.label:
             result += "trimmed_"
         return result + self.title
 
 
-    def set_output_location(self, path):
-        """
-        This method is a setter for where the output video will be located.
-        """
-        self.output_location = path
 
-    def get_output_location(self):
-        """
-        This method is a get for where the output video is located.
-        Returns
-        ---------
-            result: string
-                The output location of the video file.
-        """
-
-        return self.output_location
 
 
 

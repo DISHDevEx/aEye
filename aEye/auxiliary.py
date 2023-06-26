@@ -18,8 +18,11 @@ class Aux():
         _s3: botocore.client.S3
             An internal variable to talk to S3.
 
-        __temp_folder: string
+        _temp_folder: string
             An internal variable for temp folder path.
+
+        _local_path: string
+            An internal variable for local folder path.
 
 
     Methods
@@ -31,7 +34,7 @@ class Aux():
             Loads in video files as Video classes into a list from local machine.
     
         write() -> None:
-            Execute and run the video's modifications and write the video to temp folder.
+            Execute and run the video's labels and write the video to temp folder.
 
         clean_temp() -> None:
             Clean up the temp folder.
@@ -42,6 +45,7 @@ class Aux():
 
         self._s3 = boto3.client('s3')
         self._temp_folder = tempfile.mkdtemp(dir= "")
+        self._local_path = None
 
     def load_s3(self,bucket , prefix):
         """
@@ -115,7 +119,7 @@ class Aux():
             video_list: list
                 The list of video that needs to be uploaded.
             bucket: string
-                The bucket name/location to upload on S3.
+                The bucket name/path to upload on S3.
             prefix: string
                 The subfolder name that the video list will be uploaded to.
             
@@ -124,18 +128,21 @@ class Aux():
 
         s3 = boto3.client('s3')
         for video in video_list:
-            if video.get_modification() != "":
-
-                s3.upload_file( video.get_output_location() , bucket, prefix  + video.get_output_title())
+            if video.get_label() != "":
+                if self._local_path:
+                    path = self._temp_folder +'/'+video.get_output_title() 
+                else:
+                    path = self._local_path +'/'+video.get_output_title() 
+                s3.upload_file( path , bucket, prefix  + video.get_output_title())
         
         logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
         logging.info("successfully remove the output file from local machine")
 
 
 
-    def execute_label_and_write_to(self, video_list, location = None):
+    def execute_label_and_write_local(self, video_list, path = None):
         """
-        This method will execute and write new videos based on all videos that contain ffmpeg modifications. 
+        This method will execute and write new videos based on all videos that contain ffmpeg labels. 
         This will default write the output video into a temp folder unless the user provide a local path. 
         
         Parameters
@@ -148,32 +155,39 @@ class Aux():
 
         """
         
-        if location is None:
-            location = self._temp_folder 
+        if path is None:
+            path = self._temp_folder
+        else:
+            self.set_local_path(path)
 
         for video in video_list:
             #This if statement will skip over any untouched videos.
-            if video.get_modification() != "":
-                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_modification()} {location}/{video.get_output_title()}"
-                video.set_output_location(f'{location}/{video.get_output_title()}')
+            if video.get_label() != "":
+                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_label()} {path}/{video.get_output_title()}"
+                video.set_output_path(f'{path}/{video.get_output_title()}')
                 subprocess.run(command, shell=True)
                 logging.info(command)
 
         
-        logging.info(f"successfully write the output video files to path: {location}")
+        logging.info(f"successfully write the output video files to path: {path}")
 
 
-    def clean_temp(self):
+    def clean_temp(self, path = None):
         """
         This method will delete the temp folder and all video files in it from local machine. 
         """
+        if path is None:
+            path = self._temp_folder 
 
-
-        for (path,_ ,files) in os.walk(self._temp_folder, topdown=True):
+        for (path,_ ,files) in os.walk(path, topdown=True):
             for video in files:
                 os.remove(f'{path}/{video}')
 
-        os.rmdir(self._temp_folder)
+        os.rmdir(path)
 
         logging.info("successfully remove the temp folder from local machine")
 
+
+
+    def set_local_path(self, path):
+        self._local_path = path

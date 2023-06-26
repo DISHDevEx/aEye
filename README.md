@@ -58,7 +58,7 @@ process = Processor()
 6. Use the processor to add trim labels the videos.
 
 ```console
-trimmed_s3 = process.add_label_trimming_from_for(video_list_s3,0,5)
+trimmed_s3 = process.add_label_trimming_start_duration(video_list_s3,0,5)
 ```
 
 7. Use the processor to add resize labels to the trimmed videos.
@@ -96,7 +96,7 @@ video_list_local = aux.load_local('data/')
 11. Add Trim label for the local video files.
 
 ```console
-trimmed_local = process.add_label_trimming_from_for(video_list_local,0,5)
+trimmed_local = process.add_label_trimming_start_duration(video_list_local,0,5)
 ```
 
 12 Execute all labels and write the output to data/ folder.
