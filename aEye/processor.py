@@ -248,7 +248,8 @@ class Processor:
         for video in self.video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.get_file()}' -c copy -map 0 -segment_time {interval} "
-                f"-f segment -reset_timestamps 1 modified/output_trim_into_{interval}s_clips_%02d_{video.title}"
+                f"-f segment -reset_timestamps 1 -break_non_keyframes 1 "
+                f"modified/output_trim_into_{interval}s_clips_%02d_{video.title}"
             )
             subprocess.call(cmd, shell=True)
             logging.info(f"Video has been trimmed into {interval} second long clips!")
