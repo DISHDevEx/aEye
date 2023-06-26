@@ -98,4 +98,3 @@ class Video:
         This method will release the current view of video object from RAM.
         """
         self.capture.release()
-
