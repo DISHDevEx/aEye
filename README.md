@@ -45,6 +45,7 @@ process = Processor()
 5. Load the video from the desired bucket and folder and resize them to desired ratio
 
 ```console
+# To load with resizing: 
 process.load_and_resize(bucket = 'aeye-data-bucket', prefix = 'input_video/', x_ratio = .6, y_ratio = .5)
 # To load without resizing:
 process.load(bucket = 'aeye-data-bucket', prefix = 'input_video/')
@@ -53,8 +54,8 @@ process.load(bucket = 'aeye-data-bucket', prefix = 'input_video/')
 6. Use the Processor to perform operations on video objects
 
 ```console
-#NOTE: All methods currently process every video in the video list; multiprocessing is on the horizon
-process.trim_video_from_to(2, 6)                  #Trims video from 2s to 6s
+#NOTE: All methods currently process every video in the video list!
+process.trim_video_start_end(2, 6)                #Trims video from 2s to 6s
 process.cv_extract_specific_frame(42)             #Extracts 42nd frame as a .PNG
 process.blur_video(10,2)                          #Applies a Gaussian blur of strength 10 two times *Takes a while
 process.crop_video_section(100, 50, 100, 100)     #Creates a 100x100 pixel cropped portion starting at (100,50)
@@ -65,7 +66,11 @@ process.cv_extract_frame_at_time(2.344)           #Extracts the frame CLOSEST to
 process.extract_many_frames(3, 5)                 #Starting at frame 3, extracts 5 subsequent frames
 ```
 Running this in Jupyter Notebook will create a LOT of files in the local modified folder! This is meant to illustrate functionality.
-
+If you would like to delete the results of all this video processing rather than uploading them, please use the following:
+```
+process.remove_outputs()
+```
+This will remove every file in the modified folder! 
 8. Upload the result to the desire bucket
 
 ```console
