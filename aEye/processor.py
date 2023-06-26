@@ -4,7 +4,7 @@ Module contains the Processor class that, loads, uploads, and facilitates all vi
 """
 
 import boto3
-import os
+import os, shutil
 import cv2
 import logging
 from aEye.video import Video
@@ -42,11 +42,11 @@ class Processor:
         upload(bucket) -> None:
             Upload the modified video to S3.
 
-        split_on_time(start, end) -> None:
+        trim_video_start_end(start, end) -> None:
             Given start and end times in seconds, modified a trimmed down version of
             the video to the modified file.
 
-        split_on_interval(interval) -> None:
+        trim_into_clips(interval) -> None:
             Splits the video into X second clips, sends all these clips to output
             folder.
             *Note this should be done LAST for any multiprocessing
@@ -63,9 +63,6 @@ class Processor:
         crop_video_section(width, height, start_x, start_y) -> None:
             Create a width x height crop of the input video starting at pixel values start_x, start_y and sends the
             smaller video to the modified file.
-
-        moving_crop() -> None:
-            Can pass coordinates to move a cropped section while the video plays. Don't use it right now please...
 
         cv_extract_frame_at_time(time) -> None:
             Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the
@@ -87,6 +84,9 @@ class Processor:
         self._s3 = boto3.client('s3')
 
     def get_video_list(self):
+        """
+        Returns the list of video objects
+        """
         return self.video_list
 
     def load(self, bucket='aeye-data-bucket', prefix='input_video/'):
@@ -157,7 +157,7 @@ class Processor:
 
             # This loops to each frame of a video and resizes the current dimension to the new dimension.
             while True:
-                _, image = video.cap.read()
+                _, image = video.capture.read()
 
                 if image is None:
                     break
@@ -220,8 +220,8 @@ class Processor:
 
     def trim_video_start_end(self, start, end):
         """
-        This method can be used to extract a clip based on a given start and end point in seconds.
-        *Error checking and minute conversion would probably be good...
+        Given a start time (start) and end time (end) in seconds, this will return a clip
+        from start-end time stamps. *Note this works with b frames, there may be slight time offsets as a result
 
         Returns
         -------
@@ -230,16 +230,16 @@ class Processor:
         for video in self.video_list:
             duration = end - start
             cmd = f"{ffmpeg} -y -ss {start} -i '{video.get_file()}' -v quiet -t {duration} -c copy " \
-                  f"modified/output_trim_video_start_end_{video.title}"
+                  f"modified/output_trim_video_start_{start}_end_{end}_{video.title}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a sub-video from {start} to {end}")
 
     def trim_into_clips(self, interval):
         """
         This method splits a video into *interval* second long clips, but for any remainder
-        the last clip will be truncated. For example: A 43 second long video with a 10 second interval
-        will produce 5 modified: 4 ten second clips, and one three second long one, rather than filling with
-        black space.
+        the last clip will be truncated. Interval should be in seconds! For example: A 43 second long video with a
+        10 second interval will produce 5 modified: 4 ten second clips, and one three second long one, rather
+        than filling with black space.
 
         Returns
         -------
@@ -248,14 +248,14 @@ class Processor:
         for video in self.video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.get_file()}' -c copy -map 0 -segment_time {interval} "
-                f"-f segment -reset_timestamps 1 modified/output_trim_into_clips_{video.title}%02d.mp4"
+                f"-f segment -reset_timestamps 1 modified/output_trim_into_{interval}s_clips_%02d_{video.title}"
             )
             subprocess.call(cmd, shell=True)
             logging.info(f"Video has been trimmed into {interval} second long clips!")
 
     def split_on_frame(self, frame):
         """
-        Given a passed frame, this method will create a video starting at that specific
+        Given a frame, this method will create a video starting at that specific
         frame and running all the way until the end. Again, might not be the stupidest idea to
         add in some safety/edge case stuff here
 
@@ -267,13 +267,13 @@ class Processor:
             fps = float(video.get_num_frames()) / float(video.get_duration())
             time_stamp = frame / fps
             cmd = f"{ffmpeg} -y -ss {time_stamp} -i '{video.get_file()}' -v quiet -c:v libx264 -c:a aac" \
-                  f" modified/output_split_on_frame_{video.title}.mp4"
+                  f" modified/output_split_on_frame_{frame}_{video.title}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Split video at frame {frame}")
 
     def split_num_frames(self, start_frame, num_frames):
         """
-        Given a passed frame (start), and a duration, which in this instance is the number of
+        Given a passed frame (start_Frame), and a duration (num_frames), which in this instance is the number of
         frames to crop to, it will send a cropped video to the output folder.
         *Could change num_frames to a time duration to make more sense to a human user but like
         just use split_on_time???
@@ -287,14 +287,14 @@ class Processor:
             time_stamp = start_frame / fps
             cmd = (
                 f"{ffmpeg} -y -ss {str(time_stamp)} -i '{video.get_file()}' -v quiet -c:v libx264 -frames:v {num_frames}"
-                f" modified/output_split_num_frames_{start_frame}_to_{(start_frame + num_frames)}_{video.title}.mp4"
+                f" modified/output_split_num_frames_{start_frame}_to_{(start_frame + num_frames)}_{video.title}"
             )
-            logging.info("Encoding ", num_frames, " from ", start_frame)
+            logging.info(f"Encoding {num_frames} from {start_frame}")
             subprocess.call(cmd, shell=True)
 
     def crop_video_section(self, start_x, start_y, section_width, section_height):
         """
-        Crops a Width x Height section of the video starting at pixel coordinates x, y
+        Crops a section_width x section_height grab of the video starting at pixel coordinates start_x, start_y
         and just uses the active video object to do so. Note, re-encoding is a necessary
         step for ANY filter application, so there will be noticeable processing time.
 
@@ -305,14 +305,15 @@ class Processor:
         for video in self.video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.get_file()}' -v quiet -filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' "
-                f"-c:a copy modified/output_crop_video_section_{video.title}.mp4"
+                f"-c:a copy modified/output_crop_video_{section_width}x{section_height}_section_{video.title}"
             )
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a {section_width}x{section_height} crop at ({start_x},{start_y})")
 
     def cv_extract_frame_at_time(self, time):
         """
-        Img extraction that takes less than half as long as the FFMpeg version
+        Given a time in seconds, this will extract the closest frame.
+        Img extraction that takes less than half as long as the FFMpeg version.
 
         Returns
         -------
@@ -324,12 +325,14 @@ class Processor:
             frame_id = int(fps * time)
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
             ret, frame = cv_video.read()
-            cv2.imwrite(f"modified/output_cv_extract_frame_at_time_{time}_{video.title}.png", frame)
+            actual_title = os.path.splitext(video.title)[0]
+            cv2.imwrite(f"modified/output_cv_extract_frame_at_time_{time}_{actual_title}.png", frame)
             logging.info(f"Extracted frame at time {time}")
 
     def cv_extract_specific_frame(self, frame):
         """
-        OpenCv method to grab a single frame as a PNG
+        OpenCv method to grab a single frame as a PNG. Passed argument frame is the frame that
+        will be extracted. (No decimals please)
 
         Returns
         -------
@@ -339,30 +342,34 @@ class Processor:
             cv_video = video.cv_video
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
             ret, output = cv_video.read()
-            cv2.imwrite(f"modified/output_cv_extract_specific_frame_{frame}_{video.title}.png", output)
+            actual_title = os.path.splitext(video.title)[0]
+            cv2.imwrite(f"modified/output_cv_extract_specific_frame_{frame}_{actual_title}.png", output)
             logging.info(f"Frame #{frame} extracted ")
 
     def extract_many_frames(self, start_frame, num_frames):
         """
-        Given a starting frame, extract the next num_frames from the video, and store the resulting
-        collection of frames in the output folder. USE THIS SPARINGLY!!!! Has the potential to create like
-        a million images, only use this when you REALLY need a lot of frames or a specific set of frames.
+        Given a start_frame, extract the next num_frames from the video, and store the resulting
+        collection of frames in the output folder. num_Frames is the number of frames to be returned
+        Has the potential to create like a million images, only use this when you REALLY need a lot
+        of frames or a specific set of frames.
 
         Returns
         -------
         None, but frames are displayed in output folder
         """
         for video in self.video_list:
+            actual_title = video.title
+            actual_title.strip(".mp4")
             cmd = f"{ffmpeg} -i '{video.get_file()}' -vf select='eq(n\,{start_frame})' -frames:v {num_frames} " \
-                  f"modified/output_extract_many_frames_{video.title}%02d.png"
+                  f"aEye/modified/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}%02d.png"
             subprocess.call(cmd, shell=True)
             logging.info(f"Extracted {num_frames} from video, saved as PNG's")
 
     def blur_video(self, blur_level, blur_steps=1):
         """
         Create a Gaussian blur, with the blur_level being the sigma level for the blur, with the
-        blur_steps being the amount of times that sigma level is applied to the video. Might
-        add a feature to box blur if needed. Upper limit to steps is 6, default is 1; unsure
+        blur_steps being the amount of times that sigma level is applied to the video. Ex. 6, 2 applies a level 6 blur
+        to the video twice. More steps = more blending. Upper limit to steps is 6, default is 1; unsure
         what the upper limit of the sigma is.
 
         Returns
@@ -370,8 +377,21 @@ class Processor:
         None, outputs new videos to modified folder
         """
         for video in self.video_list:
-            output = f"modified/output_blur_video_{video.title}"
+            output = f"modified/output_blur_{blur_level}_video_{video.title}"
             cmd = f"{ffmpeg} -i '{video.get_file()}' -vf 'gblur=sigma={blur_level}:steps={blur_steps}' -c:a copy " \
                   f"{output}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a blur of strength {blur_level} and applied it {blur_steps} times")
+
+
+    def remove_outputs(self):
+        """
+        Removes all files in the output folder. Useful for testing/debugging.
+        """
+        dir = 'modified'
+        for files in os.listdir(dir):
+            path = os.path.join(dir, files)
+            try:
+                shutil.rmtree(path)
+            except OSError:
+                os.remove(path)

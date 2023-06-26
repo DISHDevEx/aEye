@@ -45,7 +45,7 @@ class Video:
         self.file = file
         self.meta_data = None
         self.title = title
-        self.cv_video = cv2.VideoCapture(file)
+        self.capture = cv2.VideoCapture(file)
 
 
     def extract_metadata(self):
@@ -66,7 +66,7 @@ class Video:
 
     def get_codec(self):
         """
-        Returns the video codec as a string
+        Returns the video codec as a string.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["codec_name"]
@@ -76,7 +76,7 @@ class Video:
 
     def get_duration(self):
         """
-        Returns the video duration as a string
+        Returns the video duration as a string.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["duration"]
@@ -86,7 +86,7 @@ class Video:
 
     def get_num_frames(self):
         """
-        Returns # of frames in video as a string
+        Returns # of frames in video as a string.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["nb_frames"]
@@ -96,11 +96,14 @@ class Video:
 
     def get_file(self):
         """
-        Returns the file path as a string
+        Returns the file path as a string.
         """
         return self.file
 
     def get_width(self):
+        """
+        Returns the pixel width of the video associated with the current video object.
+        """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["width"]
         else:
@@ -108,9 +111,18 @@ class Video:
             return self.meta_data["streams"][0]["width"]
 
     def get_height(self):
+        """
+        Returns the pixel height of the video associated with the current video object.
+        """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["height"]
         else:
             self.meta_data = self.extract_metadata()
             return self.meta_data["streams"][0]["height"]
+
+    def cleanup(self) -> None:
+        """
+        This method will release the current view of video object from RAM.
+        """
+        self.capture.release()
 
