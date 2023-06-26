@@ -196,3 +196,27 @@ class Video:
         if '-ss' in self.modification:
             result += "trimmed_"
         return result + self.title
+
+
+    def set_output_location(self, path):
+        """
+        This method is a setter for where the output video will be located.
+        """
+        self.output_location = path
+
+    def get_output_location(self):
+        """
+        This method is a get for where the output video is located.
+        Returns
+        ---------
+            result: string
+                The output location of the video file.
+        """
+
+        return self.output_location
+
+
+
+            
+
+
