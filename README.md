@@ -55,6 +55,20 @@ video_list_s3 = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/'
 process = Processor()
 ```
 
+5.5 Temporary Processing Util:
+    To automatically execute processor commands. This will be changed once tags can be added to all processing util
+```console
+process.trim_video_start_end(2, 6)              # Creates a video from 2s to 6s
+process.cv_extract_specific_frame(42)           # Grabs frame 42
+process.blur_video(11,2)                        # Applies blur level 11 twice
+process.crop_video_section(100, 50, 100, 100)   # Creates a 100x100 crop at (100,50)
+process.split_num_frames(23, 60)                # Creates a 60 frame long clip starting at frame 23
+rocess.trim_into_clips(8)                       # Trims Video into 8 second clips
+process.split_on_frame(69)                      # Creates a video from the 69th frame to the end
+process.cv_extract_frame_at_time(2.344)         # Extracts the closest frame to 2.344
+process.extract_many_frames(3, 5)               # Extracts 5 subsequent frames from 3
+```
+
 6. Use the processor to add trim labels the videos.
 
 ```console
