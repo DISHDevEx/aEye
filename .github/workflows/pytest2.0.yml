@@ -38,5 +38,5 @@ jobs:
            PYTEST_FLAG:  "True"
         run: |
            python --version
-           aws s3 ls
+           aws s3 ls | grep aeye-data-bucket
 #           pytest
