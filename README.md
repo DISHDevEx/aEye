@@ -34,45 +34,74 @@ import boto3
 import cv2
 from aEye.video import Video
 from aEye.processor import Processor
+from aEye.auxiliary import Aux
 ```
 
-4. Initalize the processor class
+4. Initalize the auxiliary class.
+
+```console
+aux = Aux()
+```
+
+5. Load the video from the desired bucket and folder.
+
+```console
+video_list_s3 = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/')
+```
+
+5. Initalize the processor class.
 
 ```console
 process = Processor()
 ```
 
-5. Load the video from the desired bucket and folder and resize them to desired ratio
+6. Use the processor to add trim labels the videos.
 
 ```console
-# To load with resizing: 
-process.load_and_resize(bucket = 'aeye-data-bucket', prefix = 'input_video/', x_ratio = .6, y_ratio = .5)
-# To load without resizing:
-process.load(bucket = 'aeye-data-bucket', prefix = 'input_video/')
+trimmed_s3 = process.add_label_trimming_start_duration(video_list_s3,0,5)
 ```
 
-6. Use the Processor to perform operations on video objects
+7. Use the processor to add resize labels to the trimmed videos.
 
 ```console
-#NOTE: All methods currently process every video in the video list!
-process.trim_video_start_end(2, 6)                #Trims video from 2s to 6s
-process.cv_extract_specific_frame(42)             #Extracts 42nd frame as a .PNG
-process.blur_video(10,2)                          #Applies a Gaussian blur of strength 10 two times *Takes a while
-process.crop_video_section(100, 50, 100, 100)     #Creates a 100x100 pixel cropped portion starting at (100,50)
-process.split_num_frames(42, 60)                  #Creates a video starting at frame 42 which is 60 frames long 
-process.trim_into_clips(4.5)                      #Splits the video into 4.5 second long clips 
-process.split_on_frame(69)                        #Splits video from frame 69 to end 
-process.cv_extract_frame_at_time(2.344)           #Extracts the frame CLOSEST to 2.344s as a PNG
-process.extract_many_frames(3, 5)                 #Starting at frame 3, extracts 5 subsequent frames
+res_trimmed_s3 = process.add_label_resizing_by_ratio(trimmed_s3,.5,.5)
 ```
-Running this in Jupyter Notebook will create a LOT of files in the local modified folder! This is meant to illustrate functionality.
-If you would like to delete the results of all this video processing rather than uploading them, please use the following:
-```
-process.remove_outputs()
-```
-This will remove every file in the modified folder! 
-8. Upload the result to the desire bucket
+
+8. Use auxiliary class to execute and write the videos with resized and trimmed labels.
 
 ```console
-process.upload(bucket = 'aeye-data-bucket')
+aux.execute_label_and_write_local(res_trimmed_s3)
+```
+
+9. Upload the result to the desire bucket.
+
+```console
+aux.upload_s3(res_trimmed_s3, bucket = 'aeye-data-bucket')
+```
+
+10. Clean up the temp folder.
+
+```console
+aux.clean()
+```
+
+The following steps are to load and write locally.
+
+11. Load video files from data/ folder
+
+```console
+video_list_local = aux.load_local('data/')
+```
+
+11. Add Trim label for the local video files.
+
+```console
+
+trimmed_local = process.add_label_trimming_start_duration(video_list_local,0,5)
+```
+
+12 Execute all labels and write the output to data/ folder.
+
+```console
+aux.execute_label_and_write_local(trimmed_local,'data/')
 ```

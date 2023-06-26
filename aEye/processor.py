@@ -8,33 +8,27 @@ import os, shutil
 import cv2
 import logging
 from aEye.video import Video
-import subprocess
+
 from static_ffmpeg import run
+import math
+import subprocess
+import tempfile
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 
 class Processor:
     """
-    Processor is the class that works act a pipeline to load, process, and upload all video from S3 bucket.
-
-    Attributes
-    ----------
-        video_list: list
-            A list to append the Video classes.
-
-        _s3: botocore.client.S3
-            An internal variable to talk to S3.
-
+    Processor is the class that works as a labeler that tags and adds ffmpeg label to video object.
 
     Methods
     -------
-        load(bucket, prefix) -> list[Video]:
-            Loads in video files as Video classes into a list from S3.
 
+        add_label_resizing_by_ratio(x_ratio, y_ratio,target) -> None:
+            Add label of resizing video by multiplying width by the ratio to video.
 
-        resize_by_ratio(x_ratio, y_ratio) -> None:
-            Resize video by multiplying width by the ratio.
+        add_label_trimming_start_duration(start, duration, target) -> None:
+            Add label of trimming video from start input for duration of seconds to video.
 
         load_and_resize(bucket, prefix, x_ratio, y_ratio) -> None:
             Load in video files and resize by the x and y ratio.
@@ -77,148 +71,83 @@ class Processor:
         resize_by_ratio(x_ratio, y_ratio) -> None:
             Given a ratio between 0 < x < 1, resize the video to that dimension
 
+
     """
 
     def __init__(self) -> None:
-        self.video_list = []
-        self._s3 = boto3.client('s3')
+        pass
 
-    def get_video_list(self):
+
+
+    def add_label_resizing_by_ratio(self,video_list, x_ratio = .8, y_ratio = .8):
         """
-        Returns the list of video objects
-        """
-        return self.video_list
+        This method will add resizing label to all target the video that will be multiplying the 
+        width by x_ratio and height by y_ratio.
+        Both values have to be non negative and non zero value.
 
-    def load(self, bucket='aeye-data-bucket', prefix='input_video/'):
-        """
-        This method will load the video files from S3 and save them
-        into a list of video classes.
-
-
-         Parameters
+        Parameters
         ----------
-            bucket: string
-                The bucket name to path into S3 to get the video files.
-            prefix: string
-                The folder name where the video files belong in the S3 bucket.
+            video_list: list
+                The list of desired videos that the users want to process.
+            x_ratio: float
+                The ratio for x/width value.
+            y_ratio: float
+                The ratio for y/height value.
+
 
         Returns
-        -------
+        ---------
             video_list: list
-                The list of all video files loaded from S3 bucket.
+                The list of video that contains the resize label.
+            
         """
 
-        result = self._s3.list_objects(Bucket=bucket, Prefix=prefix)
 
-        for i in result["Contents"]:
+        #Go to each video and add the resizing ffmpeg label.
+        for video in video_list:
 
-            # When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
-            # This if-statement is to skip over the folder object since we are only interested in the video files.
 
-            if i["Key"] == prefix:
-                continue
+            video.extract_metadata()
+            new_width = int(video.get_width() * x_ratio )
+            new_height = int(video.get_height() * y_ratio )
 
-            title = i["Key"].split(prefix)[1]
-            # In order to convert video file from S3 to cv2 video class, we need its url.
-            url = self._s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': bucket, 'Key': i["Key"]},
-                                                  ExpiresIn=300)  # 5 minute expiration
+            video.add_label(f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
 
-            self.video_list.append(Video(url, title))
-
-        logging.info(f"Successfully loaded video data from {bucket}")
-        logging.info(f"There are total of {len(self.video_list)} video files")
-
-        return self.video_list
-
-    def resize_by_ratio(self, x_ratio=.8, y_ratio=.8) -> None:
+        logging.info(f"successfully added resizing mod to all video by ratio of {x_ratio} and {y_ratio}")
+    
+        return video_list
+        
+    def add_label_trimming_start_duration(self,video_list, start, duration):
         """
-        This method will resize the video by multiplying the width by x_ratio and height by y_ratio.
-        Both values have to be non negative and non zero value.
-
+        This method will add the trim label with desired parameters to the video list.
         Parameters
         ----------
-            x_ratio: float
-                The ratio for x/width value.
-            y_ratio: float
-                The ratio for y/height value.
 
+            video_list: list
+                The list of desired videos that the users want to process.
 
+            start: float
+                The start time to trim the video from.
+
+            duration: float
+                The duration of time in seconds to trim the start of video. 
+
+        Returns
+        ---------
+            video_list: list
+                The list of video that contains the trim label.
+            
         """
+        #Generate the desired target list of videos to add label.
+        #Add the trim ffmpeg label to all desired videos.
+        for video in video_list:
+            video.add_label(f"-ss {start} -t {duration} ")
 
-        # This will loop to the list of videos to apply the resizing feature.
-        for video in self.video_list:
+        logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
 
-            new_width = int(video.get_width() * x_ratio)
-            new_height = int(video.get_height() * y_ratio)
-            dim = (new_width, new_height)
+        return video_list
 
-            fourcc = cv2.VideoWriter.fourcc(*'mp4v')
-            out = cv2.VideoWriter('modified/out_put_' + video.title, fourcc, 30.0, dim)
-
-            # This loops to each frame of a video and resizes the current dimension to the new dimension.
-            while True:
-                _, image = video.capture.read()
-
-                if image is None:
-                    break
-
-                resized = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-
-                out.write(resized)
-
-            out.release()
-            video.cleanup()
-
-        logging.info(f"successfully resized all video by ratio of {x_ratio} and {y_ratio}")
-
-    def load_and_resize(self, bucket='aeye-data-bucket', prefix='input_video/', x_ratio=.8, y_ratio=.8) -> None:
-
-        """
-        This method will call on load() and resize_by_ratio() methods to load and resize by the input parameters.
-        Both values have to be non negative and non zero value.
-
-        Parameters
-        ----------
-            bucket: string
-                The bucket name to path into S3 to get the video files.
-            prefix: string
-                The folder name where the video files belong in the S3 bucket.
-
-            x_ratio: float
-                The ratio for x/width value.
-            y_ratio: float
-                The ratio for y/height value.
-        """
-
-        self.load(bucket, prefix)
-        self.resize_by_ratio(x_ratio, y_ratio)
-
-    def upload(self, bucket='aeye-data-bucket') -> None:
-
-        """
-        This method will push all modified videos to the S3 bucket and delete all video files from local machine.
-
-        Parameters
-        ----------
-            bucket: string
-                The bucket name/location to upload on S3.
-        """
-
-        for video in self.video_list:
-            path = 'modified/output_' + video.title
-            response = self._s3.upload_file(path, bucket, path)
-
-            # This will delete all file from RAM and local machine.
-
-            os.remove(path)
-            video.cleanup()
-
-        logging.info("successfully upload the output files and remove them from local machine")
-
-        print("successfully upload the output files S3 bucket: s3://aeye-data-bucket/modified/")
-        print("successfully remove the output file from local machine")
-
-    def trim_video_start_end(self, start, end):
+    def trim_video_start_end(self, video_list, start, end):
         """
         Given a start time (start) and end time (end) in seconds, this will return a clip
         from start-end time stamps. *Note this works with b frames, there may be slight time offsets as a result
@@ -232,14 +161,14 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             duration = end - start
             cmd = f"{ffmpeg} -y -ss {start} -i '{video.get_file()}' -v quiet -t {duration} -c copy " \
                   f"modified/output_trim_video_start_{start}_end_{end}_{video.title}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a sub-video from {start} to {end}")
 
-    def trim_into_clips(self, interval):
+    def trim_into_clips(self, video_list, interval):
         """
         This method splits a video into *interval* second long clips, but for any remainder
         the last clip will be truncated. Interval should be in seconds! For example: A 43 second long video with a
@@ -255,7 +184,7 @@ class Processor:
         -------
         None, but creates interval second long videos in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.get_file()}' -c copy -map 0 -segment_time {interval} "
                 f"-f segment -reset_timestamps 1 -break_non_keyframes 1 "
@@ -264,7 +193,7 @@ class Processor:
             subprocess.call(cmd, shell=True)
             logging.info(f"Video has been trimmed into {interval} second long clips!")
 
-    def split_on_frame(self, frame):
+    def split_on_frame(self, video_list, frame):
         """
         Given a frame, this method will create a video starting at that specific
         frame and running all the way until the end. Again, might not be the stupidest idea to
@@ -278,7 +207,7 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             fps = float(video.get_num_frames()) / float(video.get_duration())
             time_stamp = frame / fps
             cmd = f"{ffmpeg} -y -ss {time_stamp} -i '{video.get_file()}' -v quiet -c:v libx264 -c:a aac" \
@@ -286,7 +215,7 @@ class Processor:
             subprocess.call(cmd, shell=True)
             logging.info(f"Split video at frame {frame}")
 
-    def split_num_frames(self, start_frame, num_frames):
+    def split_num_frames(self, video_list, start_frame, num_frames):
         """
         Given a passed frame (start_Frame), and a duration (num_frames), which in this instance is the number of
         frames to crop to, it will send a cropped video to the output folder.
@@ -302,7 +231,7 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             fps = float(video.get_num_frames()) / float(video.get_duration())
             time_stamp = start_frame / fps
             cmd = (
@@ -312,7 +241,7 @@ class Processor:
             logging.info(f"Encoding {num_frames} from {start_frame}")
             subprocess.call(cmd, shell=True)
 
-    def crop_video_section(self, start_x, start_y, section_width, section_height):
+    def crop_video_section(self, video_list, start_x, start_y, section_width, section_height):
         """
         Crops a section_width x section_height grab of the video starting at pixel coordinates start_x, start_y
         and just uses the active video object to do so. Note, re-encoding is a necessary
@@ -329,7 +258,7 @@ class Processor:
         -------
         None, but creates cropped video in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             cmd = (
                 f"{ffmpeg} -y -i '{video.get_file()}' -v quiet -filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' "
                 f"-c:a copy modified/output_crop_video_{section_width}x{section_height}_section_{video.title}"
@@ -337,7 +266,7 @@ class Processor:
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a {section_width}x{section_height} crop at ({start_x},{start_y})")
 
-    def cv_extract_frame_at_time(self, time):
+    def cv_extract_frame_at_time(self, video_list, time):
         """
         Given a time in seconds, this will extract the closest frame.
         Img extraction that takes less than half as long as the FFMpeg version.
@@ -350,7 +279,7 @@ class Processor:
         -------
         None, but frame grabbed is displayed in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             cv_video = video.capture
             fps = cv_video.get(cv2.CAP_PROP_FPS)
             frame_id = int(fps * time)
@@ -360,7 +289,7 @@ class Processor:
             cv2.imwrite(f"modified/output_cv_extract_frame_at_time_{time}_{actual_title}.png", frame)
             logging.info(f"Extracted frame at time {time}")
 
-    def cv_extract_specific_frame(self, frame):
+    def cv_extract_specific_frame(self, video_list, frame):
         """
         OpenCv method to grab a single frame as a PNG. Passed argument frame is the frame that
         will be extracted. (No decimals please)
@@ -373,7 +302,7 @@ class Processor:
         -------
         None, but frame grabbed is displayed in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             cv_video = video.capture
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
             ret, output = cv_video.read()
@@ -381,7 +310,7 @@ class Processor:
             cv2.imwrite(f"modified/output_cv_extract_specific_frame_{frame}_{actual_title}.png", output)
             logging.info(f"Frame #{frame} extracted ")
 
-    def extract_many_frames(self, start_frame, num_frames):
+    def extract_many_frames(self, video_list, start_frame, num_frames):
         """
         Given a start_frame, extract the next num_frames from the video, and store the resulting
         collection of frames in the output folder. num_Frames is the number of frames to be returned
@@ -398,7 +327,7 @@ class Processor:
         -------
         None, but frames are displayed in output folder
         """
-        for video in self.video_list:
+        for video in video_list:
             vid_obj = video.capture
             actual_title = os.path.splitext(video.title)[0]
             for x in range(num_frames):
@@ -407,7 +336,7 @@ class Processor:
                 cv2.imwrite(fn, frame)
             logging.info(f"Extracted {num_frames} from video, saved as PNG's")
 
-    def blur_video(self, blur_level, blur_steps=1):
+    def blur_video(self, video_list, blur_level, blur_steps=1):
         """
         Create a Gaussian blur, with the blur_level being the sigma level for the blur, with the
         blur_steps being the amount of times that sigma level is applied to the video. Ex. 6, 2 applies a level 6 blur
@@ -425,7 +354,7 @@ class Processor:
         -------
         None, outputs new videos to modified folder
         """
-        for video in self.video_list:
+        for video in video_list:
             output = f"modified/output_blur_{blur_level}_video_{video.title}"
             cmd = f"{ffmpeg} -i '{video.get_file()}' -vf 'gblur=sigma={blur_level}:steps={blur_steps}' -c:a copy " \
                   f"{output}"
@@ -451,3 +380,4 @@ class Processor:
                 shutil.rmtree(path)
             except OSError:
                 os.remove(path)
+
