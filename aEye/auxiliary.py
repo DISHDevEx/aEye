@@ -147,7 +147,9 @@ class Aux():
                 The path to write the output videos to.
 
         """
-        location = self._temp_folder if location else location
+        
+        if location is None:
+            location = self._temp_folder 
 
         for video in video_list:
             #This if statement will skip over any untouched videos.
