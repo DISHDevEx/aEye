@@ -320,7 +320,7 @@ class Processor:
         None, but frame grabbed is displayed in output folder
         """
         for video in self.video_list:
-            cv_video = video.cv_video
+            cv_video = video.capture
             fps = cv_video.get(cv2.CAP_PROP_FPS)
             frame_id = int(fps * time)
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
@@ -339,7 +339,7 @@ class Processor:
         None, but frame grabbed is displayed in output folder
         """
         for video in self.video_list:
-            cv_video = video.cv_video
+            cv_video = video.capture
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
             ret, output = cv_video.read()
             actual_title = os.path.splitext(video.title)[0]
