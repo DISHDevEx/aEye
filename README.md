@@ -82,7 +82,7 @@ aux.upload_s3(res_trimmed_s3, bucket = 'aeye-data-bucket')
 10. Clean up the temp folder.
 
 ```console
-aux.clean_temp()
+aux.clean()
 ```
 
 The following steps are to load and write locally.
