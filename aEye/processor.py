@@ -223,6 +223,11 @@ class Processor:
         Given a start time (start) and end time (end) in seconds, this will return a clip
         from start-end time stamps. *Note this works with b frames, there may be slight time offsets as a result
 
+        Parameters
+        -------
+        start : Start time in seconds for the cropped video to begin at
+        end   : End time in seconds for where the clip should end.
+
         Returns
         -------
         None, but creates trimmed video in output folder
@@ -240,6 +245,11 @@ class Processor:
         the last clip will be truncated. Interval should be in seconds! For example: A 43 second long video with a
         10 second interval will produce 5 modified: 4 ten second clips, and one three second long one, rather
         than filling with black space.
+
+        Parameters
+        -------
+        interval : The clip interval in seconds. Note, this will not be 100% accurate, as it will split on
+                   the nearest frame its possible to split on.
 
         Returns
         -------
@@ -260,6 +270,10 @@ class Processor:
         frame and running all the way until the end. Again, might not be the stupidest idea to
         add in some safety/edge case stuff here
 
+        Parameters
+        -------
+        frame : The frame on which the output video will begin on.
+
         Returns
         -------
         None, but creates trimmed video in output folder
@@ -276,8 +290,13 @@ class Processor:
         """
         Given a passed frame (start_Frame), and a duration (num_frames), which in this instance is the number of
         frames to crop to, it will send a cropped video to the output folder.
-        *Could change num_frames to a time duration to make more sense to a human user but like
-        just use split_on_time???
+
+        Parameters
+        -------
+        start_frame : This is the frame that the clip will begin at. Sometimes it will not be possible to get the
+                      exact start frame, but if this is the case, it will get the closest without truncating the video.
+        num_frames  : This is the number of frames that will be in the clip. For example, if num_frames is 60
+                      and the video FPS is 30, this will create a two second clip.
 
         Returns
         -------
@@ -299,6 +318,13 @@ class Processor:
         and just uses the active video object to do so. Note, re-encoding is a necessary
         step for ANY filter application, so there will be noticeable processing time.
 
+        Parameters
+        -------
+        start_x        :The pixel x coordinate for where the crop frame should originate.
+        start_y        :The pixel y coordinate for where the crop frame should originate.
+        section_width  :Width in pixels for the cropped section.
+        section_height :Height in pixels for the cropped section
+
         Returns
         -------
         None, but creates cropped video in output folder
@@ -315,6 +341,10 @@ class Processor:
         """
         Given a time in seconds, this will extract the closest frame.
         Img extraction that takes less than half as long as the FFMpeg version.
+
+        Parameters
+        -------
+        time : Time in seconds to extract frame. Can be a float for higher degree of specificity
 
         Returns
         -------
@@ -335,6 +365,10 @@ class Processor:
         OpenCv method to grab a single frame as a PNG. Passed argument frame is the frame that
         will be extracted. (No decimals please)
 
+        Parameters
+        -------
+        frame : The frame number to be saved as a PNG
+
         Returns
         -------
         None, but frame grabbed is displayed in output folder
@@ -353,6 +387,12 @@ class Processor:
         collection of frames in the output folder. num_Frames is the number of frames to be returned
         Has the potential to create like a million images, only use this when you REALLY need a lot
         of frames or a specific set of frames.
+
+        Parameters
+        -------
+        start_frame : Number of the frame at which to start all the frame grabs.
+        num_frames  : Number of frames to extract. THIS IS THE AMOUNT OF IMAGES PER VIDEO YOU WANT
+                      UNLESS YOU NEED A TON OF CONTIGUOUS FRAMES, DO NOT SET THIS TO A HIGH NUMBER.
 
         Returns
         -------
@@ -373,6 +413,13 @@ class Processor:
         to the video twice. More steps = more blending. Upper limit to steps is 6, default is 1; unsure
         what the upper limit of the sigma is.
 
+        Parameters
+        -------
+        blur_level : Integer level to determine the strength of a blur applied. Higher strength is more blur.
+        blur_steps : Integer amount of times blur level is applied. 1-6, with each step being a reapplication of
+                     the original filter level. Good practice is to have a low blur applied with multiple steps
+                     to create a "frosty" blur rather than a pixelated blur.
+
         Returns
         -------
         None, outputs new videos to modified folder
@@ -388,6 +435,13 @@ class Processor:
     def remove_outputs(self):
         """
         Removes all files in the output folder. Useful for testing/debugging.
+
+        Parameters
+        -------
+
+        Returns
+        -------
+        Empties the directory videos output to.
         """
         dir = 'modified'
         for files in os.listdir(dir):
