@@ -174,7 +174,7 @@ class Aux():
         logging.info(f"successfully write the output video files to path: {path}")
 
 
-    def clean_path(self, path = None):
+    def clean(self, path = None):
         """
         This method will delete the temp folder and all video files in it from local machine. 
         """
