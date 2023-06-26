@@ -1,4 +1,4 @@
-name: pytest-pr-check
+name: pytest-pr-check2.0
 on:
   pull_request:
     branches: [main]
