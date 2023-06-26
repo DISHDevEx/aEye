@@ -156,8 +156,10 @@ class Aux():
         """
         
         #If the user prompts this method with a specific path, then this will save it into the internal variable.
+        #This will check if there exists an local path internal. If there exists, then we will write video files there.
         if path is None:
-            path = self._temp_folder
+            path = self._local_path if self._local_path else self._temp_folder
+
         else:
             self.set_local_path(path)
 
@@ -172,12 +174,12 @@ class Aux():
         logging.info(f"successfully write the output video files to path: {path}")
 
 
-    def clean_temp(self, path = None):
+    def clean_path(self, path = None):
         """
         This method will delete the temp folder and all video files in it from local machine. 
         """
         if path is None:
-            path = self._temp_folder 
+            path = self._local_path if self._local_path else self._temp_folder
 
         for (path,_ ,files) in os.walk(path, topdown=True):
             for video in files:
