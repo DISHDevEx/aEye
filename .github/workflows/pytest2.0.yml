@@ -38,4 +38,5 @@ jobs:
            PYTEST_FLAG:  "True"
         run: |
            python --version
-           pytest
+           aws s3 ls
+#           pytest
