@@ -56,7 +56,7 @@ process = Processor()
 ```
 
 5.5 Temporary Processing Util:
-    To automatically execute processor commands. This will be changed once tags can be added to all processing util
+To automatically execute processor commands. This will be changed once tags can be added to all processing util
 ```console
 process.trim_video_start_end(2, 6)              # Creates a video from 2s to 6s
 process.cv_extract_specific_frame(42)           # Grabs frame 42
