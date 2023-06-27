@@ -36,40 +36,41 @@ class Processor:
         upload(bucket) -> None:
             Upload the modified video to S3.
 
-        trim_video_start_end(start, end) -> None:
+        trim_video_start_end(video_list, start, end) -> None:
             Given start and end times in seconds, modified a trimmed down version of
             the video to the modified file.
 
-        trim_into_clips(interval) -> None:
+        trim_into_clips(video_list, interval) -> None:
             Splits the video into X second clips, sends all these clips to output
             folder.
             *will re-encode
 
-        split_on_frame(frame) -> None:
+        split_on_frame(video_list, frame) -> None:
             Given a specific frame, start the video there, removes any preceding frames.
             *will re-encode
 
-        split_num_frames(start_frame, num_frames) -> None:
+        split_num_frames(video_list, start_frame, num_frames) -> None:
             Given a start frame and the amount of frames that a user wants to copy, splits the video to all of the frames
             within that frame range.
             *will re-encode
 
-        crop_video_section(width, height, start_x, start_y) -> None:
+        crop_video_section(video_list, width, height, start_x, start_y) -> None:
             Create a width x height crop of the input video starting at pixel values start_x, start_y and sends the
             smaller video to the modified file.
 
-        cv_extract_frame_at_time(time) -> None:
+        cv_extract_frame_at_time(video_list, time) -> None:
             Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the
             closest applicable frame if need be.
 
-        cv_extract_specific_frame(frame) -> None:
+        cv_extract_specific_frame(video_list, frame) -> None:
             Pulls a specific frame from the video. Nice.
 
-        extract_many_frames(start_frame, num_frames) -> None:
+        extract_many_frames(video_list, start_frame, num_frames) -> None:
             Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.
 
-        blur_video(blur_level, blur_steps) -> None:
+        blur_video(video_list, blur_level, blur_steps) -> None:
             Adds the blur_level amount of blur blur_steps amount of times to a video.
+            *will re-encode
 
         clear_outputs() -> None:
             Deletes all files in the hardcoded directory for output videos (modified)
@@ -162,7 +163,7 @@ class Processor:
         """
         for video in video_list:
             duration = end - start
-            cmd = f"{ffmpeg} -y -ss {start} -i '{video.get_file()}' -v quiet -t {duration} -c copy " \
+            cmd = f"{ffmpeg} -y -ss {start} -i {video.get_file()} -v quiet -t {duration} -c copy " \
                   f"modified/output_trim_video_start_{start}_end_{end}_{video.title}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a sub-video from {start} to {end}")
@@ -186,7 +187,7 @@ class Processor:
         """
         for video in video_list:
             cmd = (
-                f"{ffmpeg} -y -i '{video.get_file()}' -c:v libx264 -map 0 -segment_time {interval} "
+                f"{ffmpeg} -y -i {video.get_file()} -c:v libx264 -map 0 -segment_time {interval} "
                 f"-f segment -reset_timestamps 1 -break_non_keyframes 1 "
                 f"modified/output_trim_into_{interval}s_clips_%02d_{video.title}"
             )
@@ -211,7 +212,7 @@ class Processor:
         for video in video_list:
             fps = float(video.get_num_frames()) / float(video.get_duration())
             time_stamp = frame / fps
-            cmd = f"{ffmpeg} -y -ss {time_stamp} -i '{video.get_file()}' -v quiet -c:v libx264 -c:a aac" \
+            cmd = f"{ffmpeg} -y -ss {time_stamp} -i {video.get_file()} -v quiet -c:v libx264 -c:a aac" \
                   f" modified/output_split_on_frame_{frame}_{video.title}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Split video at frame {frame}")
@@ -237,7 +238,7 @@ class Processor:
             fps = float(video.get_num_frames()) / float(video.get_duration())
             time_stamp = start_frame / fps
             cmd = (
-                f"{ffmpeg} -y -ss {str(time_stamp)} -i '{video.get_file()}' -v quiet -c:v libx264 -frames:v {num_frames}"
+                f"{ffmpeg} -y -ss {str(time_stamp)} -i {video.get_file()} -v quiet -c:v libx264 -frames:v {num_frames}"
                 f" modified/output_split_num_frames_{start_frame}_to_{(start_frame + num_frames)}_{video.title}"
             )
             logging.info(f"Encoding {num_frames} from {start_frame}")
@@ -263,7 +264,7 @@ class Processor:
         """
         for video in video_list:
             cmd = (
-                f"{ffmpeg} -y -i '{video.get_file()}' -v quiet -filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' "
+                f"{ffmpeg} -y -i {video.get_file()} -v quiet -filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' "
                 f"-c:a copy modified/output_crop_video_{section_width}x{section_height}_section_{video.title}"
             )
             subprocess.call(cmd, shell=True)
@@ -284,7 +285,8 @@ class Processor:
         None, but frame grabbed is displayed in output folder
         """
         for video in video_list:
-            cv_video = video.capture
+            file_path = video.get_presigned_url().strip("'")
+            cv_video = cv2.VideoCapture(file_path)
             fps = cv_video.get(cv2.CAP_PROP_FPS)
             frame_id = int(fps * time)
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
@@ -308,7 +310,8 @@ class Processor:
         None, but frame grabbed is displayed in output folder
         """
         for video in video_list:
-            cv_video = video.capture
+            file_path = video.get_presigned_url().strip("'")
+            cv_video = cv2.VideoCapture(file_path)
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
             ret, output = cv_video.read()
             actual_title = os.path.splitext(video.title)[0]
@@ -334,7 +337,8 @@ class Processor:
         None, but frames are displayed in output folder
         """
         for video in video_list:
-            vid_obj = video.capture
+            file_path = video.get_presigned_url().strip("'")
+            vid_obj = cv2.VideoCapture(file_path)
             actual_title = os.path.splitext(video.title)[0]
             for x in range(num_frames):
                 ret, frame = vid_obj.read()
@@ -363,7 +367,7 @@ class Processor:
         """
         for video in video_list:
             output = f"modified/output_blur_{blur_level}_video_{video.title}"
-            cmd = f"{ffmpeg} -i '{video.get_file()}' -vf 'gblur=sigma={blur_level}:steps={blur_steps}' -c:a copy " \
+            cmd = f"{ffmpeg} -i {video.get_file()} -vf 'gblur=sigma={blur_level}:steps={blur_steps}' -c:a copy " \
                   f"{output}"
             subprocess.call(cmd, shell=True)
             logging.info(f"Created a blur of strength {blur_level} and applied it {blur_steps} times")
