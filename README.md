@@ -8,9 +8,11 @@ Extensible Video Processing Framework with Additional Features Continuously Depl
 ├──  aEye				contains vidoe class and processor class that manage from loading, processing and uploading
 │   ├── processor.py
 │   ├── video.py
+|   ├── auxiliary.py
 ├──  tests				contains unit tests
 │   ├── test.py
 ├──  data				contains a temp location for video to save before deleting and uploading to S3
+├──  modified   directory for modified videos/images
 ```
 
 ### **inital project setup**
