@@ -56,6 +56,7 @@ process = Processor()
 ```
 
 5.5 Temporary Processing Util:
+
 To automatically execute processor commands. This will be changed once tags can be added to all processing util
 ```console
 process.trim_video_start_end(2, 6)              # Creates a video from 2s to 6s
@@ -67,6 +68,10 @@ rocess.trim_into_clips(8)                       # Trims Video into 8 second clip
 process.split_on_frame(69)                      # Creates a video from the 69th frame to the end
 process.cv_extract_frame_at_time(2.344)         # Extracts the closest frame to 2.344
 process.extract_many_frames(3, 5)               # Extracts 5 subsequent frames from 3
+```
+This will output a lot of files! If you don't want to write and upload these, just use
+```console
+process.clear_outputs()
 ```
 
 6. Use the processor to add trim labels the videos.
