@@ -153,7 +153,7 @@ class Processor:
             logging.info(f"successfully added resize label for desired_resolution")
 
         except:
-            print(
+            logging.error(
                 "Error: Sorry you did not pick one of the sizes: 1080p,720p,480p,360p,240p as desired_resolution"
             )
 
