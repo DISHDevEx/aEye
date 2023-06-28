@@ -144,7 +144,7 @@ class Processor:
             width_height = popular_resolutions[desired_resolution]
 
             # Generate the desired target list of videos to add label.
-            # Add the trim ffmpeg label to all desired videos.
+            # Add the scale ffmpeg label to all desired videos.
             for video in video_list:
                 video.add_label(
                     f"-vf scale={width_height[0]}x{width_height[1]}:flags=lanczos -c:v libx264 -preset slow -crf 21"
