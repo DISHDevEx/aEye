@@ -67,6 +67,7 @@ class Processor:
 
     """
 
+
     def __init__(self) -> None:
         print("---aEye Video Processor v0---")
         print("Please use Processor.show_util() for a list of current utility and inputs!")
@@ -103,6 +104,7 @@ class Processor:
 
     def add_label_resizing_by_ratio(self, video_list, x_ratio=.8, y_ratio=.8):
         """
+
         This method will add resizing label to all target the video that will be multiplying the
         width by x_ratio and height by y_ratio.
         Both values have to be non negative and non zero value.
@@ -142,6 +144,7 @@ class Processor:
         Height is what determines: 420p, 720p, etc.
         Function will automatically select the correct width based off popular sizing.
 
+
         Parameters
         ----------
             video_list: list
@@ -149,6 +152,7 @@ class Processor:
 
             desired_resolution: string
                 The desired resolution for the videos. Values: 1080p,720p,480p,360p,240p
+
 
         Returns
         ---------
@@ -200,6 +204,7 @@ class Processor:
         -------
         None, but creates trimmed video in output folder
         """
+
         for video in video_list:
             duration = end - start
             video.add_label(f"-ss {start} -t {duration} ")
@@ -229,6 +234,7 @@ class Processor:
         None, but creates interval second long videos in output folder
         """
         for video in video_list:
+
 
             cmd = (
                 f"{ffmpeg} -y -i {video.get_file()} -c:v libx264 -map 0 -segment_time {interval} "

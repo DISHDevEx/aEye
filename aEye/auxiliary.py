@@ -43,9 +43,9 @@ class Aux:
 
     """
 
-    def __init__(self):
 
-        self._s3 = boto3.client('s3')
+    def __init__(self):
+        self._s3 = boto3.client("s3")
         self._temp_folder = tempfile.mkdtemp(dir="")
         self._local_path = None
 
@@ -77,7 +77,10 @@ class Aux:
 
             title = i["Key"].split(prefix)[1]
             video_list.append(Video(bucket=bucket, key=i["Key"], title=title))
-        logging.info(f"successfully load the video files from S3 bucket: s3://{bucket}/{prefix}/")
+
+        logging.info(
+            f"successfully load the video files from S3 bucket: s3://{bucket}/{prefix}/"
+        )
 
         return video_list
 
@@ -98,19 +101,25 @@ class Aux:
         """
         video_list = []
         if os.path.isdir(path):
-            files = os.listdir('data')
-            video_list = [Video(file=path + i, title=i) for i in files if Video(file=path + i, title=i)]
+
+            files = os.listdir("data")
+            video_list = [
+                Video(file=path + i, title=i)
+                for i in files
+                if Video(file=path + i, title=i)
+            ]
 
         else:
-            dummy = path.replace('/', ' ').strip()
-            title = dummy.split(' ')[-1]
+            dummy = path.replace("/", " ").strip()
+            title = dummy.split(" ")[-1]
             video_list.append(Video(file=path, title=title))
 
         logging.info(f"successfully load the video files from local path: {path}")
 
         return video_list
 
-    def upload_s3(self, video_list, bucket, prefix='modified/'):
+
+    def upload_s3(self, video_list, bucket, prefix="modified/"):
         """
         This method will push modified video list to the S3 bucket and delete all video files from local temp folder.
 
@@ -125,7 +134,7 @@ class Aux:
 
         """
 
-        s3 = boto3.client('s3')
+        s3 = boto3.client("s3")
         for video in video_list:
             # if video.get_label() != "":
             if not self._local_path:
@@ -135,6 +144,7 @@ class Aux:
             s3.upload_file(path, bucket, prefix + video.get_output_title())
 
         logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
+
 
     def execute_label_and_write_local(self, video_list, path=None):
         """
@@ -182,6 +192,7 @@ class Aux:
 
         return list_video
 
+
     def clean(self, path=None):
         """
         This method will delete the temp folder and all video files in it from local machine.
@@ -190,8 +201,9 @@ class Aux:
             path = self._local_path if self._local_path else self._temp_folder
 
         for (path, _, files) in os.walk(path, topdown=True):
+
             for video in files:
-                os.remove(f'{path}/{video}')
+                os.remove(f"{path}/{video}")
 
         os.rmdir(path)
 
