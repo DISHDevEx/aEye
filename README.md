@@ -109,7 +109,6 @@ outputs, which currently cannot be processed further.
 
 Any processing creates a lot of files! If you don't want to upload these, just use:
 ```console
-process.remove_outputs()
 aux.clean()
 ```
 
