@@ -1,11 +1,10 @@
 import mediapipe as mp
 from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
 import cv2
 import numpy as np
-from visulize import visualize
+from .visulize import visualize
 
-def person_video(model_path, input_video, output_video):
+def object_detection(model_path, input_video, output_video):
     BaseOptions = mp.tasks.BaseOptions
     ObjectDetector = mp.tasks.vision.ObjectDetector
     ObjectDetectorOptions = mp.tasks.vision.ObjectDetectorOptions
@@ -14,20 +13,19 @@ def person_video(model_path, input_video, output_video):
 
     # Check if camera opened successfully
     options = ObjectDetectorOptions(
-        base_options=BaseOptions(model_asset_path='/Users/hamza.khokhar/Desktop/mediapipe_models/efficientdet_lite0.tflite'),
+        base_options=BaseOptions(model_asset_path=model_path),
         max_results=5,
         running_mode=VisionRunningMode.VIDEO)
 
     with ObjectDetector.create_from_options(options) as detector:
-        cap = cv2.VideoCapture('/Users/hamza.khokhar/Desktop/mediapipe_models/Untitled.mp4')
+        cap = cv2.VideoCapture(input_video)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         x = cap.get(cv2.CAP_PROP_FPS)
         frame_width = int(cap.get(3))
         frame_height = int(cap.get(4))
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter('/Users/hamza.khokhar/Desktop/mediapipe_models/outpy.mp4', fourcc, x,
-                              (frame_width, frame_height))
-        if (cap.isOpened() == False):
+        out = cv2.VideoWriter(output_video, fourcc, x, (frame_width, frame_height))
+        if cap.isOpened() == False:
             print("Error opening video file")
 
         # Read until video is completed

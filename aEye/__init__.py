@@ -7,3 +7,5 @@ from .yolo import training_parameter_input
 from .yolo import prediction_parameter_input
 from .yolo import visualize
 from .yolo import pipeline
+from .mediapipe import object_detection
+from .mediapipe import visualize
