@@ -12,7 +12,6 @@ from static_ffmpeg import run
 import math
 import subprocess
 import tempfile
-import shutil
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
@@ -65,9 +64,6 @@ class Processor:
         cv_extract_many_frames(video_list, start_frame, num_frames) -> None:
             Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.
 
-        clear_outputs() -> None:
-            Deletes all files in the hardcoded directory for output videos (modified)
-
 
     """
 
@@ -102,8 +98,7 @@ class Processor:
         print("cv_extract_frame_at_time(video_list, time) -> Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the closest applicable frame if need be.\n"\
               "cv_extract_specific_frame(video_list, frame) -> Pulls a specific frame from the video.\n"\
               "cv_extract_many_frames(video_list, start_frame, num_frames) -> Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.\n")
-        print("--------------OTHER UTILITY-----------------")
-        print("clear_outputs() - > Cleans up the folder for output images")
+
 
 
     def add_label_resizing_by_ratio(self, video_list, x_ratio=.8, y_ratio=.8):
@@ -473,21 +468,4 @@ class Processor:
             logging.info(f"Extracted {num_frames} from video, saved as PNG's")
         return video_list
 
-    def remove_outputs(self):
-        """
-        Removes all files in the output folder. Useful for testing/debugging.
 
-        Parameters
-        -------
-
-        Returns
-        -------
-        Empties the directory videos output to.
-        """
-        dir = 'modified'
-        for files in os.listdir(dir):
-            path = os.path.join(dir, files)
-            try:
-                shutil.rmtree(path)
-            except OSError:
-                os.remove(path)
