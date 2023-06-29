@@ -62,7 +62,9 @@ How to use the processor:
 To see all processing options as a user, run process.show_util()
 
 The processor allows users to select multiple actions to apply to a video or list of videos and execute once. As a result, videos are output significantly more quickly, but 
-there are some rules to ensure that everything is processed correctly! For example, if the user inputs two commands that trim a video before executing, only the most recent
+there are some rules to ensure that everything is processed correctly! The Aux execute function returns a list of videos, meaning you can execute, upload those videos
+and continue to process those same videos, but it can be run without an output cariable as well. Similarly, any CV image processing returns a video
+list, but doesn't need to. For example, if the user inputs two commands that trim a video before executing, only the most recent
 command will run. If the user wants to create two different trims, they will have to execute in between those two. 
 
 Example of this below:
@@ -102,9 +104,7 @@ Processor Limitations:
 
 Because the processor works as a pipeline, frames cannot be extracted from a source that has been previously executed. 
 Most importantly, ADD_LABEL_TRIM_INTO_CLIPS MUST BE EXECUTED LAST! Because this can create significantly more videos, it branches one inpput to many
-outputs, which currently cannot be processed further. The Aux execute function returns a list of videos, meaning you can execute, upload those videos
-and continue to process those same videos, but it can be run without an output cariable as well. Similarly, any CV image processing returns a video
-list, but doesn't need to.
+outputs, which currently cannot be processed further.
 
 Any processing creates a lot of files! If you don't want to upload these, just use:
 ```console
