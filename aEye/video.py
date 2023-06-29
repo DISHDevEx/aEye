@@ -7,8 +7,10 @@ import os
 import json
 import subprocess
 from static_ffmpeg import run
-import boto3
+
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+import boto3
+
 s3 = boto3.client("s3")
 
 
@@ -31,42 +33,14 @@ class Video:
     extract_metadata -> str:
         Collects the metadata from all video sources and separates the streams
         Necessary for basically any processing, but still has to be set (none by default)
-
     get_codec -> str:
         Returns the video codec
-
     get_duration -> str:
         Returns video duration in seconds, but does so as a string
-
     get_frames -> str:
         Returns the amount of frames in the video as a string (via OpenCV)
-
     getfile -> str:
         Returns video file path
-
-     get_meta_data() -> None:
-            Retrieve the meta data from video.
-
-    get_presigned_url(time) -> string:
-        Retrieve the url for video file from S3 bucket.
-
-    add_label(self, mod) -> None:
-        Add ffmpeg label to video object.
-
-    reset_label() -> None:
-        Reset and remove all labels.
-
-    get_label(self) -> string:
-        Get ffmpeg label from video objects.
-
-    get_output_title(self): -> str:
-        Returns the string that the output file name will be built upon.
-
-    get_width(self) -> str:
-        Get the pixel width of a video.
-
-    get_height(self) -> str:
-        Get the pixel height of a video.
 
     """
 
@@ -77,6 +51,8 @@ class Video:
         self.title = title
         self.meta_data = None
         self.label = ''
+        self.out = ''
+        self.out_title = ''
 
     def __repr__(self):
         """
@@ -130,8 +106,10 @@ class Video:
             fp = None
             if self.file is None:
                 fp = self.get_presigned_url()
+            elif self.out is not None:
+                fp = self.out
             else:
-                fp = self.file  # Set local vs S3 file path
+                fp = self.file
             command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
             out = subprocess.check_output(command, shell=True).decode("utf-8")
             json_data = json.loads(out)
@@ -140,11 +118,7 @@ class Video:
 
     def get_codec(self):
         """
-        Gets the current video codec, which is separate from the codec library that
-        can be used to re-encode videos.
-        Returns
-        ---------
-        Video codec as a string
+        Returns the video codec as a string.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["codec_name"]
@@ -154,10 +128,7 @@ class Video:
 
     def get_duration(self):
         """
-        Get the duration in seconds
-        Returns
-        ---------
-        The duration of the current video as a string.
+        Returns the video duration as a string.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["duration"]
@@ -167,10 +138,7 @@ class Video:
 
     def get_num_frames(self):
         """
-        Reads the number of frames from the video metadata
-        Returns
-        ---------
-        Integer frame count
+        Returns # of frames in video as a string.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["nb_frames"]
@@ -180,23 +148,16 @@ class Video:
 
     def get_file(self):
         """
-        Method to get the file path, whether thats the local file path (if self.file is passed) or
-        the S3 bucket file path. ** File path will have single quotes around it, no need to convert it to a str
-        Returns
-        ---------
-        String of the file path
+        Returns the file path as a string.
         """
         if self.file is None:
-            return self.get_presigned_url()  # Load Local vs Load s3
+            return self.get_presigned_url()
         else:
             return self.file
 
     def get_width(self):
         """
-        Gets the pixel height of the current video according to metadata
-        Returns
-        ---------
-        Int pixel width
+        Returns the pixel width of the video associated with the current video object.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["width"]
@@ -206,10 +167,7 @@ class Video:
 
     def get_height(self):
         """
-        Method to get the pixel height of the current video object according to MD
-        Returns
-        ---------
-        Int pixel height
+        Returns the pixel height of the video associated with the current video object.
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["height"]
@@ -220,9 +178,6 @@ class Video:
     def cleanup(self) -> None:
         """
         This method will release the current view of video object from RAM.
-        Returns
-        ---------
-
         """
         self.capture.release()
 
@@ -247,18 +202,17 @@ class Video:
     def add_label(self, label):
         """
         This method will add ffmpeg label to the video.
-        Returns
-        ---------
-
         """
         self.label += label
+
+    def add_output_title(self, title):
+        """
+        """
+        self.out_title += title
 
     def reset_label(self):
         """
         This method will reset all ffmpeg label to empty.
-        Returns
-        ---------
-
         """
 
         self.label = ''
@@ -266,11 +220,13 @@ class Video:
     def get_label(self):
         """
         This method will return the all ffmpeg label from the video.
-        Returns
-        ---------
-        Current vid label
         """
         return self.label
+
+    def set_output(self, new_out):
+        """
+        """
+        self.out = new_out
 
     def get_output_title(self):
         """
@@ -288,4 +244,16 @@ class Video:
             result += "resized_"
         if '-ss' in self.label:
             result += "trimmed_"
-        return result + self.title
+        if 'crop' in self.label:
+            result += "cropped_"
+        if 'blur' in self.label:
+            result += "blurred_"
+        if '-f segment' in self.label:
+            out = self.title.split('.')
+            out[0] += "_%02d."
+            out = "".join(out)
+            self.title = out
+            # self.out = out
+            # return result + out
+        self.out = result + self.title
+        return self.out_title + self.title
