@@ -51,7 +51,7 @@ aux = Aux()
 video_list_s3 = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/')
 ```
 
-5. Initalize the processor class.
+5.5 Initalize the processor class.
 
 ```console
 process = Processor()
@@ -63,7 +63,9 @@ To see all processing options as a user, run process.show_util()
 
 The processor allows users to select multiple actions to apply to a video or list of videos and execute once. As a result, videos are output significantly more quickly, but 
 there are some rules to ensure that everything is processed correctly! For example, if the user inputs two commands that trim a video before executing, only the most recent
-command will run. If the user wants to create two different trims, they will have to execute in between those two. Example of this below:
+command will run. If the user wants to create two different trims, they will have to execute in between those two. 
+
+Example of this below:
 
 ```console
 to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)
@@ -81,6 +83,7 @@ output_video_list = aux.execute_label_and_write_local(processed)
 
 IMAGE PROCESSING IS EXECUTED THE MOMENT IT IS CALLED! IF YOU WANT TO EXTRACT FRAMES WITH PROCESSING, YOU MUST
 EXECUTE THE VIDEO PROCESSING COMMANDS FIRST WITH AUX.EXECUTE_LABEL_AND_WRITE_LOCAL(VIDEO_LIST)!!!
+
 Example:
 
 ```console
@@ -103,7 +106,7 @@ outputs, which currently cannot be processed further. The Aux execute function r
 and continue to process those same videos, but it can be run without an output cariable as well. Similarly, any CV image processing returns a video
 list, but doesn't need to.
 
-Any processing a lot of files! If you don't want to write and upload these, just use
+Any processing creates a lot of files! If you don't want to upload these, just use:
 ```console
 process.remove_outputs()
 aux.clean()
