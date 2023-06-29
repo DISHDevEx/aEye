@@ -57,23 +57,56 @@ video_list_s3 = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/'
 process = Processor()
 ```
 
-5.5 Temporary Processing Util:
+How to use the processor:
 
-To automatically execute processor commands. This will be changed once tags can be added to all processing util
+To see all processing options as a user, run process.show_util()
+
+The processor allows users to select multiple actions to apply to a video or list of videos and execute once. As a result, videos are output significantly more quickly, but 
+there are some rules to ensure that everything is processed correctly! For example, if the user inputs two commands that trim a video before executing, only the most recent
+command will run. If the user wants to create two different trims, they will have to execute in between those two. Example of this below:
+
 ```console
-process.trim_video_start_end(2, 6)              # Creates a video from 2s to 6s
-process.cv_extract_specific_frame(42)           # Grabs frame 42
-process.blur_video(11,2)                        # Applies blur level 11 twice
-process.crop_video_section(100, 50, 100, 100)   # Creates a 100x100 crop at (100,50)
-process.split_num_frames(23, 60)                # Creates a 60 frame long clip starting at frame 23
-rocess.trim_into_clips(8)                       # Trims Video into 8 second clips
-process.split_on_frame(69)                      # Creates a video from the 69th frame to the end
-process.cv_extract_frame_at_time(2.344)         # Extracts the closest frame to 2.344
-process.extract_many_frames(3, 5)               # Extracts 5 subsequent frames from 3
+to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)
+to_process = process.add_label_trim_num_frames(to_process, 10, 60)
+output_video_list = aux.execute_label_and_write_local(to_process)
+# This will only create a 60 frame long clip, not an 8 second one.
+
+to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)
+processed = aux.execute_label_and_write_local(to_process)
+processed = process.add_label_trim_num_frames(processed, 10, 60)
+output_video_list = aux.execute_label_and_write_local(processed)
+# This will create two videos, one from time 1 to 9, and another 60 frame clip.
+
 ```
-This will output a lot of files! If you don't want to write and upload these, just use
+
+IMAGE PROCESSING IS EXECUTED THE MOMENT IT IS CALLED! IF YOU WANT TO EXTRACT FRAMES WITH PROCESSING, YOU MUST
+EXECUTE THE VIDEO PROCESSING COMMANDS FIRST WITH AUX.EXECUTE_LABEL_AND_WRITE_LOCAL(VIDEO_LIST)!!!
+Example:
+
 ```console
-process.clear_outputs()
+to_process = process.add_label_change_resolution(video_list_s3, "720p")
+process.cv_extract_specific_frame(to_process, 42)  # These screenshots will not be in 720p
+aux.execute_label_and_write_local(to_process)
+# Because the video modifications have not been executed, the images will come from the original video.
+
+to_process = process.add_label_change_resolution(video_list_s3, "720p")
+output_list = aux.execute_label_and_write_local(to_process)
+process.cv_extract_specific_frame(output_list, 42)  # These screenshots WILL be in 720p!
+# Because the rescale was executed, the resulting screenshot is in 720p!
+```
+
+Processor Limitations:
+
+Because the processor works as a pipeline, frames cannot be extracted from a source that has been previously executed. 
+Most importantly, ADD_LABEL_TRIM_INTO_CLIPS MUST BE EXECUTED LAST! Because this can create significantly more videos, it branches one inpput to many
+outputs, which currently cannot be processed further. The Aux execute function returns a list of videos, meaning you can execute, upload those videos
+and continue to process those same videos, but it can be run without an output cariable as well. Similarly, any CV image processing returns a video
+list, but doesn't need to.
+
+Any processing a lot of files! If you don't want to write and upload these, just use
+```console
+process.remove_outputs()
+aux.clean()
 ```
 
 6. Use the processor to add trim labels the videos.
