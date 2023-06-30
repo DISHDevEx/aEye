@@ -241,7 +241,7 @@ class Processor:
                 f"-f segment -reset_timestamps 1 -break_non_keyframes 1 "
                 f"modified/output_trim_into_{interval}s_clips_%02d_{video.title}"
             )
-            video.add_label(f" -map 0 -c:a aac -vsync vfr -reset_timestamps 1 -segment_time {interval} -f segment -break_non_keyframes 1 ")
+            video.add_label(f" -map 0 -c:a aac -vsync vfr -reset_timestamps 1 -segment_time {interval} -g {interval} -sc_threshold 0 -force_key_frames 'expr:gte(t,n_forced*{interval})' -f segment ")
             video.add_output_title(f"trimmed_{interval}_clips_")
             #print(cmd)
             #subprocess.call(cmd, shell=True)
