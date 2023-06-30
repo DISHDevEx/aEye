@@ -62,11 +62,10 @@ How to use the processor:
 To see all processing options as a user, run process.show_util()
 
 The processor allows users to select multiple actions to apply to a video or list of videos and execute once. As a result, videos are output significantly more quickly, but 
-there are some rules to ensure that everything is processed correctly! The Aux execute function returns a list of videos, meaning you can execute, upload those videos
-and continue to process those same videos, but it can be run without an output cariable as well. Similarly, any CV image processing returns a video
-list, but doesn't need to. The order of input matters, and one execution cycle should ideally avoid performing the same type of operation, as the older one is ignored.
-For example, if the user inputs two commands that trim a video before executing, only the most recent
-command will run. If the user wants to create two different trims, they will have to execute in between those two. 
+there are some rules to ensure that everything is processed correctly! The Aux execute function returns a list of videos, meaning you can process videos, execute, upload those videos
+and continue to process them! The order of input matters, and one execution cycle should ideally avoid performing the same type of operation, as the older one is ignored. (For example, 
+if you try to trim a video length twice, the video will be trimmed according to the most recently applied process.)
+If the user wants to create two different trims, they will have to execute in between those two. 
 
 Example of this below:
 
@@ -106,6 +105,16 @@ Processor Limitations:
 Because the processor works as a pipeline, frames cannot be extracted from a source that has been previously executed. 
 Most importantly, ADD_LABEL_TRIM_INTO_CLIPS MUST BE EXECUTED LAST! Because this can create significantly more videos, it branches one inpput to many
 outputs, which currently cannot be processed further.
+
+Below is an example of processor utility to downsize, blur, crop, and trim a video:
+
+```console
+to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)        #Trims from 1s to 9s
+to_process = process.add_label_change_resolution(to_process, "720p")            #Converts to 720p
+to_process = process.add_label_crop_video_section(to_process, 0, 0, 150, 100)   #Creates a 150x100 crop at (0,0)
+final = process.add_label_blur_video(final, 50, 5)                              #Adds a level 50 blur 5x 
+aux.execute_label_and_write_local(final)                                        #Executes processing
+```
 
 Any processing creates a lot of files! If you don't want to upload these, just use:
 ```console
