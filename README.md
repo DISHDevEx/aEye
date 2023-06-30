@@ -62,12 +62,13 @@ process = Processor()
 To see all processing options as a user, run process.show_util()
 
 The processor allows users to select multiple actions to apply to a video or list of videos and execute once. As a result, videos are output significantly more quickly, but 
-there are some rules to ensure that everything is processed correctly! The Aux execute function returns a list of videos, meaning you can process videos, execute, upload those videos
-and continue to process them! The order of input matters, and one execution cycle should ideally avoid performing the same type of operation, as the older one is ignored. (For example, 
+there are some rules to ensure that everything is processed correctly! The Aux execute function, which is used to execute a series of processor labels on a list of videos
+also returns a list of videos. This means you can process videos, execute, upload those videos and continue to process them! 
+The order of input matters, and one execution cycle should ideally avoid performing the same type of operation, as the older one is ignored. (For example, 
 if you try to trim a video length twice, the video will be trimmed according to the most recently applied process.)
 If the user wants to create two different trims, they will have to execute in between those two. 
 
-Example of this below:
+Example:
 
 ```console
 to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)
@@ -85,6 +86,10 @@ output_video_list = aux.execute_label_and_write_local(processed)
 
 IMAGE PROCESSING IS EXECUTED THE MOMENT IT IS CALLED! IF YOU WANT TO EXTRACT FRAMES WITH PROCESSING, YOU MUST
 EXECUTE THE VIDEO PROCESSING COMMANDS FIRST WITH AUX.EXECUTE_LABEL_AND_WRITE_LOCAL(VIDEO_LIST)!!!
+
+Again, because processor modifications are not applied until the aux.execute_label_and_write_local(list) command is performed, any image extraction that
+happens prior to an execution will not have any of the modifications applied. The framework will always allow frames to be extracted, but if there
+are pending processor modifications, a warning will be raised for the user. The following shows how execution order affects frame capture.
 
 Example:
 
@@ -112,7 +117,7 @@ Below is an example of processor utility to downsize, blur, crop, and trim a vid
 to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)        #Trims from 1s to 9s
 to_process = process.add_label_change_resolution(to_process, "720p")            #Converts to 720p
 to_process = process.add_label_crop_video_section(to_process, 0, 0, 150, 100)   #Creates a 150x100 crop at (0,0)
-final_video_list = process.add_label_blur_video(final, 50, 5)                              #Adds a level 50 blur 5x 
+final_video_list = process.add_label_blur_video(to_process, 50, 5)              #Adds a level 50 blur 5x 
 ```
 
 7. Use auxiliary class to execute and write the videos with processor labels.
