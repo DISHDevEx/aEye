@@ -57,7 +57,7 @@ video_list_s3 = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/'
 process = Processor()
 ```
 
-How to use the processor:
+6. How to use the processor:
 
 To see all processing options as a user, run process.show_util()
 
@@ -112,31 +112,18 @@ Below is an example of processor utility to downsize, blur, crop, and trim a vid
 to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)        #Trims from 1s to 9s
 to_process = process.add_label_change_resolution(to_process, "720p")            #Converts to 720p
 to_process = process.add_label_crop_video_section(to_process, 0, 0, 150, 100)   #Creates a 150x100 crop at (0,0)
-final = process.add_label_blur_video(final, 50, 5)                              #Adds a level 50 blur 5x 
-aux.execute_label_and_write_local(final)                                        #Executes processing
+final_video_list = process.add_label_blur_video(final, 50, 5)                              #Adds a level 50 blur 5x 
 ```
 
-Any processing creates a lot of files! If you don't want to upload these, just use:
+7. Use auxiliary class to execute and write the videos with processor labels.
+
+```console
+aux.execute_label_and_write_local(final_video_list)
+```
+
+8. Any processing creates a lot of files! If you don't want to upload these, just use:
 ```console
 aux.clean()
-```
-
-6. Use the processor to add trim labels the videos.
-
-```console
-trimmed_s3 = process.add_label_trimming_start_duration(video_list_s3,0,5)
-```
-
-7. Use the processor to add resize labels to the trimmed videos.
-
-```console
-res_trimmed_s3 = process.add_label_resizing_by_ratio(trimmed_s3,.5,.5)
-```
-
-8. Use auxiliary class to execute and write the videos with resized and trimmed labels.
-
-```console
-aux.execute_label_and_write_local(res_trimmed_s3)
 ```
 
 9. Upload the result to the desire bucket.
