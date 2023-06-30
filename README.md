@@ -146,14 +146,14 @@ The following steps are to load and write locally.
 video_list_local = aux.load_local('data/')
 ```
 
-11. Add Trim label for the local video files.
+12. Add Trim label for the local video files.
 
 ```console
 
 trimmed_local = process.add_label_trimming_start_duration(video_list_local,0,5)
 ```
 
-12 Execute all labels and write the output to data/ folder.
+13. Execute all labels and write the output to data/ folder.
 
 ```console
 aux.execute_label_and_write_local(trimmed_local,'data/')
