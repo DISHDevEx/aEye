@@ -9,5 +9,9 @@ COPY lambda_function.py ${LAMBDA_TASK_ROOT}
 # Install the specified packages
 RUN pip install -r requirements.txt
 
+
+COPY dist/aEye-0.0.1-py3-none-any.whl.whl .
+RUN pip3 install aEye-0.0.1-py3-none-any.whl --target "${LAMBDA_TASK_ROOT}"
+
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
 CMD [ "lambda_function.handler" ]
