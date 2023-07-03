@@ -27,6 +27,8 @@ jobs:
     - name: upload to s3
       run: |
         aws s3 ls
+    - name: create wheel file from source code
+      run: python setup.py bdist_wheel --version v0.0.1
     - name: login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
@@ -38,10 +40,10 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
       run: |
         # Build a docker container and push it to ECR
-        echo "building version v0.0.2 ..."
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1 .
+        echo "building version v0.0.3 ..."
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.3 .
         echo "pushing image to ECR ..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1"
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.3
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.3"
 #    - name: create wheel file from source code
 #      run: python setup.py bdist_wheel
