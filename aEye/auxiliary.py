@@ -171,7 +171,7 @@ class Aux:
         for video in video_list:
             # This if statement will skip over any untouched videos.
             if video.get_label() != "":
-                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_label()} {path}/{video.get_output_title()}"
+                command = f"{ffmpeg} -i {video.get_presigned_url()} -filter_complex '{video.get_label()}' {path}/{video.get_output_title()}"
                 subprocess.run(command, shell=True)
                 logging.info(command)
 
