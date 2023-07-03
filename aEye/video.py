@@ -189,3 +189,14 @@ class Video:
             result += "trimmed_"
         return result + self.title
 
+    def compile_modification(self, starting = 0):
+        result = []
+        for mod in self.modification:
+            if result == []:
+                result.append(f"[{starting}] {mod}  [{hash(self)}{starting + 1}]" )
+            else:
+                result.append(f"[{hash(self)}{starting}] {mod}  [{hash(self)}{starting + 1}]" )
+
+            starting += 1
+        self.last_tag = f'[{hash(self)}{starting}]' 
+        return "; ".join(result)
