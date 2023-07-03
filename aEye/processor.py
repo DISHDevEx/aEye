@@ -106,3 +106,23 @@ class Processor:
         logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
 
         return video_list
+
+    def concat(self, video_list, *target_concat):
+
+        for video in video_list:
+            tag = '_'
+            counter =0
+            out_tag =f'[{hash(self)}{video.get_number_mod()}] '
+            labels = ''
+            labels += video.compile_modification(starting = counter )
+            for i in target_concat:
+                counter  +=1 
+                labels += "; " + i.compile_modification(starting = counter )
+                out_tag += f'[{hash(i)}{i.get_number_mod()}] '
+
+
+            video.add_modification(labels)
+            video.add_modification(f"{out_tag} concat=n={len(target_concat) + 1}" )
+
+    
+        return video_list
