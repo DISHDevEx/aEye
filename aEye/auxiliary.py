@@ -7,7 +7,7 @@ import logging
 from static_ffmpeg import run
 from aEye.processor import Processor
 
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+#ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 
 class Aux:
