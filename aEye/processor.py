@@ -70,7 +70,7 @@ class Processor:
             new_width = int(video.meta_data['width'] * x_ratio )
             new_height = int(video.meta_data['height'] * y_ratio )
 
-            video.add_label(f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
+            video.add_label(f"scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 ")
 
         logging.info(f"successfully added resizing mod to all video by ratio of {x_ratio} and {y_ratio}")
     
@@ -101,7 +101,7 @@ class Processor:
         #Generate the desired target list of videos to add label.
         #Add the trim ffmpeg label to all desired videos.
         for video in video_list:
-            video.add_label(f"-ss {start} -t {duration} ")
+            video.add_label(f"trim=start={start}:duration={duration}")
 
         logging.info(f"successfully added trimming mod from {start} for {duration} seconds" )
 
