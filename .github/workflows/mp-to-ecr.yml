@@ -15,34 +15,34 @@ jobs:
     matrix:
       python-version: [ "3.9" ]
   steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-    - name: configure aws credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-        role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
-        role-session-name: samplerolesession
-        aws-region: ${{ env.AWS_REGION }}
-    - name: upload to s3
-      run: |
-        aws s3 ls
-    - name: login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+  - uses: actions/checkout@v3
+  - name: Set up Python ${{ matrix.python-version }}
+    uses: actions/setup-python@v3
+  - name: configure aws credentials
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      python-version: ${{ matrix.python-version }}
+      role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+      role-session-name: samplerolesession
+      aws-region: ${{ env.AWS_REGION }}
+  - name: upload to s3
+    run: |
+      aws s3 ls
+  - name: login to Amazon ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v1
 
-    - name: build, tag, and push the image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-      run: |
-        # Build a docker container and push it to ECR
-        echo "building version v0.0.1 ..."
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1 .
-        echo "pushing image to ECR ..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1"
+  - name: build, tag, and push the image to Amazon ECR
+    id: build-image
+    env:
+      ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+    run: |
+      # Build a docker container and push it to ECR
+      echo "building version v0.0.1 ..."
+      docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1 .
+      echo "pushing image to ECR ..."
+      docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1
+      echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.1"
 #    - name: create wheel file from source code
 #      run: python setup.py bdist_wheel
