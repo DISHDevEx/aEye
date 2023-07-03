@@ -64,7 +64,8 @@ setup(
         include=['aEye',
                  'aEye.auxiliary',
                  'aEye.processor',
-                 'aEye.video'
+                 'aEye.video',
+                 'aEye.mediapipe'
         ]
     ),
     include_package_data=True,
