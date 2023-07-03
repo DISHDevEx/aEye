@@ -4,20 +4,23 @@ import sys
 import json
 import urllib.parse
 import boto3
+import os
 
 models = ["/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0_float16.tflite",
           "/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0_float32.tflite",
           "/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0int8.tflite"]
+# input_video_path = os.environ.get('input_video_path')
+# output_video_path = os.environ.get('output_video_path')
 
 def handler(event, context):
     print('Loading function')
 
     s3 = boto3.client('s3')
 
-    bucket = "s3://leto-dish/original-videos/random-videos/Untitled.mp4"
-    output_path = "s3://leto-dish/object_detection/"
+    input_video_path = "s3://leto-dish/original-videos/random-videos/Untitled.mp4"
+    output_video_path = "s3://leto-dish/object_detection/sample.mp4"
 
-    object_detection(models[2], bucket, output_path)
+    object_detection(models[2], input_video_path, output_video_path)
 
 
     # print("Received event: " + json.dumps(event, indent=2))
