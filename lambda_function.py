@@ -5,7 +5,7 @@ import json
 import urllib.parse
 import boto3
 import os
-
+print("imported")
 models = ["/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0_float16.tflite",
           "/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0_float32.tflite",
           "/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0int8.tflite"]
