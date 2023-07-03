@@ -95,7 +95,7 @@ class Processor:
         # Generate the desired target list of videos to add label.
         # Add the trim ffmpeg label to all desired videos.
         for video in video_list:
-            video.add_label(f"-ss {start} -t {duration} ")
+            video.add_label(f"trim=start={start}:duration={duration}")
 
         logging.info(
             f"successfully added trimming label from {start} for {duration} seconds"
