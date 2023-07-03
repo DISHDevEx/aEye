@@ -13,7 +13,7 @@ import math
 import subprocess
 import tempfile
 
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+#ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 
 class Processor:
