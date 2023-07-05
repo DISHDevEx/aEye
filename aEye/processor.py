@@ -12,6 +12,7 @@ from static_ffmpeg import run
 import math
 import subprocess
 import tempfile
+import shutil
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
@@ -62,6 +63,9 @@ class Processor:
         cv_extract_many_frames(video_list, start_frame, num_frames) -> None:
             Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.
 
+        clear_outputs() -> None:
+            Deletes all files in the hardcoded directory for output videos (modified)
+
 
     """
 
@@ -82,21 +86,21 @@ class Processor:
 
         """
         print("---------------VIDEO UTILITY----------------")
-        print(
-            "add_label_resizing_by_ratio(x_ratio, y_ratio,target) -> Add label of resizing video by multiplying width by the ratio to video.\n" \
-            "add_label_trim_video_start_end(video_list, start, end) -> Given start and end times in seconds, modified a trimmed down version of the video to the modified file.\n" \
-            "add_label_trim_into_clips(video_list, interval) -> Splits the video into X second clips, sends all these clips to output folder.\n" \
-            "add_label_split_on_frame(video_list, frame) -> Given a specific frame, start the video there, removes any preceding frames.\n" \
-            "add_label_split_num_frames(video_list, start_frame, num_frames) -> Given a start frame and the amount of frames that a user wants " \
-            "to copy, splits the video to all of the frames within that frame range.\n" \
-            "add_label_crop_video_section(video_list, width, height, start_x, start_y) -> Create a width x height crop of the input video starting at pixel values" \
-            "start_x, start_y and sends the smaller video to the modified file.\n" \
-            "add_label_blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video.\n")
+        print("add_label_resizing_by_ratio(x_ratio, y_ratio,target) -> Add label of resizing video by multiplying width by the ratio to video.\n"\
+              "add_label_trim_video_start_end(video_list, start, end) -> Given start and end times in seconds, modified a trimmed down version of the video to the modified file.\n"\
+              "add_label_trim_into_clips(video_list, interval) -> Splits the video into X second clips, sends all these clips to output folder.\n"\
+              "add_label_split_on_frame(video_list, frame) -> Given a specific frame, start the video there, removes any preceding frames.\n"\
+              "add_label_split_num_frames(video_list, start_frame, num_frames) -> Given a start frame and the amount of frames that a user wants "\
+              "to copy, splits the video to all of the frames within that frame range.\n"\
+              "add_label_crop_video_section(video_list, width, height, start_x, start_y) -> Create a width x height crop of the input video starting at pixel values"\
+              "start_x, start_y and sends the smaller video to the modified file.\n"\
+              "add_label_blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video.\n")
         print("--------------IMAGE UTILITY-----------------")
-        print(
-            "cv_extract_frame_at_time(video_list, time) -> Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the closest applicable frame if need be.\n" \
-            "cv_extract_specific_frame(video_list, frame) -> Pulls a specific frame from the video.\n" \
-            "cv_extract_many_frames(video_list, start_frame, num_frames) -> Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.\n")
+        print("cv_extract_frame_at_time(video_list, time) -> Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the closest applicable frame if need be.\n"\
+              "cv_extract_specific_frame(video_list, frame) -> Pulls a specific frame from the video.\n"\
+              "cv_extract_many_frames(video_list, start_frame, num_frames) -> Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.\n")
+
+
 
     def add_label_resizing_by_ratio(self, video_list, x_ratio=.8, y_ratio=.8):
         """
@@ -133,7 +137,7 @@ class Processor:
 
         return video_list
 
-    def add_label_trim_video_start_end(self, video_list, start, end):
+    def add_label_trim_video_start_end(self, video_list, start, end ):
         """
         Given a start time (start) and end time (end) in seconds, this will return a clip
         from start-end time stamps. *Note this works with b frames, there may be slight time offsets as a result
@@ -190,9 +194,11 @@ class Processor:
             # Generate the desired target list of videos to add label.
             # Add the scale ffmpeg label to all desired videos.
             for video in video_list:
-                video.add_label(
-                    f"-vf scale={width_height[0]}x{width_height[1]}:flags=lanczos -c:v libx264 -preset slow -crf 21 "
-                )
+                #video.add_label(
+                #    f"-vf scale={width_height[0]}x{width_height[1]}:flags=lanczos -c:v libx264 -preset slow -crf 21 "
+                #)
+                video.add_label("-c:v libx264 -preset slow -crf 21 ")
+                video.complex_filter.append(f"scale={width_height[0]}x{width_height[1]}:flags=lanczos")
                 video.add_output_title(f"resized_{width_height[0]}x{width_height[1]}_")
 
             logging.info(f"successfully added resize label for desired_resolution")
@@ -222,8 +228,7 @@ class Processor:
         None, but creates interval second long videos in output folder
         """
         for video in video_list:
-            video.add_label(
-                f" -map 0 -c:a aac -vsync vfr -reset_timestamps 1 -segment_time {interval} -g {interval} -sc_threshold 0 -force_key_frames 'expr:gte(t,n_forced*{interval})' -f segment ")
+            video.add_label(f" -map 0 -c:a aac -vsync vfr -reset_timestamps 1 -segment_time {interval} -g {interval} -sc_threshold 0 -force_key_frames 'expr:gte(t,n_forced*{interval})' -f segment ")
             video.add_output_title(f"trimmed_{interval}_clips_")
             logging.info(f"Video has been trimmed into {interval} second long clips!")
         return video_list
@@ -231,8 +236,8 @@ class Processor:
     def add_label_trim_on_frame(self, video_list, frame):
         """
         Given a frame, this method will create a video starting at that specific
-        frame and running all the way until the end. Running this on a frame that is outside the video duration
-        will just result in nothing being done to the clip.
+        frame and running all the way until the end. Again, might not be the stupidest idea to
+        add in some safety/edge case stuff here
 
         Parameters
         -------
@@ -254,9 +259,7 @@ class Processor:
     def add_label_trim_num_frames(self, video_list, start_frame, num_frames):
         """
         Given a passed frame (start_Frame), and a duration (num_frames), which in this instance is the number of
-        frames to crop to, it will send a cropped video to the output folder. This splits on exact frame,
-        but bear in mind the duration of the resulting video will be affected by the FPS of the video, as it
-        re-encodes to that same FPS by default. (Video FPS can be changed if need be though!)
+        frames to crop to, it will send a cropped video to the output folder.
 
         Parameters
         -------
@@ -274,7 +277,7 @@ class Processor:
             fps = float(video.get_num_frames()) / float(video.get_duration())
             time_stamp = start_frame / fps
             logging.info(f"Encoding {num_frames} from {start_frame}")
-            video.add_output_title(f"trim_frames_{start_frame}_to_{start_frame + num_frames}_")
+            video.add_output_title(f"trim_frames_{start_frame}_to_{start_frame+num_frames}_")
             video.add_label(f"-ss {str(time_stamp)} -frames:v {num_frames} ")
         return video_list
 
@@ -297,7 +300,8 @@ class Processor:
         None, but creates cropped video in output folder
         """
         for video in video_list:
-            video.add_label(f"-filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' ")
+            #video.add_label(f"-filter:v 'crop={section_width}:{section_height}:{start_x}:{start_y}' ")
+            video.complex_filter.append(f"crop={section_width}:{section_height}:{start_x}:{start_y} ")
             video.add_output_title(f"cropped_{section_width}x{section_height}_")
             logging.info(f"Created a {section_width}x{section_height} crop at ({start_x},{start_y})")
         return video_list
@@ -322,10 +326,13 @@ class Processor:
         None, outputs new videos to modified folder
         """
         for video in video_list:
-            video.add_label(f"-vf 'gblur=sigma={blur_level}:steps={blur_steps}' ")
+            #video.add_label(f"-vf 'gblur=sigma={blur_level}:steps={blur_steps}' ")
+            video.complex_filter.append(f"gblur=sigma={blur_level}:steps={blur_steps} ")
             video.add_output_title(f"blurred_{blur_level}x{blur_steps}_")
             logging.info(f"Created a blur of strength {blur_level} and applied it {blur_steps} times")
         return video_list
+
+
 
     ##################################################################################################
     #                THIS IS THE END OF THE FFMPEG PROCESSING UTILITY                                #
@@ -351,8 +358,7 @@ class Processor:
         """
         for video in video_list:
             if video.label != '':
-                print(
-                    f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
+                print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
             if video.out != '':
                 file_path = video.out.strip("'")
             else:
@@ -387,8 +393,7 @@ class Processor:
         """
         for video in video_list:
             if video.label != '':
-                print(
-                    f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
+                print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
             if video.out == '':
                 file_path = video.get_presigned_url().strip("'")
             else:
@@ -423,8 +428,7 @@ class Processor:
         """
         for video in video_list:
             if video.label != '':
-                print(
-                    f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
+                print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
             if video.out == '':
                 file_path = video.get_presigned_url().strip("'")
             else:
@@ -439,3 +443,4 @@ class Processor:
             vid_obj.release()
             logging.info(f"Extracted {num_frames} from video, saved as PNG's")
         return video_list
+

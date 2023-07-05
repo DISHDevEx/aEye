@@ -49,6 +49,7 @@ class Video:
         self.path = None
         self.meta_data = None
         self.label = ''
+        self.complex_filter = []
         self.out = ''
         self.out_title = ''
 
@@ -226,6 +227,32 @@ class Video:
         """
         """
         self.out = new_out
+
+
+    def create_complex_filter(self, video):
+        """
+        This method is used for creating a complex video filter. This is any overlay that would
+        necessitate a re-encoding of the video (ex. Resizing, Blur, Crop, etc) and encapsulates it all as
+        one filter with many steps that way all of the filter applications can be completed. Once the complex
+        filter is created, it is added to the label. *Has to be final part of label. Already does that so order
+        doesn't matter, but if you mess with some stuff and it stops working, that might be why
+
+        Parameters
+        ----------
+        video: video with VF process(es) like crop or blur
+
+        Returns
+        ----------
+        Nothing, but the video label is appended with the completed complex filter
+        """
+        filter_steps = video.complex_filter
+        filter_str = "-filter_complex '"
+        end = len(filter_steps)
+        for i in range(len(filter_steps)):
+            filter_str += f"[{i}]{filter_steps[i]}[{i+1}];"
+        filter_str = filter_str.strip(";")
+        filter_str += f"' -map [{end}] "
+        video.add_label(filter_str)
 
 
     def get_output_title(self):
