@@ -34,7 +34,7 @@ def handler(event, context):
     object_detection(os.path.basename("efficientdet_lite0.tflite"), input_video, "output_video.mp4")
     print(os.system('ls'))
 
-    s3_client.upload_file("tmp/output_video.mp4",
+    s3_client.upload_file("/tmp/output_video.mp4",
                           "leto-dish", "object_detection/sample.mp4")
 
 
