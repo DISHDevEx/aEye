@@ -3,4 +3,4 @@ opencv-python==4.6.0.66
 numpy>=1.21.6
 static-ffmpeg>=2.5
 mediapipe>=0.10.1
-PyQt6==6.3.1
+PyQt6
