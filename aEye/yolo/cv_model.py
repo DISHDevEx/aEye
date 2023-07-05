@@ -1,12 +1,12 @@
 from ultralytics import YOLO
 import cv2
 
-class CV():
+class yolo():
 
     def __init__(self) -> None:
 
         self.model = YOLO
-        self.yolo_weight = None
+        self.yolo_weight = 'yolov8s.pt'
         
     
     def load_yolo_weight(self, weight = 'yolov8s.pt'):
@@ -16,8 +16,8 @@ class CV():
     def get_yolo_weight(self):
         return self.yolo_weight
     
-    def load_model(self, model = None, bucket = None , prefix = None):
-        if not model and bucket:
+    def load_model(self, local_model = None, bucket = None , prefix = None):
+        if not local_model and bucket:
             "load from s3"
         else:
             'load from local'
@@ -26,19 +26,14 @@ class CV():
         "save"
         return self.model
 
+    def upload(self,bucket = None , prefix = None):
+        'upload to s3'
 
 
     def train(self,data, parameter):
-        result = self.model.train(data = data, parameter = parameter)
+
+        self.model.train(data = data, parameter = parameter)
 
     def predict(self, data):
-        if 'video':
-            'do video'
-            pass
-
-        elif 'frame':
-            'do frame'
-            pass
-
-
+        self.model.predict(data, save = True)
         
