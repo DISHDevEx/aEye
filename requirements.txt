@@ -1,18 +1,7 @@
 boto3>=1.26.29
 opencv-python>= 4.8.0.74
-opencv-python-headless>=4.8.0.00
 opencv-contrib-python>= 4.8.0.74
-opencv-python-headless
 numpy>=1.21.6
 static-ffmpeg>=2.5
-<<<<<<< HEAD
-<<<<<<< HEAD
 ultralytics>= 8.0.126
 mediapipe>=0.9.0
-=======
-mediapipe>=0.10.1
-PyQt6
->>>>>>> ea393de (trigger)
-=======
-mediapipe>=0.9.0
->>>>>>> 40fc018 (fix requirement and meta data output)
