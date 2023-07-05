@@ -7,12 +7,9 @@ import os
 import json
 import subprocess
 from static_ffmpeg import run
-
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 import boto3
-
 s3 = boto3.client("s3")
-
 
 class Video:
     """
@@ -29,44 +26,18 @@ class Video:
         OpenCV video object, used for any openCV processing
     ----------
     Methods
-
-    -------
-
-        __repr__() -> string:
-            A native python method to represent the Video class.
-
-        __eq__() -> string:
-            A native python method to add comparison functionality.
-
-        __bool__() -> boolean:
-            A native python method to see whether video can be readed properly.
-
-        cleanup() -> None:
-            Clean up memory from cv2 video capture.
-
-        get_meta_data() -> None:
-            Retrieve the meta data from video.
-
-        get_presigned_url(time) -> string:
-            Retrieve the url for video file from S3 bucket.
-
-        add_label(self, mod) -> None:
-            Add ffmpeg label to video object.
-
-        reset_label() -> None:
-            Reset and remove all labels.
-
-        get_label(self) -> string:
-            Get ffmpeg label from video objects.
-           
-        get_codec -> str:
-            Returns the video codec.
-            
-        get_duration -> str:
-            Returns video duration in seconds, but does so as a string.
-            
-        get_frames -> str:
-            Returns the amount of frames in the video as a string (via OpenCV).
+    ----------
+    extract_metadata -> str:
+        Collects the metadata from all video sources and separates the streams
+        Necessary for basically any processing, but still has to be set (none by default)
+    get_codec -> str:
+        Returns the video codec
+    get_duration -> str:
+        Returns video duration in seconds, but does so as a string
+    get_frames -> str:
+        Returns the amount of frames in the video as a string (via OpenCV)
+    getfile -> str:
+        Returns video file path
 
     """
 
@@ -75,11 +46,11 @@ class Video:
         self.bucket = bucket
         self.key = key
         self.title = title
+        self.path = None
         self.meta_data = None
         self.label = ''
         self.out = ''
         self.out_title = ''
-
 
     def __repr__(self):
         """
@@ -120,6 +91,7 @@ class Video:
         """
         return cv2.VideoCapture(self.get_presigned_url(time=2)).read()[0]
 
+
     def extract_metadata(self):
         """
         Probably the most important method, probes a video passed with a
@@ -152,7 +124,6 @@ class Video:
         else:
             self.meta_data = self.get_metadata()
             return self.meta_data["streams"][0]["codec_name"]
-
 
     def get_duration(self):
         """
@@ -209,7 +180,6 @@ class Video:
         """
         self.capture.release()
 
-
     def get_presigned_url(self, time=60):
         """
         This method will return the presigned url of video file from S3.
@@ -223,12 +193,8 @@ class Video:
         """
 
         if self.file is None:
-
-            url = s3.generate_presigned_url(
-                ClientMethod="get_object",
-                Params={"Bucket": self.bucket, "Key": self.key},
-                ExpiresIn=time,
-            )
+            url = s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': self.bucket, 'Key': self.key},
+                                            ExpiresIn=time)
             return f"'{url}'"
         return self.file
 
@@ -240,7 +206,6 @@ class Video:
 
     def add_output_title(self, title):
         """
-        Appends the output title to name videos correctly 
         """
         self.out_title += title
 
@@ -249,7 +214,7 @@ class Video:
         This method will reset all ffmpeg label to empty.
         """
 
-        self.label = ""
+        self.label = ''
 
     def get_label(self):
         """
@@ -259,7 +224,6 @@ class Video:
 
     def set_output(self, new_out):
         """
-        Sets the output to the old video title string 
         """
         self.out = new_out
 
@@ -275,11 +239,10 @@ class Video:
                 The output title of video.
         """
 
-        result = ""
-        if "scale" in self.label:
+        result = ''
+        if 'scale' in self.label:
             result += "resized_"
-
-        if "-ss" in self.label:
+        if '-ss' in self.label:
             result += "trimmed_"
         if 'crop' in self.label:
             result += "cropped_"
@@ -289,7 +252,8 @@ class Video:
             out = self.title.split('.')
             out[0] += "_%02d."
             out = "".join(out)
-            self.title = out
+            self.title = out  # IMPORTANT FOR SOMETHING LMAO FIGURE OUT WHY
         self.out = result + self.title
-        return self.out_title + self.title
+        return  self.out_title + self.title
+
 
