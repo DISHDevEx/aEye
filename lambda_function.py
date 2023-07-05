@@ -7,6 +7,7 @@ import boto3
 import os
 #print(os.getcwd())
 print(os.system('ls'))
+print(os.getcwd())
 print("imported")
 models = ["/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0_float16.tflite",
           "/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0_float32.tflite",
@@ -22,7 +23,7 @@ def handler(event, context):
     input_video_path = "s3://leto-dish/original-videos/random-videos/Untitled.mp4"
     output_video_path = "s3://leto-dish/object_detection/sample.mp4"
 
-    object_detection("efficientdet_lite0.tflite", input_video_path, output_video_path)
+    object_detection('efficientdet_lite0.tflite', input_video_path, output_video_path)
 
 
     # print("Received event: " + json.dumps(event, indent=2))
