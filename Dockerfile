@@ -1,5 +1,5 @@
 FROM public.ecr.aws/lambda/python:3.10
-COPY --from=make-pthread-nameshim /pthread-nameshim/pthread_shim.so /opt/pthread_shim.so
+#COPY --from=make-pthread-nameshim /pthread-nameshim/pthread_shim.so /opt/pthread_shim.so
 
 # Copy requirements.txt
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
