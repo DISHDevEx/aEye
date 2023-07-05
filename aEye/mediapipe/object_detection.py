@@ -48,8 +48,8 @@ def object_detection(model_path, input_video, output_video):
 
 
                 out.write(annotated_image)
-                cv2.imshow("window_name", annotated_image)
-                cv2.waitKey(1)
+                #cv2.imshow("window_name", annotated_image)
+                #cv2.waitKey(1)
             # Break the loop
             else:
                 break
@@ -59,4 +59,4 @@ def object_detection(model_path, input_video, output_video):
     cap.release()
     out.release()
     # Closes all the frames
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
