@@ -1,3 +1,5 @@
+import os.path
+
 import mediapipe as mp
 from mediapipe.tasks import python
 import cv2
@@ -54,6 +56,8 @@ def object_detection(model_path, input_video, output_video):
             else:
                 break
 
+        if os.path.exists(output_video):
+            print(os.path(output_video))
     # When everything done, release
     # the video capture object
     cap.release()
