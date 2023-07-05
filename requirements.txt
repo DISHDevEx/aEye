@@ -4,5 +4,10 @@ opencv-contrib-python>= 4.8.0.74
 opencv-python-headless
 numpy>=1.21.6
 static-ffmpeg>=2.5
+<<<<<<< HEAD
 ultralytics>= 8.0.126
 mediapipe>=0.9.0
+=======
+mediapipe>=0.10.1
+PyQt6
+>>>>>>> ea393de (trigger)
