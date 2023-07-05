@@ -22,7 +22,7 @@ print("read successfully")
 
 def handler(event, context):
     print('Loading function')
-    os.chdir('/tmp')
+    #os.chdir('/tmp')
     print(os.system('ls'))
     s3_client = boto3.client('s3')
     input_video = os.path.join("/tmp", os.path.basename("Untitled.mp4"))
