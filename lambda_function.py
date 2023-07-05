@@ -7,8 +7,6 @@ import os
 # output_video_path = os.environ.get('output_video_path')
 
 
-
-
 def handler(event, context):
 
     print('Loading function')
