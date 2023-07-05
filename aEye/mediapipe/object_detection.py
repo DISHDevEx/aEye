@@ -56,8 +56,6 @@ def object_detection(model_path, input_video, output_video):
             else:
                 break
         print("@@@@@")
-        print(os.path.exists(output_video))
-        print(os.path(output_video))
         print(annotated_image)
         print("@@@@@")
     # When everything done, release
