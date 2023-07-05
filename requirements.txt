@@ -1,5 +1,5 @@
 boto3>=1.26.29
-opencv-python==4.6.0.66
+
 numpy>=1.21.6
 static-ffmpeg>=2.5
 mediapipe>=0.10.1
