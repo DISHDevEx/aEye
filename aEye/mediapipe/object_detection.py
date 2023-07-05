@@ -1,7 +1,4 @@
-import os.path
-
 import mediapipe as mp
-from mediapipe.tasks import python
 import cv2
 import numpy as np
 from .visulize import visualize
@@ -46,12 +43,8 @@ def object_detection(model_path, input_video, output_video):
                 detection_result = detector.detect_for_video(mp_image, frame_timestamp_ms)
                 image_copy = np.copy(mp_image.numpy_view())
                 annotated_image = visualize(image_copy, detection_result)
-                #rgb_annotated_image = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
-
-
                 out.write(annotated_image)
-                #cv2.imshow("window_name", annotated_image)
-                #cv2.waitKey(1)
+
             # Break the loop
             else:
                 break
@@ -59,5 +52,4 @@ def object_detection(model_path, input_video, output_video):
     # the video capture object
     cap.release()
     out.release()
-    # Closes all the frames
-    #cv2.destroyAllWindows()
+
