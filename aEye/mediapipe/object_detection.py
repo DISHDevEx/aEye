@@ -55,11 +55,6 @@ def object_detection(model_path, input_video, output_video):
             # Break the loop
             else:
                 break
-        print("@@@@@")
-        print(os.path.exists(output_video))
-        print(os.path(output_video))
-        print(annotated_image)
-        print("@@@@@")
     # When everything done, release
     # the video capture object
     cap.release()
