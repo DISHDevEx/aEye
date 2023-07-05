@@ -5,6 +5,7 @@ COPY requirements.txt ${LAMBDA_TASK_ROOT}
 
 # Copy function code
 COPY lambda_function.py ${LAMBDA_TASK_ROOT}
+RUN pip3 install --no-binary opencv-python
 
 # Install the specified packages
 RUN pip install -r requirements.txt
