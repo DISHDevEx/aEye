@@ -23,6 +23,7 @@ print("read successfully")
 def handler(event, context):
     print('Loading function')
     os.chdir('/tmp')
+    print(os.system('ls'))
     s3_client = boto3.client('s3')
     input_video = os.path.join("/tmp", os.path.basename("Untitled.mp4"))
     output_video = os.path.join("/tmp", os.path.basename("Untitled.mp4"))
@@ -30,7 +31,7 @@ def handler(event, context):
     # output_video_path = "s3://leto-dish/object_detection/sample.mp4"
     s3_client.download_file("leto-dish", "original-videos/random-videos/Untitled.mp4", input_video)
 
-    object_detection("efficientdet_lite0.tflite", input_video, "tmp/output_video.mp4")
+    object_detection("var/task/efficientdet_lite0.tflite", input_video, "tmp/output_video.mp4")
 
     s3_client.upload_file("tmp/output_video.mp4",
                           "leto-dish", "object_detection/sample.mp4")
