@@ -23,7 +23,7 @@ def handler(event, context):
     input_video_path = "s3://leto-dish/original-videos/random-videos/Untitled.mp4"
     output_video_path = "s3://leto-dish/object_detection/sample.mp4"
 
-    object_detection('efficientdet_lite0.tflite', input_video_path, output_video_path)
+    object_detection('mediapipe/models/efficientdet_lite0.tflite', input_video_path, output_video_path)
 
 
     # print("Received event: " + json.dumps(event, indent=2))
