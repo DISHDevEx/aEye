@@ -15,20 +15,28 @@ models = ["/Users/pierce.lovesee/Desktop/mediapipe/models/efficientdet_lite0_flo
 # input_video_path = os.environ.get('input_video_path')
 # output_video_path = os.environ.get('output_video_path')
 
-model_file = open('efficientdet_lite0.tflite', "rb")
-model_data = model_file.read()
-model_file.close()
+# model_file = open('efficientdet_lite0.tflite', "rb")
+# model_data = model_file.read()
+# model_file.close()
 print("read successfully")
 
 def handler(event, context):
     print('Loading function')
+    os.chdir('/tmp')
+    s3_client = boto3.client('s3')
+    input_video = os.path.join("/tmp", os.path.basename("Untitled.mp4"))
+    output_video = os.path.join("/tmp", os.path.basename("Untitled.mp4"))
+    # input_video_path = "s3://leto-dish/original-videos/random-videos/Untitled.mp4"
+    # output_video_path = "s3://leto-dish/object_detection/sample.mp4"
+    s3_client.download_file("leto-dish", "original-videos/random-videos/Untitled.mp4", input_video)
 
-    s3 = boto3.client('s3')
+    object_detection("efficientdet_lite0.tflite", input_video, "tmp/output_video.mp4")
 
-    input_video_path = "s3://leto-dish/original-videos/random-videos/Untitled.mp4"
-    output_video_path = "s3://leto-dish/object_detection/sample.mp4"
+    s3_client.upload_file("tmp/output_video.mp4",
+                          "leto-dish", "object_detection/sample.mp4")
 
-    object_detection(model_data, input_video_path, output_video_path)
+
+
 
 
     # print("Received event: " + json.dumps(event, indent=2))
