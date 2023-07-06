@@ -103,7 +103,7 @@ class Processor:
         # Generate the desired target list of videos to add label.
         # Add the trim ffmpeg label to all desired videos.
         for video in video_list:
-            video.add_label(f"trim=start={start}:duration={duration}")
+            video.add_label(f"-ss {start} -t {duration} ")
 
         logging.info(
             f"successfully added trimming label from {start} for {duration} seconds"
@@ -157,24 +157,4 @@ class Processor:
                 "Error: Sorry you did not pick one of the sizes: 1080p,720p,480p,360p,240p as desired_resolution"
             )
 
-        return video_list
-
-    def concat(self, video_list, *target_concat):
-
-        for video in video_list:
-            tag = '_'
-            counter =0
-            out_tag =f'[{hash(self)}{video.get_number_mod()}] '
-            labels = ''
-            labels += video.compile_modification(starting = counter )
-            for i in target_concat:
-                counter  +=1 
-                labels += "; " + i.compile_modification(starting = counter )
-                out_tag += f'[{hash(i)}{i.get_number_mod()}] '
-
-
-            video.add_modification(labels)
-            video.add_modification(f"{out_tag} concat=n={len(target_concat) + 1}" )
-
-    
         return video_list
