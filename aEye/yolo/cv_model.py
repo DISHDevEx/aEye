@@ -1,5 +1,7 @@
 from ultralytics import YOLO
 import cv2
+import os
+
 
 class yolo():
 
@@ -7,11 +9,12 @@ class yolo():
 
         self.model = YOLO
         self.yolo_weight = 'yolov8s.pt'
+        self.prediction = self.model(task='detect')
         
     
     def load_yolo_weight(self, weight = 'yolov8s.pt'):
         self.yolo_weight = weight
-        self.model(self.yolo_weight)
+        self.model = self.model(self.yolo_weight)
 
     def get_yolo_weight(self):
         return self.yolo_weight
@@ -30,10 +33,14 @@ class yolo():
         'upload to s3'
 
 
-    def train(self,data, parameter):
+    def train(self,data = None,  **parameter):
+        
+        self.model.train(data = data , **parameter)
+        
+    def set_parameter(self,**paramter):
+        self.model(paramter)
 
-        self.model.train(data = data, parameter = parameter)
-
-    def predict(self, data):
-        self.model.predict(data, save = True)
+    def predict_(self, data = None,  **paramter):
+        
+        self.model.predict(data, **paramter)
         
