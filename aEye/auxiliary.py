@@ -226,7 +226,7 @@ class Aux:
 
         for (path, _, files) in os.walk(path, topdown=True):
             for video in files:
-                os.remove(f'{path}/{video}')
+                os.remove(f"{path}/{video}")
 
         os.rmdir(path)
 
