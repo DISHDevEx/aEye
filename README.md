@@ -5,14 +5,14 @@ Extensible Video Processing Framework with Additional Features Continuously Depl
 ### **Project Structure**
 
 ```
-├──  aEye				contains vidoe class and processor class that manage from loading, processing and uploading
+├──  aEye				contains video class and processor class that manage from loading, processing and uploading
 │   ├── processor.py
 │   ├── video.py
 |   ├── auxiliary.py
 ├──  tests				contains unit tests
 │   ├── test.py
 ├──  data				contains a temp location for video to save before deleting and uploading to S3
-├──  modified   directory for modified videos/images
+
 ```
 
 ### **Inital project setup**
@@ -68,24 +68,31 @@ process = Processor()
 
 How to use the processor:
 
-To see all processing options as a user, run process.show_util()
+To see all processing options as a user, run the following:
+```console
+process.show_util()
+```
 
-All processing utilities take a video or list of videos as their first parameter, and return a video or list of videos. Essentially, adding multiple processing labels
-to a video or video list should see the output of one process being used as the input for the next process. 
-
-The processor allows users to select multiple actions to apply to a video or list of videos and execute once. As a result, videos are output significantly more quickly, but 
-there are some rules to ensure that everything is processed correctly! The Aux execute_label_and_write_local function, which is used to execute a series of processor labels on a list of videos
-also returns a list of videos. This means you can process videos, execute, upload those videos and continue to process them! 
-The order of input matters, and one execution cycle should ideally avoid performing the same type of operation, as the older one is ignored. (For example, 
-if you try to trim a video length twice, the video will be trimmed according to the most recently applied process.)
-If the user wants to create two different trims, they will have to execute in between those two. 
+The processor provides multiple actions that can be applied to a video or a list of videos. Each action takes a video or list of videos as its first parameter and returns a modified video or list of videos. 
+To chain multiple processing labels together, you can pass the output of one process as the input for the next process.
 
 Example:
 ```console
+# Trimming the video from 1 second to 9 seconds
 to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)
+
+# Trimming the resulting video to 60 frames
 to_process = process.add_label_trim_num_frames(to_process, 10, 60)
+
+# Execute the processing labels and write the processed videos locally
 output_video_list = aux.execute_label_and_write_local(to_process)
-# This will only create a 60 frame long clip, not an 8 second one.
+
+# Note: This example will create a 60-frame long clip, not an 8-second one.
+```
+
+If you want to create two different trims, you will need to execute the processing in between those two operations:
+
+```console
 
 to_process = process.add_label_trim_video_start_end(video_list_s3, 1, 9)
 processed = aux.execute_label_and_write_local(to_process)
@@ -96,12 +103,11 @@ output_video_list = aux.execute_label_and_write_local(processed)
 ```
 
 
-IMAGE PROCESSING IS EXECUTED THE MOMENT IT IS CALLED! IF YOU WANT TO EXTRACT FRAMES WITH PROCESSING, YOU MUST
-EXECUTE THE VIDEO PROCESSING COMMANDS FIRST WITH AUX.EXECUTE_LABEL_AND_WRITE_LOCAL(VIDEO_LIST)!!!
+Important note: Image processing is executed the moment it is called! If you want to extract frames with processing, you must execute the video processing commands first using aux.execute_label_and_write_local(video_list).
 
-Again, because processor modifications are not applied until the aux.execute_label_and_write_local(list) command is performed, any image extraction that
-happens prior to an execution will not have any of the modifications applied. The framework will always allow frames to be extracted, but if there
-are pending processor modifications, a warning will be raised for the user. The following shows how execution order affects frame capture.
+Keep in mind that processor modifications are not applied until the aux.execute_label_and_write_local(list) command is performed. Any image extraction that happens prior to an execution will not have any modifications applied. 
+The framework allows frames to be extracted at any point while processing, but if there are pending processor modifications, a warning will be raised, and the resulting images will come from the original source. 
+The execution order affects frame capture.
 
 Example:
 
@@ -110,21 +116,23 @@ Example:
 to_process = process.add_label_change_resolution(video_list_s3, "720p")
 process.cv_extract_specific_frame(to_process, 42)  # These screenshots will not be in 720p
 aux.execute_label_and_write_local(to_process)
+
 # Because the video modifications have not been executed, the images will come from the original video.
 
 to_process = process.add_label_change_resolution(video_list_s3, "720p")
 output_list = aux.execute_label_and_write_local(to_process)
 process.cv_extract_specific_frame(output_list, 42)  # These screenshots WILL be in 720p!
+
 # Because the rescale was executed, the resulting screenshot is in 720p!
 ```
 
 Processor Limitations:
 
-Because the processor works as a pipeline, frames cannot be extracted from a source that has been previously executed. 
-Most importantly, ADD_LABEL_TRIM_INTO_CLIPS MUST BE EXECUTED LAST! Because this can create significantly more videos, it branches one input to many
-outputs, which currently cannot be processed further.
+Please note the following limitations of the processor:
 
-Below is an example of processor utility to downsize, crop, and trim a video:
+Frames cannot be extracted from a source that has been previously executed in the processor pipeline.
+The ADD_LABEL_TRIM_INTO_CLIPS operation must be executed last. It creates multiple output videos from a single input, and these outputs cannot be processed further.
+Here's an example of using the processor utility to downsize, crop, and trim a video:
 
 
 ```console
@@ -139,12 +147,12 @@ final_video_list = process.add_label_crop_video_section(to_process, 0, 0, 150, 1
 aux.execute_label_and_write_local(final_video_list)
 ```
 
-9. Any processing creates a lot of files! If you don't want to upload these, just use:
+9. Processing can create a lot of files! After processing, if you don't want to upload the generated files, you can use the following command to clean up:
 ```console
 aux.clean()
 ```
 
-10. Upload the result to the desire bucket.
+10. Finally, you can upload the processed videos to the desired bucket using the upload_s3 function:
 
 ```console
 aux.upload_s3(res_trimmed_s3, bucket = 'aeye-data-bucket')
@@ -169,7 +177,7 @@ video_list_local = aux.load_local('data/')
 
 ```console
 
-trimmed_local = process.add_label_trimming_start_duration(video_list_local,0,5)
+trimmed_local = process.add_label_trim_on_frame(video_list_local, 501)
 ```
 
 14. Execute all labels and write the output to data/ folder.
