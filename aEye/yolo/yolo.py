@@ -37,7 +37,8 @@ class Yolo():
         self.model.train(data = data , **parameter)
         
 
-    def predict_(self, data = None,  **paramter):
-        
-        result = self.model.predict(data, **paramter)
+    def predict_(self, data = None,  **parameter):
+
+        result = self.model.predict(data, **parameter)
         return result
+        
