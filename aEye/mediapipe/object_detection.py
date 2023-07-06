@@ -4,11 +4,27 @@ import numpy as np
 from .visulize import visualize
 
 def object_detection(model_path, input_video, output_video):
+    """
+    Given a specific model and video, it will initiate the model and will
+    scan through the video frame by frame adding the bounding boxes to the output video.
+    Uses the visualize function to apply bounding boxes once the area for it is calculated
+
+    Parameters
+    ----------
+    model_path  : Path of the model weight (mediapipe specific rn)
+    input_video : The path to the video to object detect
+    output_video: Path for video output
+
+    Returns
+    ----------
+    Doesn't return anything, but it does write a video to the output folder with
+    the bounding boxes and weights applied.
+    """
     BaseOptions = mp.tasks.BaseOptions
     ObjectDetector = mp.tasks.vision.ObjectDetector
     ObjectDetectorOptions = mp.tasks.vision.ObjectDetectorOptions
     VisionRunningMode = mp.tasks.vision.RunningMode
-
+    # Media Pipe Init, necessary for setup
 
     # Check if camera opened successfully
     options = ObjectDetectorOptions(
@@ -16,6 +32,7 @@ def object_detection(model_path, input_video, output_video):
         max_results=5,
         running_mode=VisionRunningMode.VIDEO)
 
+    # Opens the model, parses frame by frame and applies model
     with ObjectDetector.create_from_options(options) as detector:
         cap = cv2.VideoCapture(input_video)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -29,6 +46,7 @@ def object_detection(model_path, input_video, output_video):
 
         # Read until video is completed
         frame_index = 0
+        # While the video still has frames, apply the model to get the bounding box
         while (cap.isOpened()):
 
             # Capture frame-by-frame
@@ -42,7 +60,7 @@ def object_detection(model_path, input_video, output_video):
                 # Perform object detection on the video frame.
                 detection_result = detector.detect_for_video(mp_image, frame_timestamp_ms)
                 image_copy = np.copy(mp_image.numpy_view())
-                annotated_image = visualize(image_copy, detection_result)
+                annotated_image = visualize(image_copy, detection_result)  #Adds Bounding box to img
                 out.write(annotated_image)
 
             # Break the loop
@@ -52,4 +70,3 @@ def object_detection(model_path, input_video, output_video):
     # the video capture object
     cap.release()
     out.release()
-
