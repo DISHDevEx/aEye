@@ -17,12 +17,18 @@ def pipeline(input_video,  model, output_video ):
         if ret == True:
             # Display the resulting frame
             im2 = frame[..., ::-1]
+
             # Calculate the timestamp of the current frame
             frame_timestamp_ms = int(1000 * frame_index / x)
             frame_index += 1
             # Perform object detection on the video frame.
-            detection_result = model.predict_(im2)
-            annotated_image = visualize(frame, detection_result)
+            
+            
+            detection_result = model.predict_(im2,verbose = False, save=False, save_txt = False)
+            
+            copy_image = frame.copy()
+            
+            annotated_image = visualize(copy_image, detection_result)
             out.write(annotated_image)
 
         # Break the loop

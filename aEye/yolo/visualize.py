@@ -16,19 +16,20 @@ def visualize(image,detection_result) -> np.ndarray:
     Returns:
       Image with bounding boxes.
     """
-    for i in range(len(detection_result)):
+    for i in range(len(detection_result[0].boxes.cls)):
         # Draw bounding_box
-        x,y,w,h = detection_result[0].boxes.xywh[i]
-        start_point = int(x.item()), int(y.item())
-        end_point = int(x.item()) + int(w.item()), int(y.item()) + int(h.item())
+        x,y,w,h = detection_result[0].boxes.xyxyn[i]
+        start_point = int(x.item()*486), int(y.item()*360)
+        end_point = int(w.item()*486),  int(h.item()*360)
+
         cv2.rectangle(image, start_point, end_point, TEXT_COLOR, 3)
 
         # Draw label and score
         category_name = detection_result[0].names[detection_result[0].boxes.cls[i].item()]
-        probability = round(detection_result[0].boxes.conf.item(), 2)
+        probability = round(detection_result[0].boxes.conf[i].item(), 2)
         result_text = category_name + ' (' + str(probability) + ')'
-        text_location = (MARGIN + int(x.item()),
-                        MARGIN + ROW_SIZE + int(y.item()))
+        text_location = (MARGIN + int(x.item()*360),
+                        MARGIN + ROW_SIZE + int(y.item()*486))
         cv2.putText(image, result_text, text_location, cv2.FONT_HERSHEY_PLAIN,
                     FONT_SIZE, TEXT_COLOR, FONT_THICKNESS)
 
