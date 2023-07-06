@@ -1,28 +1,29 @@
 from ultralytics import YOLO
 import cv2
 import os
-
+import boto3
 
 class Yolo():
 
     def __init__(self) -> None:
 
         self.model = YOLO
-        self.yolo_weight = 'yolov8s.pt'
+        self.model_weight = None
+        self._s3 = boto3.client('s3')
         
-    
-    def load_yolo_weight(self, weight = 'yolov8s.pt'):
-        self.yolo_weight = weight
-        self.model = self.model(self.yolo_weight)
 
     def get_yolo_weight(self):
-        return self.yolo_weight
+        return self.model_weight
     
-    def load_model(self, local_model = None, bucket = None , prefix = None):
-        if not local_model and bucket:
-            "load from s3"
+    def load_model(self, local_path = None, bucket = None , key = None):
+        if not local_path and bucket:
+            s3_model = self._s3.get_object( Bucket = bucket, Key = key)
+            self.model_weight = s3_model['Body']
+            self.model = self.model(s3_model['Body'])
+
         else:
-            'load from local'
+            self.model_weight = local_path
+            self.model = self.model(local_path)
 
     def save_model(self):
         "save"
