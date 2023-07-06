@@ -15,18 +15,13 @@ class Yolo():
     def get_yolo_weight(self):
         return self.model_weight
     
-    def load_model(self, local_path = None, bucket = None , key = None):
-        if not local_path and bucket:
-            s3_model = self._s3.get_object( Bucket = bucket, Key = key)
-            self.model_weight = s3_model['Body']
-            self.model = self.model(s3_model['Body'])
+    def load_model(self, local_path = 'yolov8s.pt'):
 
-        else:
-            self.model_weight = local_path
-            self.model = self.model(local_path)
+        self.model_weight = local_path
+        self.model = self.model(local_path)
 
     def save_model(self):
-        "save"
+        self.model.export()
         return self.model
 
     def upload_model_s3(self,bucket = None , prefix = None):
