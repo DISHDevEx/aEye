@@ -16,7 +16,7 @@ def pipeline(input_video,  model, output_video ):
         ret, frame = cap.read()
         if ret == True:
             # Display the resulting frame
-            im2 = cv2.imread(frame)[..., ::-1]
+            im2 = frame[..., ::-1]
             # Calculate the timestamp of the current frame
             frame_timestamp_ms = int(1000 * frame_index / x)
             frame_index += 1
