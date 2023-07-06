@@ -187,23 +187,10 @@ class Aux:
 
         for video in video_list:
             # This if statement will skip over any untouched videos.
-            # if video.get_label() != "":
-
-            if video.out == '':
-                source = video.get_presigned_url()
-            else:
-                source = video.out
-            if len(video.complex_filter) > 0:
-                video.create_complex_filter(video)
-            command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
-            subprocess.run(command, shell=True)
-            logging.info(command)
-            # print(command)  # REALLY useful for debug
-            new_path = video.get_output_title()
-            video.reset_label()
-            new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')
-            new_video.set_output(f"'{path}/{new_path}'")
-            list_video.append(new_video)
+            if video.get_label() != "":
+                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_label()} {path}/{video.get_output_title()}"
+                subprocess.run(command, shell=True)
+                logging.info(command)
 
         logging.info(f"successfully write the output video files to path: {path}")
 
