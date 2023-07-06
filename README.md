@@ -145,20 +145,30 @@ Below is a list of all current processor utility:
 
 ```console
 ---------------VIDEO UTILITY----------------
-"add_label_resizing_by_ratio(video_list, x_ratio, y_ratio,target) -> Add label of resizing video by multiplying width by the ratio to video.\n"
-"add_label_change_resolution(video_list, desired_res) -> Pass in a common resolution (ex '720p') and re-encode videos to that res!\n"
-"add_label_trim_video_start_end(video_list, start, end) -> Given start and end times in seconds, modified a trimmed down version of the video to the modified file.\n"
-"add_label_trim_into_clips(video_list, interval) -> Splits the video into X second clips, sends all these clips to output folder.\n"
-"add_label_split_on_frame(video_list, frame) -> Given a specific frame, start the video there, removes any preceding frames.\n"
+"add_label_resizing_by_ratio(video_list, x_ratio, y_ratio,target) -> Add label of resizing video by multiplying width by the ratio to video."
+
+"add_label_change_resolution(video_list, desired_res) -> Pass in a common resolution (ex '720p') and re-encode videos to that res!"
+
+"add_label_trim_video_start_end(video_list, start, end) -> Given start and end times in seconds, modified a trimmed down version of the video to the modified file."
+
+"add_label_trim_into_clips(video_list, interval) -> Splits the video into X second clips, sends all these clips to output folder."
+
+"add_label_split_on_frame(video_list, frame) -> Given a specific frame, start the video there, removes any preceding frames."
+
 "add_label_split_num_frames(video_list, start_frame, num_frames) -> Given a start frame and the amount of frames that a user wants "
-"to copy, splits the video to all of the frames within that frame range.\n"
+                                                                "to copy, splits the video to all of the frames within that frame range."
+
 "add_label_crop_video_section(video_list, width, height, start_x, start_y) -> Create a width x height crop of the input video starting at pixel values"
-"start_x, start_y and sends the smaller video to the modified file.\n"\
-"add_label_blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video.\n"
+                                                                              "start_x, start_y and sends the smaller video to the modified file."
+
+"add_label_blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video."
+
 ---------------IMAGE UTILITY-----------------
-"cv_extract_frame_at_time(video_list, time) -> Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the closest applicable frame if need be.\n"
-"cv_extract_specific_frame(video_list, frame) -> Pulls a specific frame from the video.\n"
-"cv_extract_many_frames(video_list, start_frame, num_frames) -> Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.\n"
+"cv_extract_frame_at_time(video_list, time) -> Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the closest applicable frame if need be."
+
+"cv_extract_specific_frame(video_list, frame) -> Pulls a specific frame from the video."
+
+"cv_extract_many_frames(video_list, start_frame, num_frames) -> Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form."
 ```
 
 8. Use auxiliary class to execute and write the videos with processor labels.
