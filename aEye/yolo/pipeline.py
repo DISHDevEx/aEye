@@ -22,7 +22,6 @@ def pipeline(input_video,  model, output_video ):
             frame_index += 1
             # Perform object detection on the video frame.
             detection_result = model.predict_(im2)
-            image_copy = np.copy(mp_image.numpy_view())
             annotated_image = visualize(frame, detection_result)
             out.write(annotated_image)
 
