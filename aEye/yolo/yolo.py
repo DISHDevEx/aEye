@@ -3,7 +3,7 @@ import cv2
 import os
 
 
-class yolo():
+class Yolo():
 
     def __init__(self) -> None:
 
