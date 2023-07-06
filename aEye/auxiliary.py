@@ -102,14 +102,21 @@ class Aux():
                 The list of all video files loaded from local bucket.
         """
         video_list = []
+
+        # video_list = [Video(file=  path + i, title=i) for i in os.listdir(path) if Video(file=  path + i, title=i)]
+
         if os.path.isdir(path):
-            files = os.listdir('data')
-            video_list = [Video(file=path + i, title=i) for i in files if Video(file=path + i, title=i)]
+            for i in os.listdir(path):
+                new_vid = Video(file=path + i, title=i)
+                new_vid.path = self._temp_folder
+                video_list.append(new_vid)
 
         else:
             dummy = path.replace('/', ' ').strip()
             title = dummy.split(' ')[-1]
-            video_list.append(Video(file=path, title=title))
+            new_vid = Video(file=path, title=title)
+            new_vid.path = self._temp_folder
+            video_list.append(new_vid)
 
         logging.info(f"successfully load the video files from local path: {path}")
 
@@ -179,7 +186,7 @@ class Aux():
             command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
-            print(command)  # REALLY useful for debug
+            # print(command)  # REALLY useful for debug
             new_path = video.get_output_title()
             video.reset_label()
             new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')

@@ -106,7 +106,7 @@ class Video:
             fp = None
             if self.file is None:
                 fp = self.get_presigned_url()
-            elif self.out is not None:
+            elif self.out is not '':
                 fp = self.out
             else:
                 fp = self.file

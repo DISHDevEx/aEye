@@ -71,36 +71,7 @@ class Processor:
 
     def __init__(self) -> None:
         print("---aEye Video Processor v0---")
-        print("Please use Processor.show_util() for a list of current utility and inputs!")
         pass
-
-    def show_util(self) -> None:
-        """
-        Shows the user all the current processing utility so they know what they can do to a video
-
-        Parameters
-        ----------
-
-        Returns
-        ----------
-
-        """
-        print("---------------VIDEO UTILITY----------------")
-        print("add_label_resizing_by_ratio(x_ratio, y_ratio,target) -> Add label of resizing video by multiplying width by the ratio to video.\n"\
-              "add_label_trim_video_start_end(video_list, start, end) -> Given start and end times in seconds, modified a trimmed down version of the video to the modified file.\n"\
-              "add_label_trim_into_clips(video_list, interval) -> Splits the video into X second clips, sends all these clips to output folder.\n"\
-              "add_label_split_on_frame(video_list, frame) -> Given a specific frame, start the video there, removes any preceding frames.\n"\
-              "add_label_split_num_frames(video_list, start_frame, num_frames) -> Given a start frame and the amount of frames that a user wants "\
-              "to copy, splits the video to all of the frames within that frame range.\n"\
-              "add_label_crop_video_section(video_list, width, height, start_x, start_y) -> Create a width x height crop of the input video starting at pixel values"\
-              "start_x, start_y and sends the smaller video to the modified file.\n"\
-              "add_label_blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video.\n")
-        print("--------------IMAGE UTILITY-----------------")
-        print("cv_extract_frame_at_time(video_list, time) -> Uses openCV cap to pull the frame at a given time. Can use floats for this, will pick the closest applicable frame if need be.\n"\
-              "cv_extract_specific_frame(video_list, frame) -> Pulls a specific frame from the video.\n"\
-              "cv_extract_many_frames(video_list, start_frame, num_frames) -> Given a start frame, extract the next num_frames to output folder. Outputs are in PNG form.\n")
-
-
 
     def add_label_resizing_by_ratio(self, video_list, x_ratio=.8, y_ratio=.8):
         """
@@ -365,13 +336,17 @@ class Processor:
                 file_path = video.get_presigned_url().strip("'")
             ## Currently, if you try to run the same cv method with an input upstream, it wont work bc it changes the FP
             ## I would rather have you able to extract processed imgs instead tho. 98% of the time this wont be an issue.
+            print(file_path)
             cv_video = cv2.VideoCapture(file_path)
             fps = cv_video.get(cv2.CAP_PROP_FPS)
             frame_id = int(fps * time)
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
             ret, frame = cv_video.read()
             actual_title = os.path.splitext(video.title)[0]
-            path = video.path
+            if video.path is None:
+                path = file_path.split('/')[0]
+            else:
+                path = video.path
             cv2.imwrite(f"{path}/output_cv_extract_frame_at_time_{time}_{actual_title}.png", frame)
             cv_video.release()
             logging.info(f"Extracted frame at time {time}")
@@ -402,7 +377,10 @@ class Processor:
             cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
             ret, output = cv_video.read()
             actual_title = os.path.splitext(video.title)[0]
-            path = video.path
+            if video.path is None:
+                path = file_path.split('/')[0]
+            else:
+                path = video.path
             cv2.imwrite(f"{path}/output_cv_extract_specific_frame_{frame}_{actual_title}.png", output)
             logging.info(f"Frame #{frame} extracted ")
             cv_video.release()
@@ -435,7 +413,10 @@ class Processor:
                 file_path = video.out.strip("'")
             vid_obj = cv2.VideoCapture(file_path)
             actual_title = os.path.splitext(video.title)[0]
-            path = video.path
+            if video.path is None:
+                path = file_path.split('/')[0]
+            else:
+                path = video.path
             for x in range(num_frames):
                 ret, frame = vid_obj.read()
                 fn = f"{path}/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}_{x}.png"
