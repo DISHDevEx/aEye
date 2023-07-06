@@ -9,7 +9,6 @@ class yolo():
 
         self.model = YOLO
         self.yolo_weight = 'yolov8s.pt'
-        self.prediction = self.model(task='detect')
         
     
     def load_yolo_weight(self, weight = 'yolov8s.pt'):
@@ -29,7 +28,7 @@ class yolo():
         "save"
         return self.model
 
-    def upload(self,bucket = None , prefix = None):
+    def upload_model_s3(self,bucket = None , prefix = None):
         'upload to s3'
 
 
@@ -37,10 +36,8 @@ class yolo():
         
         self.model.train(data = data , **parameter)
         
-    def set_parameter(self,**paramter):
-        self.model(paramter)
 
     def predict_(self, data = None,  **paramter):
         
-        self.model.predict(data, **paramter)
-        
+        result = self.model.predict(data, **paramter)
+        return result
