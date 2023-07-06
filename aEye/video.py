@@ -9,7 +9,7 @@ import json
 import numpy as np
 from static_ffmpeg import run
 
-#ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 s3 = boto3.client("s3")
 
 
@@ -129,7 +129,7 @@ class Video:
             cmd = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i {self.get_presigned_url()}"
             out = subprocess.check_output(cmd, shell=True)
             out = json.loads(out)
-            self.meta_data = out["streams"][0]
+            self.meta_data = out
 
         return self.meta_data
 
