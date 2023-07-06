@@ -12,7 +12,6 @@ import math
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 
-
 class Processor:
 
     """

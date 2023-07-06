@@ -44,6 +44,35 @@ class Video:
     getfile -> str:
         Returns video file path
 
+    -------
+
+        __repr__() -> string:
+            A native python method to represent the Video class.
+
+        __eq__() -> string:
+            A native python method to add comparison functionality.
+
+        __bool__() -> boolean:
+            A native python method to see whether video can be readed properly.
+
+        cleanup() -> None:
+            Clean up memory from cv2 video capture.
+
+        get_meta_data() -> None:
+            Retrieve the meta data from video.
+
+        get_presigned_url(time) -> string:
+            Retrieve the url for video file from S3 bucket.
+
+        add_label(self, mod) -> None:
+            Add ffmpeg label to video object.
+
+        reset_label() -> None:
+            Reset and remove all labels.
+
+        get_label(self) -> string:
+            Get ffmpeg label from video objects.
+
     """
 
     def __init__(self, file=None, bucket=None, key=None, title=None) -> None:
@@ -308,7 +337,7 @@ class Video:
         None, but updates the current video label
         """
 
-        self.label = ''
+        self.label = ""
 
     def get_label(self):
         """
@@ -376,10 +405,11 @@ class Video:
                 The output title of video.
         """
 
-        result = ''
-        if 'scale' in self.label:
+        result = ""
+        if "scale" in self.label:
             result += "resized_"
-        if '-ss' in self.label:
+
+        if "-ss" in self.label:
             result += "trimmed_"
         if 'crop' in self.label:
             result += "cropped_"
