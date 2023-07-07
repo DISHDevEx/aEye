@@ -5,4 +5,3 @@ numpy>=1.21.6
 static-ffmpeg>=2.5
 ultralytics>= 8.0.126
 mediapipe>=0.9.0
-ultralytics>= 8.0.126

@@ -10,6 +10,7 @@ def pipeline(input_video,  model, output_video ):
     frame_height = int(cap.get(4))
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_video, fourcc, x, (frame_width, frame_height))
+    
     while (cap.isOpened()):
 
         # Capture frame-by-frame
