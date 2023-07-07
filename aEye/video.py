@@ -105,7 +105,7 @@ class Video:
         Returns
         ---------
             meta_data: dictionary
-                The dictionary of meta data.
+                The dictionary of metadata for all streams.
 
         """
         if self.meta_data is None:
@@ -124,7 +124,15 @@ class Video:
 
     def get_codec(self):
         """
-        Returns the video codec as a string.
+        Gets the codec of the current video
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        Video codec as a string
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["codec_name"]
@@ -134,7 +142,15 @@ class Video:
 
     def get_duration(self):
         """
-        Returns the video duration as a string.
+        Gets the current video duration
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        The video duration as a STRING. Convert to float before processing if needed
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["duration"]
@@ -144,7 +160,15 @@ class Video:
 
     def get_num_frames(self):
         """
-        Returns # of frames in video as a string.
+        Gets teh number of B-frames in the video
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        Returns the number of frames in the current video as a string
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["nb_frames"]
@@ -154,7 +178,15 @@ class Video:
 
     def get_file(self):
         """
-        Returns the file path as a string.
+        Current file path/s3 bucket location
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        String of the location of the video file, whether thats a local path or S3 url
         """
         if self.file is None:
             return self.get_presigned_url()
@@ -163,7 +195,15 @@ class Video:
 
     def get_width(self):
         """
-        Returns the pixel width of the video associated with the current video object.
+        Get the pixel width of a video
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        Returns the current video's width as a string
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["width"]
@@ -173,7 +213,15 @@ class Video:
 
     def get_height(self):
         """
-        Returns the pixel height of the video associated with the current video object.
+        Get the pixel height of a video
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        Returns the current video's height as a string
         """
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["height"]
@@ -183,7 +231,14 @@ class Video:
 
     def cleanup(self) -> None:
         """
-        This method will release the current view of video object from RAM.
+        Removes current CV Frame capture
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
         """
         self.capture.release()
 
@@ -211,17 +266,46 @@ class Video:
     def add_label(self, label):
         """
         This method will add ffmpeg label to the video.
+
+        Parameters
+        ----------
+        label : string
+            The label is the FFmpeg mod to add to the video
+
+        Returns
+        ----------
+
+        None, but updates the current video label
         """
         self.label += label
 
     def add_output_title(self, title):
         """
+        This method will create a name for the output file.
+
+        Parameters
+        ----------
+        title : string
+            Current video title, added to the final output to keep file names useful
+
+        Returns
+        ----------
+
+        None, but updates the current video output title
         """
         self.out_title += title
 
     def reset_label(self):
         """
         This method will reset all ffmpeg label to empty.
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        None, but updates the current video label
         """
 
         self.label = ''
@@ -229,11 +313,30 @@ class Video:
     def get_label(self):
         """
         This method will return the all ffmpeg label from the video.
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+
+        String representation of the label
         """
         return self.label
 
     def set_output(self, new_out):
         """
+        This method will set the current video's output
+
+        Parameters
+        ----------
+        new_out : string
+            Usually a path to a file that has been processed in case further processing is needed
+
+        Returns
+        ----------
+
+        None, but updates the current video output
         """
         self.out = new_out
 
