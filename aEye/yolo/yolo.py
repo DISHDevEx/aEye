@@ -3,10 +3,9 @@ import cv2
 import os
 import boto3
 
-class Yolo():
+class Yolo:
 
     def __init__(self) -> None:
-
         self.model = YOLO
         self.model_weight = None
         self._s3 = boto3.client('s3')
