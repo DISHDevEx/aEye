@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .cv_model import yolo
 from .training_parameter_input import training_parameter_input
 =======
 from .yolo import Yolo
+=======
+from .yolo import Yol
+>>>>>>> 764dbf8 (test yol)
 from .training_parameter_input import training_parameter_input
 from .prediction_parameter_input import prediction_parameter_input
 <<<<<<< HEAD
