@@ -3,7 +3,7 @@ import cv2
 import os
 import boto3
 
-class Yol:
+class Yolo:
 
     def __init__(self) -> None:
         self.model = YOLO
