@@ -144,6 +144,54 @@ class Processor:
             width_height = popular_resolutions[desired_resolution]
 
             # Generate the desired target list of videos to add label.
+            # Add the trim ffmpeg label to all desired videos.
+            for video in video_list:
+                video.add_label(
+                    f"-vf scale={width_height[0]}x{width_height[1]}:flags=lanczos -c:v libx264 -preset slow -crf 21"
+                )
+
+            logging.info(f"successfully added resize label for desired_resolution")
+
+        except:
+            print(
+                "Error: Sorry you did not pick one of the sizes: 1080p,720p,480p,360p,240p as desired_resolution"
+            )
+
+        return video_list
+
+    def add_label_change_resolution(self, video_list, desired_resolution):
+        """
+        Add the label for resizing a video according to desired resolution.
+        Height is what determines: 420p, 720p, etc.
+        Function will automatically select the correct width based off popular sizing.
+
+        Parameters
+        ----------
+            video_list: list
+                The list of desired videos that the users want to process.
+
+            desired_resolution: string
+                The desired resolution for the videos. Values: 1080p,720p,480p,360p,240p
+
+        Returns
+        ---------
+            video_list: list
+                The list of video that contains the trim label.
+
+        """
+
+        popular_resolutions = {
+            "1080p": [1920, 1080],
+            "720p": [1280, 720],
+            "480p": [640, 480],
+            "360p": [480, 360],
+            "240p": [426, 240],
+        }
+
+        try:
+            width_height = popular_resolutions[desired_resolution]
+
+            # Generate the desired target list of videos to add label.
             # Add the scale ffmpeg label to all desired videos.
             for video in video_list:
                 video.add_label(
