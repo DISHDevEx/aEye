@@ -1,17 +1,12 @@
 """
-Module contains the Processor class that, loads, uploads, and facilitates all video processcing features.
+Module contains the Processor class that facilitates all video processcing features by adding ffmpeg labels to the videos.
 
 """
 
-import boto3
-import os
-import cv2
 import logging
-from aEye.video import Video
 from static_ffmpeg import run
 import math
-import subprocess
-import tempfile
+
 
 #ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
@@ -32,10 +27,6 @@ class Processor:
 
     """
 
-    def __init__(self) -> None:
-        self.video_list = []
-
-        self._s3 = boto3.client("s3")
 
     def __init__(self) -> None:
         pass

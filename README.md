@@ -8,10 +8,10 @@ Extensible Video Processing Framework with Additional Features Continuously Depl
 ├──  aEye				contains vidoe class and processor class that manage from loading, processing and uploading
 │   ├── processor.py
 │   ├── video.py
-│   ├── auxiliary.py 
+│   ├── auxiliary.py
 │   ├── mediapipe
 │      ├── object_detection.py
-│      ├── visualize.py 
+│      ├── visualize.py
 ├──  runner_notebooks
 │   ├── leto-demo.ipynb
 ├──  tests				contains unit tests
@@ -20,7 +20,7 @@ Extensible Video Processing Framework with Additional Features Continuously Depl
 │   ├── test_data
 │      ├── test_video.mp4
 ├── lambda_function.py
-├── setup.py 
+├── setup.py
 ```
 
 ### **Inital project setup**
@@ -36,7 +36,8 @@ git clone https://github.com/DISHDevEx/aEye.git
 ```console
 python setup.py bdist_wheel --version <VERSION_NUMBER>
 ```
-**NOTE**: the ***<VERSION_NUMBER>*** only effects your local build.  You can use any version number you like.  This can be helpful in testing prior to submitting a pull request.  Alternatively, you can eclude the ***--version <VERSION_NUMBER>*** flag and the .whl file name will output as ***aEye-_VERSION_PLACEHOLDER_-py3-none-any.whl***
+
+**NOTE**: the **_<VERSION_NUMBER>_** only effects your local build. You can use any version number you like. This can be helpful in testing prior to submitting a pull request. Alternatively, you can eclude the **_--version <VERSION_NUMBER>_** flag and the .whl file name will output as **_aEye-*VERSION_PLACEHOLDER*-py3-none-any.whl_**
 
 3. Install the necessary requirements
 
@@ -123,7 +124,8 @@ aux.execute_label_and_write_local(trimmed_local,'data/')
 ```
 
 ### **Docker Image Setup**
-The docker image is built automatically via github workflow action on every pull request. 
+
+The docker image is built automatically via github workflow action on every tag push.
 The rough sequence is below:
 
     1) The workflow action will build a wheel file based on setup.py,
@@ -133,4 +135,5 @@ The rough sequence is below:
 Please refer to mp-to-ecr.yml to get the exact sequences of the github workflow action, the dockerfile for the exact content in the docker image and setup.py for the exact built version.
 
 ### **Lambda Function**
-Please refer to lambda_function.py for the logic of the lambda function. 
+
+Please refer to lambda_function.py for the logic of the lambda function.
