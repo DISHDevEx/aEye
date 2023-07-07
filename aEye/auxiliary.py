@@ -5,14 +5,13 @@ import os
 import subprocess
 import logging
 from static_ffmpeg import run
-from aEye.processor import Processor
 
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 
-class Aux():
+class Aux:
     """
-    Aux is the class that works act a pipeline to load, write, and upload all video from S3 bucket.
+    Aux is the class that works as a pipeline to load, write, and upload all video from S3 bucket.
 
     Attributes
     ----------
@@ -37,8 +36,9 @@ class Aux():
         write() -> None:
             Execute and run the video's labels and write the video to temp folder.
 
-        clean_temp() -> None:
-            Clean up the temp folder.
+        execute_label_and_write_local(video_list) -> List[Video]
+            Super important function to execute any pending labels on video list. This is how the FFmpeg
+            command is run, and if further processing is needed, it returns a processed video list.
 
 
     """
@@ -56,15 +56,17 @@ class Aux():
 
          Parameters
         ----------
-            bucket: string
-                The bucket name to path into S3 to get the video files.
-            prefix: string
-                The folder name where the video files belong in the S3 bucket.
+
+        bucket: string
+            The bucket name to path into S3 to get the video files.
+        prefix: string
+            The folder name where the video files belong in the S3 bucket.
 
         Returns
         -------
-            video_list: list
-                The list of all video files loaded from S3 bucket.
+
+        video_list: list
+            The list of all video files loaded from S3 bucket.
         """
 
         video_list = []
@@ -93,13 +95,15 @@ class Aux():
 
         Parameters
         ----------
-            path: string
-                The bucket name to path into local to get the video files.
+
+        path: string
+            The bucket name to path into local to get the video files.
 
         Returns
         -------
-            video_list: list
-                The list of all video files loaded from local bucket.
+
+        video_list: list
+            The list of all video files loaded from local bucket.
         """
         video_list = []
 
@@ -130,8 +134,10 @@ class Aux():
         ----------
             video_list: list
                 The list of video that needs to be uploaded.
+
             bucket: string
                 The bucket name/path to upload on S3.
+
             prefix: string
                 The subfolder name that the video list will be uploaded to.
 
@@ -200,6 +206,14 @@ class Aux():
     def clean(self, path=None):
         """
         This method will delete the temp folder and all video files in it from local machine.
+
+        Parameters
+        ----------
+        path : str
+            The path to set
+
+        Returns
+        ----------
         """
         if path is None:
             path = self._local_path if self._local_path else self._temp_folder
@@ -214,7 +228,15 @@ class Aux():
 
     def set_local_path(self, path):
         """
-        This method will set the path as a internal variable
+        This method will set the path as an internal variable
+
+        Parameters
+        ----------
+        path : str
+            The path to set
+
+        Returns
+        ----------
 
         """
         self._local_path = path
