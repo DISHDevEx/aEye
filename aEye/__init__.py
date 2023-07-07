@@ -5,7 +5,7 @@ from aEye.processor import Processor
 from .mediapipe import object_detection
 from .mediapipe import visualize
 
-from .yolo import yolo
+from .yolo import Yolo
 from .yolo import training_parameter_input
 from .yolo import prediction_parameter_input
 from .yolo import visualize_yolo

@@ -1,4 +1,4 @@
-from .visualize import visualize
+from .visualize import visualize_yolo
 import cv2
 
 def pipeline(input_video,  model, output_video ):
@@ -28,7 +28,7 @@ def pipeline(input_video,  model, output_video ):
             
             copy_image = frame.copy()
             
-            annotated_image = visualize(copy_image, detection_result)
+            annotated_image = visualize_yolo(copy_image, detection_result)
             out.write(annotated_image)
 
         # Break the loop

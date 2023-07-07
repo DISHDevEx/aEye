@@ -13,7 +13,7 @@ from static_ffmpeg import run
 
 #Please comment this out when setting up a docker image.
 #This will fail when we use the docker image in the lambda function on AWS.
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+#ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 class Aux:
 
