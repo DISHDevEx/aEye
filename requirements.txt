@@ -4,4 +4,4 @@ opencv-contrib-python>= 4.8.0.74
 numpy>=1.21.6
 static-ffmpeg>=2.5
 ultralytics>= 8.0.126
-mediapipe>=0.10.1
+mediapipe>=0.9.0
