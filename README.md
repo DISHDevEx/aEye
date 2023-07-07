@@ -133,6 +133,7 @@ process.cv_extract_specific_frame(output_list, 42)  # These screenshots WILL be 
 
 All Label Utility:
 ```console
+#All Util should be preceeded with "label." (ex label.change_resolution)
 resize_by_ratio(x_ratio, y_ratio,target) -> Add label of resizing video by multiplying width by the ratio to video.
 
 change_resolution(video_list, desired_res) -> Changes the resolution to a 'standard' resolution.
@@ -146,7 +147,7 @@ split_on_frame(video_list, frame) -> Given a specific frame, start the video the
 split_num_frames(video_list, start_frame, num_frames) -> Given a start frame and the amount of frames that a user wants "
 to copy, splits the video to all of the frames within that frame range.
 
-crop_video_section(video_list, width, height, start_x, start_y) -> Create a width x height crop of the input video starting at pixel values"\
+crop_video_section(video_list, start_x, start_y, width, height) -> Create a width x height crop of the input video starting at pixel values"\
 start_x, start_y and sends the smaller video to the modified file.
 
 blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video
