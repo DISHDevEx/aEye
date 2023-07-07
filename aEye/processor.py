@@ -7,8 +7,9 @@ import logging
 from static_ffmpeg import run
 import math
 
-
-#ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+#Please comment this out when setting up a docker image.
+#This will fail when we use the docker image in the lambda function on AWS.
+ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 
 class Processor:
@@ -56,8 +57,8 @@ class Processor:
         # Go to each video and add the resizing ffmpeg label.
         for video in video_list:
             video.get_meta_data()
-            new_width = int(video.meta_data["width"] * x_ratio)
-            new_height = int(video.meta_data["height"] * y_ratio)
+            new_width = int(video.meta_data["streams"][0]["width"] * x_ratio)
+            new_height = int(video.meta_data["streams"][0]["height"] * y_ratio)
 
             video.add_label(
                 f"-vf scale={math.ceil(new_width/2)*2}:{math.ceil(new_height/2)*2},setsar=1:1 "
