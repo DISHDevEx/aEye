@@ -9,7 +9,11 @@ import math
 
 #Please comment this out when setting up a docker image.
 #This will fail when we use the docker image in the lambda function on AWS.
+<<<<<<< HEAD
 #ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+=======
+ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+>>>>>>> 40fc018 (fix requirement and meta data output)
 
 
 
