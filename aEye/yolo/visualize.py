@@ -8,7 +8,7 @@ FONT_THICKNESS = 1
 TEXT_COLOR = (255, 0, 0)  # red
 
 
-def visualize(image,detection_result) -> np.ndarray:
+def visualize_yolo(image,detection_result) -> np.ndarray:
     """Draws bounding boxes on the input image and return it.
     Args:
       image: The input RGB image.
