@@ -1,5 +1,6 @@
 boto3>=1.26.29
 opencv-python>= 4.8.0.74
+opencv-python-headless>=4.8.0.00
 opencv-contrib-python>= 4.8.0.74
 numpy>=1.21.6
 static-ffmpeg>=2.5

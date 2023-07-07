@@ -16,9 +16,8 @@ from static_ffmpeg import run
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 class Aux:
-
     """
-    Aux is the class that works act a pipeline to load, write, and upload all video from S3 bucket.
+    Aux is the class that works as a pipeline to load, write, and upload all video from S3 bucket.
 
     Attributes
     ----------
@@ -43,14 +42,16 @@ class Aux:
         write() -> None:
             Execute and run the video's labels and write the video to temp folder.
 
-        clean_temp() -> None:
-            Clean up the temp folder.
+        execute_label_and_write_local(video_list) -> List[Video]
+            Super important function to execute any pending labels on video list. This is how the FFmpeg
+            command is run, and if further processing is needed, it returns a processed video list.
 
 
     """
 
     def __init__(self):
-        self._s3 = boto3.client("s3")
+
+        self._s3 = boto3.client('s3')
         self._temp_folder = tempfile.mkdtemp(dir="")
         self._local_path = None
 
@@ -61,15 +62,17 @@ class Aux:
 
          Parameters
         ----------
-            bucket: string
-                The bucket name to path into S3 to get the video files.
-            prefix: string
-                The folder name where the video files belong in the S3 bucket.
+
+        bucket: string
+            The bucket name to path into S3 to get the video files.
+        prefix: string
+            The folder name where the video files belong in the S3 bucket.
 
         Returns
         -------
-            video_list: list
-                The list of all video files loaded from S3 bucket.
+
+        video_list: list
+            The list of all video files loaded from S3 bucket.
         """
 
         video_list = []
@@ -81,10 +84,13 @@ class Aux:
                 continue
 
             title = i["Key"].split(prefix)[1]
-            video_list.append(Video(bucket=bucket, key=i["Key"], title=title))
-        logging.info(
-            f"successfully load the video files from S3 bucket: s3://{bucket}/{prefix}/"
-        )
+            new_video = Video(bucket=bucket, key=i["Key"], title=title)
+            if self._local_path is None:
+                new_video.path = self._temp_folder
+            else:
+                new_video.path = self._local_path
+            video_list.append(new_video)
+        logging.info(f"successfully load the video files from S3 bucket: s3://{bucket}/{prefix}/")
 
         return video_list
 
@@ -95,33 +101,38 @@ class Aux:
 
         Parameters
         ----------
-            path: string
-                The bucket name to path into local to get the video files.
+
+        path: string
+            The bucket name to path into local to get the video files.
 
         Returns
         -------
-            video_list: list
-                The list of all video files loaded from local bucket.
+
+        video_list: list
+            The list of all video files loaded from local bucket.
         """
         video_list = []
+
+        # video_list = [Video(file=  path + i, title=i) for i in os.listdir(path) if Video(file=  path + i, title=i)]
+
         if os.path.isdir(path):
-            files = os.listdir("data")
-            video_list = [
-                Video(file=path + i, title=i)
-                for i in files
-                if Video(file=path + i, title=i)
-            ]
+            for i in os.listdir(path):
+                new_vid = Video(file=path + i, title=i)
+                new_vid.path = self._temp_folder
+                video_list.append(new_vid)
 
         else:
-            dummy = path.replace("/", " ").strip()
-            title = dummy.split(" ")[-1]
-            video_list.append(Video(file=path, title=title))
+            dummy = path.replace('/', ' ').strip()
+            title = dummy.split(' ')[-1]
+            new_vid = Video(file=path, title=title)
+            new_vid.path = self._temp_folder
+            video_list.append(new_vid)
 
         logging.info(f"successfully load the video files from local path: {path}")
 
         return video_list
 
-    def upload_s3(self, video_list, bucket, prefix="modified/"):
+    def upload_s3(self, video_list, bucket, prefix='modified/'):
         """
         This method will push modified video list to the S3 bucket and delete all video files from local temp folder.
 
@@ -129,26 +140,25 @@ class Aux:
         ----------
             video_list: list
                 The list of video that needs to be uploaded.
+
             bucket: string
                 The bucket name/path to upload on S3.
+
             prefix: string
                 The subfolder name that the video list will be uploaded to.
 
         """
 
-        s3 = boto3.client("s3")
+        s3 = boto3.client('s3')
         for video in video_list:
-            if video.get_label() != "":
-                if not self._local_path:
-                    path = self._temp_folder + "/" + video.get_output_title()
-                else:
-                    path = self._local_path + "/" + video.get_output_title()
-                s3.upload_file(path, bucket, prefix + video.get_output_title())
+            # if video.get_label() != "":
+            if not self._local_path:
+                path = self._temp_folder + '/' + video.get_output_title()
+            else:
+                path = self._local_path + '/' + video.get_output_title()
+            s3.upload_file(path, bucket, prefix + video.get_output_title())
 
-        logging.info(
-            f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/"
-        )
-        logging.info("successfully remove the output file from local machine")
+        logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
 
     def execute_label_and_write_local(self, video_list, path=None):
         """
@@ -173,25 +183,50 @@ class Aux:
         else:
             self.set_local_path(path)
 
+        list_video = []
+
         for video in video_list:
             # This if statement will skip over any untouched videos.
-            if video.get_label() != "":
-                command = f"{ffmpeg} -i {video.get_presigned_url()} {video.get_label()} {path}/{video.get_output_title()}"
-                subprocess.run(command, shell=True)
-                logging.info(command)
+            # if video.get_label() != "":
+
+            if video.out == '':
+                source = video.get_presigned_url()
+            else:
+                source = video.out
+            if len(video.complex_filter) > 0:
+                video.create_complex_filter(video)
+            command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
+            subprocess.run(command, shell=True)
+            logging.info(command)
+            # print(command)  # REALLY useful for debug
+            new_path = video.get_output_title()
+            video.reset_label()
+            new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')
+            new_video.set_output(f"'{path}/{new_path}'")
+            list_video.append(new_video)
 
         logging.info(f"successfully write the output video files to path: {path}")
+
+        return list_video
 
     def clean(self, path=None):
         """
         This method will delete the temp folder and all video files in it from local machine.
+
+        Parameters
+        ----------
+        path : str
+            The path to set
+
+        Returns
+        ----------
         """
         if path is None:
             path = self._local_path if self._local_path else self._temp_folder
 
-        for path, _, files in os.walk(path, topdown=True):
+        for (path, _, files) in os.walk(path, topdown=True):
             for video in files:
-                os.remove(f"{path}/{video}")
+                os.remove(f'{path}/{video}')
 
         os.rmdir(path)
 
@@ -199,7 +234,15 @@ class Aux:
 
     def set_local_path(self, path):
         """
-        This method will set the path as a internal variable
+        This method will set the path as an internal variable
+
+        Parameters
+        ----------
+        path : str
+            The path to set
+
+        Returns
+        ----------
 
         """
         self._local_path = path
