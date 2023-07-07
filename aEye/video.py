@@ -4,12 +4,17 @@ Module contains the Video class that stores and represents video files as object
 """
 import cv2
 import os
-import json
 import subprocess
+import json
 from static_ffmpeg import run
+
+# Please comment this out when setting up a docker image.
+# This will fail when we use the docker image in the lambda function on AWS.
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 import boto3
+
 s3 = boto3.client("s3")
+
 
 class Video:
     """
@@ -92,15 +97,16 @@ class Video:
         """
         return cv2.VideoCapture(self.get_presigned_url(time=2)).read()[0]
 
-
     def extract_metadata(self):
         """
         Probably the most important method, probes a video passed with a
         file path and returns a json dictionary full of metadata. Video metadata lives in
         json['streams'][0] because it is the first channel and the dictionary splits streams from error
         Returns
-        -------
-        String of JSON Dictionary full of video metadata
+        ---------
+            meta_data: dictionary
+                The dictionary of meta data.
+
         """
         if self.meta_data is None:
             fp = None
@@ -194,8 +200,11 @@ class Video:
         """
 
         if self.file is None:
-            url = s3.generate_presigned_url(ClientMethod='get_object', Params={'Bucket': self.bucket, 'Key': self.key},
-                                            ExpiresIn=time)
+            url = s3.generate_presigned_url(
+                ClientMethod="get_object",
+                Params={"Bucket": self.bucket, "Key": self.key},
+                ExpiresIn=time,
+            )
             return f"'{url}'"
         return self.file
 
@@ -228,7 +237,6 @@ class Video:
         """
         self.out = new_out
 
-
     def create_complex_filter(self, video):
         """
         This method is used for creating a complex video filter. This is any overlay that would
@@ -249,11 +257,10 @@ class Video:
         filter_str = "-filter_complex '"
         end = len(filter_steps)
         for i in range(len(filter_steps)):
-            filter_str += f"[{i}]{filter_steps[i]}[{i+1}];"
+            filter_str += f"[{i}]{filter_steps[i]}[{i + 1}];"
         filter_str = filter_str.strip(";")
         filter_str += f"' -map [{end}] "
         video.add_label(filter_str)
-
 
     def get_output_title(self):
         """

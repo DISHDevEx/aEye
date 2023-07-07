@@ -1,3 +1,8 @@
+"""
+Module contains the Aux class that handles the loading and uploading of videos. This class also has the feature to executing all ffmpeg labels and write new videos.
+
+"""
+
 from aEye.video import Video
 import boto3
 import tempfile
@@ -6,8 +11,9 @@ import subprocess
 import logging
 from static_ffmpeg import run
 
+#Please comment this out when setting up a docker image.
+#This will fail when we use the docker image in the lambda function on AWS.
 ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
-
 
 class Aux:
     """

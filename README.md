@@ -10,13 +10,19 @@ Extensible Video Processing Framework with Additional Features Continuously Depl
 |   ├── auxiliary.py
 |   ├── extractor.py
 |   ├── labeler.py
+│   ├── auxiliary.py
+│   ├── mediapipe
+│      ├── object_detection.py
+│      ├── visualize.py
+├──  runner_notebooks
+│   ├── leto-demo.ipynb
 ├──  tests				contains unit tests
-│   ├── test.py
-├──  runner_notebooks                   contains a jupyter demo
-|   ├── leto_demo.ipynb
-├──  setup.py                           wheel setup
-
-
+│   ├── test_get_meta_data.py
+│   ├── conftest.py
+│   ├── test_data
+│      ├── test_video.mp4
+├── lambda_function.py
+├── setup.py
 ```
 
 ### **Inital project setup**
@@ -58,7 +64,7 @@ from aEye.extractor import Extractor
 aux = Aux()
 ```
 
-6. Load the video from the desired bucket
+6. Load the video from the desired bucket and folder.
 
 ```console
 video_list_s3 = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/')
@@ -223,3 +229,18 @@ trimmed_local = label.trim_on_frame(video_list_local, 501)
 ```console
 aux.execute_label_and_write_local(trimmed_local,'data/')
 ```
+
+### **Docker Image Setup**
+
+The docker image is built automatically via github workflow action on every tag push.
+The rough sequence is below:
+
+    1) The workflow action will build a wheel file based on setup.py,
+    2) Then it will create a docker image based on the dockerfile.
+    3) Finally it will push the image to ECR (currently, this will be loaded in ECR: Leto).
+
+Please refer to mp-to-ecr.yml to get the exact sequences of the github workflow action, the dockerfile for the exact content in the docker image and setup.py for the exact built version.
+
+### **Lambda Function**
+
+Please refer to lambda_function.py for the logic of the lambda function.
