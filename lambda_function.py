@@ -1,29 +1,13 @@
 import os
 print(os.getcwd())
 print(os.path.isdir(os.getcwd() + "aEye/yolo"))
-from aEye import pipeline
 from aEye import object_detection
-<<<<<<< HEAD
-<<<<<<< HEAD
-
+from aEye import Yolo
 
 from aEye import pipeline
-from aEye import Yolo
 import sys
 import boto3
 
-
-=======
-from aEye import Yol
-=======
-from aEye import Yolo
->>>>>>> c2eeac6 (remove dupl)
-
-
-import sys
-import boto3
-
->>>>>>> 764dbf8 (test yol)
 
 
 # input_video_path = os.environ.get('input_video_path')
@@ -43,15 +27,7 @@ def handler(event, context):
 
     object_detection(os.path.basename("efficientdet_lite0.tflite"), input_video, mp_output_video)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     model = Yolo()
-=======
-    model = Yol()
->>>>>>> 764dbf8 (test yol)
-=======
-    model = Yolo()
->>>>>>> c2eeac6 (remove dupl)
     model.load_model('yolov8s.pt')
 
     pipeline(input_video, model, yolo_output_video)
