@@ -2,9 +2,10 @@ import os
 print(os.getcwd())
 print(os.path.isdir(os.getcwd() + "aEye/yolo"))
 from aEye import object_detection
-from aEye import Yolo
+
 
 from aEye import pipeline
+from aEye import Yolo
 import sys
 import boto3
 
