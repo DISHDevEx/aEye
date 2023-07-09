@@ -68,7 +68,8 @@ setup(
                  'aEye.auxiliary',
                  'aEye.processor',
                  'aEye.video',
-                 'aEye.mediapipe'
+                 'aEye.mediapipe',
+                 'aEye.yolov8'
         ]
     ),
     include_package_data=True,
