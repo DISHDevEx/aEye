@@ -2,11 +2,11 @@ from aEye.video import Video
 from aEye.auxiliary import Aux
 from aEye.processor import Processor
 
-from .yolo import yolo
-from .yolo import training_parameter_input
-from .yolo import prediction_parameter_input
-from .yolo import visualize_yolo
-from .yolo import pipeline
+from .yolov8 import yolo
+from .yolov8 import training_parameter_input
+from .yolov8 import prediction_parameter_input
+from .yolov8 import visualize_yolo
+from .yolov8 import pipeline
 
 
 from .mediapipe import object_detection
