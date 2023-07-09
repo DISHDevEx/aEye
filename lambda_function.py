@@ -1,6 +1,7 @@
 import os
 print(os.getcwd())
 print(os.path.isdir(os.getcwd() + "aEye/yolo"))
+from aEye import pipeline
 from aEye import object_detection
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18,11 +19,12 @@ from aEye import Yol
 from aEye import Yolo
 >>>>>>> c2eeac6 (remove dupl)
 
-from aEye import pipeline
+
 import sys
 import boto3
 
 >>>>>>> 764dbf8 (test yol)
+
 
 # input_video_path = os.environ.get('input_video_path')
 # output_video_path = os.environ.get('output_video_path')
