@@ -1,6 +1,7 @@
 from aEye.video import Video
 from aEye.auxiliary import Aux
-from aEye.processor import Processor
+from .labeler import Labeler
+from .extractor import Extractor
 
 from aEye.yolov8 import Yolo
 from aEye.yolov8 import training_parameter_input
