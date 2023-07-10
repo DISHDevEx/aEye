@@ -17,7 +17,7 @@ def visualize_yolo(image,detection_result) -> np.ndarray:
       Image with bounding boxes.
     """
     shape = detection_result[0].orig_shape
-    for i in range(len(detection_result[0].boxes.cls)):
+    for i, result in enumerate(detection_result[0].boxes.cls):
         # Draw bounding_box
         x,y,w,h = detection_result[0].boxes.xyxyn[i]
         start_point = int(x.item()*shape[1]), int(y.item()*shape[0])
