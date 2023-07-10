@@ -25,7 +25,7 @@ class Yolo:
         'upload to s3'
 
 
-    def train(self,data = None,  **parameter):
+    def train(self,data = None, **parameter):
         
         self.model.train(data = data , **parameter)
         
