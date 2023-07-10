@@ -1,9 +1,10 @@
-from aEye import object_detection
+import os
 import sys
 import boto3
-import os
+from aEye import object_detection
 from aEye import pipeline
 from aEye import Yolo
+
 
 # input_video_path = os.environ.get('input_video_path')
 # output_video_path = os.environ.get('output_video_path')

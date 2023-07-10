@@ -19,6 +19,5 @@ ADD https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8s.pt /v
 RUN chmod a+rx /var/task/*.tflite
 RUN chmod a+rx /var/task/*.pt
 
-
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
 CMD [ "lambda_function.handler" ]

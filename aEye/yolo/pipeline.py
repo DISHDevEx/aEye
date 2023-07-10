@@ -1,4 +1,4 @@
-from .visualize_yolo import visualize_yolo
+from .visualize import visualize_yolo
 import cv2
 
 def pipeline(input_video,  model, output_video ):
