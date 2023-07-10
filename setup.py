@@ -69,6 +69,7 @@ setup(
                  'aEye.processor',
                  'aEye.video',
                  'aEye.mediapipe'
+                 'aEye.yolo'
         ]
     ),
     include_package_data=True,

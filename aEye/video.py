@@ -3,15 +3,15 @@ Module contains the Video class that stores and represents video files as object
 
 """
 import cv2
-import os
 import subprocess
 import json
+import boto3
 from static_ffmpeg import run
 
 # Please comment this out when setting up a docker image.
 # This will fail when we use the docker image in the lambda function on AWS.
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
-import boto3
+#ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+
 
 s3 = boto3.client("s3")
 
