@@ -25,13 +25,13 @@ class Yolo:
         'upload to s3'
 
 
-    def train(self,data = None):
+    def train(self,data = None,  **parameter):
         
-        self.model.train(data = data)
+        self.model.train(data = data , **parameter)
         
 
-    def predict_(self, data = None):
+    def predict_(self, data = None,  **parameter):
 
-        result = self.model.predict(data)
+        result = self.model.predict(data, **parameter)
         return result
         
