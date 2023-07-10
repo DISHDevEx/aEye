@@ -21,6 +21,10 @@ class Yolo:
         self.model.export()
         return self.model
 
+    def upload_model_s3(self,bucket = None , prefix = None):
+        'upload to s3'
+
+
     def train(self,data = None):
         
         self.model.train(data = data)
