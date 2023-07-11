@@ -1,3 +1,6 @@
+"""
+Module to contain the variables that define the RealBasicVSR model settings. 
+"""
 exp_name = 'realbasicvsr_x4'
 
 # model settings

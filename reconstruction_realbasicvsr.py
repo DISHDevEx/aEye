@@ -12,7 +12,7 @@ import torch
 from mmcv.runner import load_checkpoint
 from mmedit.core import tensor2img
 
-from .builder import build_model
+from aEye.RealBasicVSR_reconstruction_module.builder import build_model
 
 VIDEO_EXTENSIONS = ('.mp4', '.mov')
 
@@ -31,19 +31,19 @@ def parse_args():
     
     parser = argparse.ArgumentParser(
         description='Inference script of RealBasicVSR')
-    parser.add_argument(
-        'config', 
-        type = str, 
-        default= 'realbasicvsr_x4.py',
-        help='test config file path')
-    parser.add_argument('checkpoint', 
-                        type = str, 
-                        default= 'pretrained_RealBasicVSR_model/RealBasicVSR_x4.pth', 
-                        help='checkpoint file')
     parser.add_argument('input_dir', 
                         help='directory of the input video')
     parser.add_argument('output_dir', 
                         help='directory of the output video')
+    parser.add_argument(
+        '--config', 
+        type = str, 
+        default= 'aEye/RealBasicVSR_reconstruction_module/realbasicvsr_x4.py',
+        help='test config file path')
+    parser.add_argument('--checkpoint', 
+                        type = str, 
+                        default= 'aEye/RealBasicVSR_reconstruction_module/RealBasicVSR_x4.pth', 
+                        help='checkpoint file')
     parser.add_argument(
         '--max_seq_len',
         type=int,
@@ -57,6 +57,7 @@ def parse_args():
     parser.add_argument(
         '--fps', type=float, default=25, help='FPS of the output video')
     args = parser.parse_args()
+    
 
     return args
 
@@ -154,7 +155,6 @@ def main():
         for i in range(0, outputs.size(1)):
             img = tensor2img(outputs[:, i, :, :, :])
             video_writer.write(img.astype(np.uint8))
-        cv2.destroyAllWindows()
         video_writer.release()
     else:
         mmcv.mkdir_or_exist(args.output_dir)

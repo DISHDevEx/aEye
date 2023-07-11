@@ -149,14 +149,14 @@ class Aux:
 
         """
 
-        s3 = boto3.client('s3')
+        
         for video in video_list:
             # if video.get_label() != "":
             if not self._local_path:
                 path = self._temp_folder + '/' + video.get_output_title()
             else:
                 path = self._local_path + '/' + video.get_output_title()
-            s3.upload_file(path, bucket, prefix + video.get_output_title())
+            self.s3.upload_file(path, bucket, prefix + video.get_output_title())
 
         logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
 
@@ -246,3 +246,4 @@ class Aux:
 
         """
         self._local_path = path
+        
