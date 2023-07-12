@@ -1,3 +1,10 @@
+"""
+Module contains the default prediction parameter for yolov8 model. 
+The vaule in this function can be modified and be used directly as paramater in the .predict_ method in the Yolo class.
+Example: 
+    p = prediction_parameter_input()
+    yolo.predict_( data = some_data , **p )
+"""
 def prediction_parameter_input():
     parameter = {
         'conf' : 0.25,	            #object confidence threshold for detection

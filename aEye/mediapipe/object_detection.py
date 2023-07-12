@@ -65,7 +65,6 @@ def object_detection(model_path, input_video, output_video):
                 image_copy = np.copy(mp_image.numpy_view())
                 annotated_image = visualize(image_copy, detection_result)  #Adds Bounding box to img
                 out.write(annotated_image)
-
             # Break the loop
             else:
                 break

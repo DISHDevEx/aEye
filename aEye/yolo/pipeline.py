@@ -11,6 +11,8 @@ def pipeline(input_video,  model, output_video ):
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_video, fourcc, x, (frame_width, frame_height))
     
+    result = []
+
     while (cap.isOpened()):
 
         # Capture frame-by-frame
@@ -25,8 +27,9 @@ def pipeline(input_video,  model, output_video ):
             # Perform object detection on the video frame.
             
             
-            detection_result = model.predict_(im2,verbose = False, save=False, save_txt = False)
-            
+            detection_result = model.predict_(im2,save_to_json = False,  verbose = False, save=False, save_txt = False)
+            result.append(detection_result)
+
             copy_image = frame.copy()
             
             annotated_image = visualize_yolo(copy_image, detection_result)
@@ -39,3 +42,5 @@ def pipeline(input_video,  model, output_video ):
     # the video capture object
     cap.release()
     out.release()
+
+    return result

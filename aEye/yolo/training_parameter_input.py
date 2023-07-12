@@ -1,3 +1,11 @@
+"""
+Module contains the default training parameter for yolov8 model. 
+The vaule in this function can be modified and be used directly as paramater in the .train method in the Yolo class.
+Example: 
+    p = training_parameter_input()
+    yolo.train( data = some_data , **p )
+"""
+
 def training_parameter_input():
     parameter = {
         'epochs' : 100,                #number of epochs to train for
@@ -9,10 +17,10 @@ def training_parameter_input():
         'cache' : False,               #True/ram, disk or False. Use cache for data loading
         'device' : None,               #device to run on, i.e. cuda device:0 or device:0,1,2,3 or device:cpu
         'workers' : 8,                 #number of worker threads for data loading (per RANK if DDP)
-        'project' :None,               #project nam
+        'project' :None,               #project name
         'name'    :  None,             #experiment name
         'exist_ok' : False,            #whether to overwrite existing experiment
-        'pretrained' : False,          #whether to use a pretrained model
+        'pretrained' : True,           #whether to use a pretrained model
         'optimizer' : 'auto',          #optimizer to use, choices:[SGD, Adam, Adamax, AdamW, NAdam, RAdam, RMSProp, auto]
         'verbose' : False,             #whether to print verbose output
         'seed' : 0,                    #random seed for reproducibility
@@ -26,7 +34,7 @@ def training_parameter_input():
         'fraction' : 1.0,              #dataset fraction to train on (default is 1.0, all images in train set)
         'profile' : False,             #profile ONNX and TensorRT speeds during training for loggers
         'lr0' : 0.01,                  #initial learning rate (i.e. SGD:1E-2, Adam:1E-3)
-        'lrf' : 0.01,                 #final learning rate (lr0 * lrf)
+        'lrf' : 0.01,                  #final learning rate (lr0 * lrf)
         'momentum' : 0.937,            #SGD momentum/Adam beta1
         'weight_decay' : 0.0005,       #optimizer weight decay 5e-4
         'warmup_epochs' : 3.0,         #warmup epochs (fractions ok)
@@ -34,7 +42,7 @@ def training_parameter_input():
         'warmup_bias_lr' : 0.1,        #warmup initial bias lr
         'box' : 7.5,                   #box loss gain
         'cls' : 0.5,                   #cls loss gain (scale with pixels)
-        'dfl'	: 1.5,                   #dfl loss gain
+        'dfl'	: 1.5,                 #dfl loss gain
         'pose' : 12.0,                 #pose loss gain (pose-only)
         'kobj' : 2.0,                  #keypoint obj loss gain (pose-only)
         'label_smoothing' : 0.0,       #label smoothing (fraction)
