@@ -260,7 +260,7 @@ class Video:
                 Params={"Bucket": self.bucket, "Key": self.key},
                 ExpiresIn=time,
             )
-            return f"{url}"
+            return url
         return self.file
 
     def add_label(self, label):
