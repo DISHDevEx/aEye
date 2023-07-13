@@ -32,7 +32,7 @@ def pipeline(input_video,  model, output_video ):
             # Perform object detection on the video frame.
             
             
-            detection_result = model.predict_(im2,save_to_json = False,  verbose = False, save=False, save_txt = False)
+            detection_result = model.predict_(im2, verbose = False, save=False, save_txt = False)
             result.append(detection_result)
 
             copy_image = frame.copy()
