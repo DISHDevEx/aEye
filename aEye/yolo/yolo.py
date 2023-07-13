@@ -96,7 +96,7 @@ class Yolo:
 
             parameter: dict
 
-                
+
         Returns
         ----------
         None
@@ -129,7 +129,5 @@ class Yolo:
         result = self.model.predict(data, **parameter)
         return result
     
-    def validiate(self, data = None, save_json = False) :
-        self.model.val(data = data, save_json=save_json)
 
     
