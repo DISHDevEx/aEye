@@ -242,7 +242,7 @@ class Video:
         """
         self.capture.release()
 
-    def get_presigned_url(self, time=60):
+    def get_presigned_url(self, time=6000):
         """
         This method will return the presigned url of video file from S3.
         If the video file is from local machine then it will return the local path of the video file.
