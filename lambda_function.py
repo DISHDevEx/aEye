@@ -6,6 +6,8 @@ from aEye import pipeline
 from aEye import Yolo
 import subprocess
 import time
+from aEye import Video
+import urllib.parse
 
 
 # input_video_path = os.environ.get('input_video_path')
@@ -44,7 +46,7 @@ def handler(event, context):
     end = time.time()
     print('mediapipe done!')
     print(end-start)
-    
+
     model = Yolo()
     model.load_model_weight('yolov8n.pt')
 
@@ -56,6 +58,21 @@ def handler(event, context):
 
     s3_client.upload_file(mp_output_video, "leto-dish", "object_detection/mp_sample.mp4")
     s3_client.upload_file(yolo_output_video, "leto-dish", "object_detection/yolo_sample.mp4")
+
+    bucket = event['Records'][0]['s3']['bucket']['name']
+    key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
+    try:
+        video = Video(bucket=bucket, key=key, title= "output.mp4")
+        pipeline(video.get_file(), model, video.title)
+        
+        s3_client.upload_file(video.title, "leto-dish", f"object_detection/{video.title}")
+    except Exception as e:
+        print(e)
+        print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
+        raise e
+
+
+
 
     #reduceout = os.path.join("/tmp", os.path.basename("reduce_out.mp4"))
 
