@@ -25,11 +25,10 @@ jobs:
       # Upload a file to AWS s3
       - name: Install dependencies
         run: |
-          bash reconstruction_setup.sh 
           python -m pip install --upgrade pip
           pip install pytest
           pip install -r requirements_aEye.txt
-          if [ -f requirements_aEye.txt]; then pip install -r requirements_aEye.txt; fi
+          bash reconstruction_setup.sh 
       - name: Test with pytest
         env:
            ROLE_TO_ASSUME: ${{ secrets.ROLE_TO_ASSUME }}
