@@ -44,9 +44,11 @@ def handler(event, context):
     end = time.time()
     print('mediapipe done!')
     print(end-start)
+    
     model = Yolo()
-    model.load_model_weight('yolov8s.pt')
+    model.load_model_weight('yolov8n.pt')
 
+    start = time.time()
     pipeline(input_video, model, yolo_output_video)
     end = time.time()
     print('yolo time done!')
@@ -55,10 +57,10 @@ def handler(event, context):
     s3_client.upload_file(mp_output_video, "leto-dish", "object_detection/mp_sample.mp4")
     s3_client.upload_file(yolo_output_video, "leto-dish", "object_detection/yolo_sample.mp4")
 
-    reduceout = os.path.join("/tmp", os.path.basename("reduce_out.mp4"))
+    #reduceout = os.path.join("/tmp", os.path.basename("reduce_out.mp4"))
 
-    reduce_resolution(input_video, reduceout)
+    #reduce_resolution(input_video, reduceout)
 
-    s3_client.upload_file(reduceout, "leto-dish", "object_detection/out_sample.mp4")
+    #s3_client.upload_file(reduceout, "leto-dish", "object_detection/out_sample.mp4")
 
     return 'Hello from AWS Lambda using Python' + sys.version + '!'
