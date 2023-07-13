@@ -8,6 +8,7 @@ import cv2
 
 def pipeline(input_video,  model, output_video ):
     cap = cv2.VideoCapture(input_video)
+    print('@@@@@@@')
     frame_index = 0
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     x = cap.get(cv2.CAP_PROP_FPS)

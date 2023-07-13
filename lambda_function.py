@@ -45,7 +45,7 @@ def handler(event, context):
     s3_client.download_file("leto-dish", "original-videos/random-videos/demo_10_second_clip.mp4", input_video)
 
     start = time.time()
-    object_detection(os.path.basename("efficientdet_lite0.tflite"), input_video, mp_output_video)
+    #object_detection(os.path.basename("efficientdet_lite0.tflite"), input_video, mp_output_video)
     end = time.time()
     print('mediapipe done!')
     print(end-start)
@@ -54,7 +54,7 @@ def handler(event, context):
     model.load_model_weight('yolov8n.pt')
 
     start = time.time()
-    pipeline(input_video, model, yolo_output_video)
+    #pipeline(input_video, model, yolo_output_video)
     end = time.time()
     print('yolo time done!')
     print(end-start)
@@ -66,7 +66,7 @@ def handler(event, context):
     key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
     try:
         video = Video(bucket=bucket, key=key, title= "output.mp4")
-        pipeline(video.get_file(), model, yolo_output_video2)
+        pipeline(video.get_presigned_url(), model, yolo_output_video2)
         
         s3_client.upload_file(yolo_output_video2, "leto-dish", f"object_detection/{video.title}")
     except Exception as e:
