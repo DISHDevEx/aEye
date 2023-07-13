@@ -1,7 +1,0 @@
-openmim>=0.3.9
-boto3>=1.28.2
-mmcv-full>=1.7.1
-mmedit>=0.16.1
-setuptools>=67.4.0
-static_ffmpeg>=2.5
-torch>=1.7.1
