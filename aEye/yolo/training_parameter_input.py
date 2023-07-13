@@ -1,9 +1,23 @@
 """
 Module contains the default training parameter for yolov8 model. 
+
 The vaule in this function can be modified and be used directly as paramater in the .train method in the Yolo class.
 Example: 
     p = training_parameter_input()
-    yolo.train( data = some_data , **p )
+    yolo.train_( data = some_data , **p )
+
+    
+.train_ can also take a small subsets of the diction as arguments below.
+Example:
+    yolo.train_( data = some_data, conf = 0.5, save = True)
+
+    
+.train_ can also take a diction of the small subsets.
+Example:
+    p = {'conf' : 0.50, 'show' : True}
+    yolo.train_( data = some_data, **p)
+
+Please follow the syntax/format of inputting arguments above!
 """
 
 def training_parameter_input():

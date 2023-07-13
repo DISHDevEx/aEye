@@ -86,6 +86,8 @@ class Yolo:
         The structure of the dataset has to be fit the ultralics framework. 
         The best and easiest way to obtain a valid dataset is to used https://universe.roboflow.com/
 
+        Please also refer to training_parameter_input.py for the entire list of all possible **parameter can take in
+        and how to use this method properly!
 
 
         Parameters
@@ -94,8 +96,9 @@ class Yolo:
                 The data can be a yaml file or zip file.
                 The config in the yaml file and zip file have to match the ultralytics requirement.
 
-            parameter: dict
-
+            **parameter: dict of argument
+                An unpacked the dict of argument that are native from ultralics framework
+                
 
         Returns
         ----------
@@ -114,11 +117,16 @@ class Yolo:
         Please refer to https://docs.ultralytics.com/modes/predict/#inference-sources 
         for the full list of valid sources, videos, and images format.
 
+        Please also refer to prediction_parameter_input.py for the entire list of all possible **parameter can take in
+        and how to use this method properly!
+
         Parameters
         ----------
             data: str
                 The path of the desired data.
 
+            **parameter: dict of argument
+                An unpacked  dict of argument that are native from ultralics framework
 
 
         Returns

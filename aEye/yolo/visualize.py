@@ -1,3 +1,8 @@
+"""
+Module contains the visualizer to annotate the frame with the yolo prediction.
+"""
+
+
 import cv2
 import numpy as np
 
@@ -6,7 +11,6 @@ ROW_SIZE = 10  # pixels
 FONT_SIZE = 1
 FONT_THICKNESS = 1
 TEXT_COLOR = (255, 0, 0)  # red
-
 
 def visualize_yolo(image,detection_result) -> np.ndarray:
     """Draws bounding boxes on the input image and return it.

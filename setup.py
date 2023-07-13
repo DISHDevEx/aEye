@@ -74,7 +74,6 @@ setup(
     ),
     include_package_data=True,
     install_requires=[
-        'pyspark',
         'pandas',
         'numpy',
         'boto3',

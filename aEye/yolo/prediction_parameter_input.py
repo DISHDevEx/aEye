@@ -1,9 +1,23 @@
 """
 Module contains the default prediction parameter for yolov8 model. 
+
 The vaule in this function can be modified and be used directly as paramater in the .predict_ method in the Yolo class.
 Example: 
     p = prediction_parameter_input()
     yolo.predict_( data = some_data , **p )
+
+    
+.predict_ can also take a small subsets of the diction as arguments below.
+Example:
+    yolo.predict_( data = some_data, conf = 0.5, save = True)
+
+    
+.predict_ can also take a diction of the small subsets.
+Example:
+    p = {'conf' : 0.50, 'show' : True}
+    yolo.predict_( data = some_data, **p)
+
+Please follow the syntax/format of inputting argument above!
 """
 def prediction_parameter_input():
     parameter = {
