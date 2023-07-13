@@ -39,6 +39,9 @@ def handler(event, context):
     mp_output_video = os.path.join("/tmp", os.path.basename("mp_output_video.mp4"))
     yolo_output_video = os.path.join("/tmp", os.path.basename("yolo_output_video.mp4"))
 
+    yolo_output_video2 = os.path.join("/tmp", os.path.basename("yolo_output_video2.mp4"))
+
+
     s3_client.download_file("leto-dish", "original-videos/random-videos/demo_10_second_clip.mp4", input_video)
 
     start = time.time()
@@ -63,9 +66,9 @@ def handler(event, context):
     key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
     try:
         video = Video(bucket=bucket, key=key, title= "output.mp4")
-        pipeline(video.get_file(), model, video.title)
+        pipeline(video.get_file(), model, yolo_output_video2)
         
-        s3_client.upload_file(video.title, "leto-dish", f"object_detection/{video.title}")
+        s3_client.upload_file(yolo_output_video2, "leto-dish", f"object_detection/{video.title}")
     except Exception as e:
         print(e)
         print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
