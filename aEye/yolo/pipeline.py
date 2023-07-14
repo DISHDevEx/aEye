@@ -7,10 +7,8 @@ from .visualize import visualize_yolo
 import cv2
 
 def pipeline(input_video,  model, output_video ):
+    
     cap = cv2.VideoCapture(input_video)
-    print('@@@@@@@')
-    frame_index = 0
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     x = cap.get(cv2.CAP_PROP_FPS)
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
@@ -24,15 +22,10 @@ def pipeline(input_video,  model, output_video ):
         # Capture frame-by-frame
         ret, frame = cap.read()
         if ret == True:
-            # Display the resulting frame
+            # change the channel in the format that yolo accepts
             im2 = frame[..., ::-1]
 
-            # Calculate the timestamp of the current frame
-            frame_timestamp_ms = int(1000 * frame_index / x)
-            frame_index += 1
             # Perform object detection on the video frame.
-            
-            
             detection_result = model.predict_(im2, verbose = False, save=False, save_txt = False, device = 'cpu')
             result.append(detection_result)
 

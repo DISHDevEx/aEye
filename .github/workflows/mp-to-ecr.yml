@@ -1,5 +1,9 @@
 name: publish-to-ecr
-on: [push]
+on:
+  push:
+    tags:
+    - '*'
+    - '**'
 
 env:
   AWS_REGION : ${{ secrets.AWS_REGION }}
@@ -25,7 +29,7 @@ jobs:
     - name: create wheel file from source code
       run: |
         pip install wheel
-        python setup.py bdist_wheel --version v0.0.1
+        python setup.py bdist_wheel --version $RELEASE_VERSION
     - name: login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
@@ -40,8 +44,8 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
       run: |
         # Build a docker container and push it to ECR
-        echo "building version v0.0.12 ..."
-        docker build -t $ECR_REGISTRY/v0.0.12 .
+        echo "building version $RELEASE_VERSION ..."
+        docker build -t $ECR_REGISTRY/$RELEASE_VERSION .
         echo "pushing image to ECR ..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.12
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.12"
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$RELEASE_VERSION
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$RELEASE_VERSION"
