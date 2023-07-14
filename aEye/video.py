@@ -73,8 +73,6 @@ class Video:
     create_complex_filter -> None:
         Creates a sequential exection label for modifications that use -vf tag. This
         way multiple -vf filters can be applied to the same video
-    get_title -> str:
-        Returns video title 
 
 
     """
@@ -159,7 +157,6 @@ class Video:
             json_data = json.loads(out)
             self.meta_data = json_data
             return json_data
-        return subprocess.check_output("ls", shell=True)
 
     def get_codec(self):
         """
@@ -421,7 +418,6 @@ class Video:
             out[0] += "_%02d."
             out = "".join(out)
             self.title = out
-
         self.out = result + self.title
         return  self.out_title + self.title
 
@@ -429,7 +425,7 @@ class Video:
 
     def get_title(self):
         '''
-        This method will return the video's title. 
+        This method will return the video's title.
         This will also create the video title based on its key from s3
 
         Returns
