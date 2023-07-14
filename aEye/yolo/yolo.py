@@ -136,5 +136,34 @@ class Yolo:
         result = self.model.predict(data, **parameter)
         return result
     
+    def val_(self, data = None):
+        """
+        This method will validiate the model based on the parameter and the given data.
+        
+        The data must be in a yaml file.
+        The structure of the dataset has to be fit the ultralics framework. 
+        The best and easiest way to obtain a valid dataset is to used https://universe.roboflow.com/
+        
+        Parameters
+        ----------
+            data: str
+                The path of the yaml file.
+
+            **parameter: dict of argument
+                An unpacked  dict of argument that are native from ultralics framework
+
+
+        Returns
+        ----------
+            A diction of result in the format below.
+                {   'metrics/precision(B)': 0.0, 
+                    'metrics/recall(B)': 0.0, 
+                    'metrics/mAP50(B)': 0.0, 
+                    'metrics/mAP50-95(B)': 0.0, 
+                    'fitness': 0.0}
+        """
+
+        result = self.model.val(data)
+        return result.results_dict
 
     

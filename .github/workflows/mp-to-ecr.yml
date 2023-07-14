@@ -1,7 +1,7 @@
 name: publish-to-ecr
 on: [push]
+
 env:
-  BUCKET_NAME : ${{ secrets.EKS_BUCKET_NAME }}
   AWS_REGION : ${{ secrets.AWS_REGION }}
 # permission can be added at job level or workflow level
 permissions:
@@ -25,10 +25,13 @@ jobs:
     - name: create wheel file from source code
       run: |
         pip install wheel
-        python setup.py bdist_wheel --version v0.0.1
+        python setup.py bdist_wheel --version $RELEASE_VERSION
     - name: login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+
+    - name: determine tag
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
     - name: build, tag, and push the image to Amazon ECR
       id: build-image
@@ -38,9 +41,7 @@ jobs:
       run: |
         # Build a docker container and push it to ECR
         echo "building version v0.0.12 ..."
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.12 .
+        docker build -t $ECR_REGISTRY/v0.0.12 .
         echo "pushing image to ECR ..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.12
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.12"
-#    - name: create wheel file from source code
-#      run: python setup.py bdist_wheel
