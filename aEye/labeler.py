@@ -52,7 +52,7 @@ class Labeler:
     """
 
     def __init__(self) -> None:
-        print("---aEye Video Label Maker v0---")
+        logging.info("---Initialized aEye Video Label Maker v0---")
         pass
 
     def resize_by_ratio(self, video_list, x_ratio=.8, y_ratio=.8):
