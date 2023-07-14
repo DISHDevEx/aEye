@@ -23,26 +23,60 @@ class Video:
     video clips, trim them down, crop, etc.
     Attributes
     ----------
-    file: str
+    file    : str
         path of the video file associated with the object
-    meta_data: str
+
+    bucket  : str
         JSON dictionary of video metadata, typically streams[0] is the video metadata
-    cv_video: cv2.VideoCapture
-        OpenCV video object, used for any openCV processing
+
+    key     : str
+        Essentially this is the s3 absolute location of the file
+
+    title   : str
+        Title for the output video to build upon
+
     ----------
     Methods
     ----------
     extract_metadata -> str:
         Collects the metadata from all video sources and separates the streams
         Necessary for basically any processing, but still has to be set (none by default)
+
     get_codec -> str:
         Returns the video codec
+
     get_duration -> str:
         Returns video duration in seconds, but does so as a string
+
     get_frames -> str:
         Returns the amount of frames in the video as a string (via OpenCV)
-    getfile -> str:
+
+    get_file -> str:
         Returns video file path
+
+    get_width -> str:
+        Returns video width as a string
+
+    get_height -> str:
+        Returns video height as a string
+
+    get_presigned_url -> str:
+        Returns the presigned AWS bucket URL, which acts as the file location for
+        videos uploaded via S3
+
+    add_label -> None:
+        Adds a passed label to the current video object
+
+    reset_label -> None:
+        Sets the video label to an empty string
+
+    add_output_title -> None:
+        Adds the passed string to the output title so it can be informative
+
+    create_complex_filter -> None:
+        Creates a sequential exection label for modifications that use -vf tag. This
+        way multiple -vf filters can be applied to the same video
+
 
     """
 
@@ -137,7 +171,7 @@ class Video:
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["codec_name"]
         else:
-            self.meta_data = self.get_metadata()
+            self.meta_data = self.extract_metadata()
             return self.meta_data["streams"][0]["codec_name"]
 
     def get_duration(self):
@@ -155,7 +189,7 @@ class Video:
         if self.meta_data is not None:
             return self.meta_data["streams"][0]["duration"]
         else:
-            self.meta_data = self.get_metadata()
+            self.meta_data = self.extract_metadata()
             return self.meta_data["streams"][0]["duration"]
 
     def get_num_frames(self):
@@ -242,7 +276,7 @@ class Video:
         """
         self.capture.release()
 
-    def get_presigned_url(self, time=60):
+    def get_presigned_url(self, time=600):
         """
         This method will return the presigned url of video file from S3.
         If the video file is from local machine then it will return the local path of the video file.
@@ -357,7 +391,7 @@ class Video:
         Nothing, but the video label is appended with the completed complex filter
         """
         filter_steps = video.complex_filter
-        filter_str = "-filter_complex '"
+        filter_str = " -filter_complex '"
         end = len(filter_steps)
         for i in range(len(filter_steps)):
             filter_str += f"[{i}]{filter_steps[i]}[{i + 1}];"
@@ -377,19 +411,11 @@ class Video:
         """
 
         result = ''
-        if 'scale' in self.label:
-            result += "resized_"
-        if '-ss' in self.label:
-            result += "trimmed_"
-        if 'crop' in self.label:
-            result += "cropped_"
-        if 'blur' in self.label:
-            result += "blurred_"
         if '-f segment' in self.label:
             out = self.title.split('.')
             out[0] += "_%02d."
             out = "".join(out)
-            self.title = out  # IMPORTANT FOR SOMETHING LMAO FIGURE OUT WHY
+            self.title = out
         self.out = result + self.title
         return  self.out_title + self.title
 
