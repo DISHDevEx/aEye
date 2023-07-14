@@ -1,5 +1,5 @@
 """
-Build the wheel file for the library devex_sdk.
+Build the wheel file for the library aEye.
 """
 
 from setuptools import find_packages, setup
@@ -68,12 +68,12 @@ setup(
                  'aEye.auxiliary',
                  'aEye.processor',
                  'aEye.video',
-                 'aEye.mediapipe'
+                 'aEye.mediapipe',
+                 'aEye.reduction',
         ]
     ),
     include_package_data=True,
     install_requires=[
-        'pyspark',
         'pandas',
         'numpy',
         'boto3',

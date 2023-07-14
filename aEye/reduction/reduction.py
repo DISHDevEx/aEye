@@ -71,13 +71,7 @@ def change_fps(video_list, new_framerate):
     return video_list
 
 
-def main():
-    aux=Aux()
-    video_list = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/')
-    change_fps(video_list, 15)
+def reduction(video_list):
+    change_fps(video_list, 30)
     set_bitrate(video_list, 0)
-    out = aux.execute_label_and_write_local(video_list)
-
-    
-if __name__ == "__main__":
-    main()
+    return video_list

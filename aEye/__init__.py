@@ -4,3 +4,5 @@ from .mediapipe import visualize
 from aEye.labeler import Labeler
 from aEye.extractor import Extractor
 from aEye.auxiliary import Aux
+
+from .reduction import reduction
