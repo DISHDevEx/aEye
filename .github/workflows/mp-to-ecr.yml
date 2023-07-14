@@ -38,7 +38,7 @@ jobs:
       run: |
         # Build a docker container and push it to ECR
         echo "building version v0.0.69 ..."
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.69 .
+        docker build -f Dockerfile.reduction -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.69 .
         echo "pushing image to ECR ..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.69
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.69"
