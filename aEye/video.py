@@ -393,3 +393,8 @@ class Video:
         self.out = result + self.title
         return  self.out_title + self.title
 
+
+    def get_title(self):
+        if not self.title and self.key:
+            self.title = self.key.split('/')[-1]
+        return self.title

@@ -6,7 +6,6 @@ This class will tweak some methods and their outputs from the original model to 
 
 
 from ultralytics import YOLO
-import boto3
 
 class Yolo:
 

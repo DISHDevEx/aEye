@@ -17,7 +17,6 @@ RUN pip3 install aEye-0.0.1-py3-none-any.whl --target "${LAMBDA_TASK_ROOT}"
 RUN static_ffmpeg_paths
 RUN python3 /var/task/ffmpeg_test.py
 
-
 ADD https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/int8/latest/efficientdet_lite0.tflite /var/task/efficientdet_lite0.tflite
 ADD https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8s.pt /var/task/yolov8s.pt
 ADD https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt /var/task/yolov8n.pt
