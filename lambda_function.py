@@ -59,15 +59,16 @@ def handler(event, context):
     print('yolo time done!')
     print(end-start)
 
-    s3_client.upload_file(mp_output_video, "leto-dish", "object_detection/mp_sample.mp4")
-    s3_client.upload_file(yolo_output_video, "leto-dish", "object_detection/yolo_sample.mp4")
+    #s3_client.upload_file(mp_output_video, "leto-dish", "object_detection/mp_sample.mp4")
+    #s3_client.upload_file(yolo_output_video, "leto-dish", "object_detection/yolo_sample.mp4")
 
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
     try:
         video = Video(bucket=bucket, key=key, title= "output.mp4")
+        print('!!!!!')
         pipeline(video.get_presigned_url(), model, yolo_output_video2)
-        
+        print('####')
         s3_client.upload_file(yolo_output_video2, "leto-dish", f"object_detection/{video.title}")
     except Exception as e:
         print(e)
