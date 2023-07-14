@@ -158,7 +158,6 @@ class Video:
             json_data = json.loads(out)
             self.meta_data = json_data
             return json_data
-        return subprocess.check_output("ls", shell=True)
 
     def get_codec(self):
         """
@@ -427,7 +426,7 @@ class Video:
 
     def get_title(self):
         '''
-        This method will return the video's title. 
+        This method will return the video's title.
         This will also create the video title based on its key from s3
 
         Returns
