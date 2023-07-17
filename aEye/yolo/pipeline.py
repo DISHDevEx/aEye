@@ -6,8 +6,11 @@ This pipeline will call visualize_yolo to visualize the result from the predicti
 from .visualize import visualize_yolo
 import cv2
 
+import boto3
+import os 
+
 def pipeline(input_video,  model, output_video ):
-    
+
     cap = cv2.VideoCapture(input_video)
     x = cap.get(cv2.CAP_PROP_FPS)
     frame_width = int(cap.get(3))
@@ -43,3 +46,13 @@ def pipeline(input_video,  model, output_video ):
     out.release()
 
     return result
+
+
+
+def downloadDirectoryFroms3(bucketName, remoteDirectoryName):
+    s3_resource = boto3.resource('s3')
+    bucket = s3_resource.Bucket(bucketName) 
+    for obj in bucket.objects.filter(Prefix = remoteDirectoryName):
+        if not os.path.exists(os.path.dirname(obj.key)):
+            os.makedirs(os.path.dirname(obj.key))
+        bucket.download_file(obj.key, obj.key) # save to same path

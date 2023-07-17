@@ -9,6 +9,13 @@ import time
 from aEye import Video
 import urllib.parse
 
+import static_ffmpeg
+import os
+
+static_ffmpeg.add_paths()
+os.system("ffmpeg -i var/task/test_video.mp4  -ss 0 -t 2  video.mp4 ")
+
+
 
 def handler(event, context):
 
