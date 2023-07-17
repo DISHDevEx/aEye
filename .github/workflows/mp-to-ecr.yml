@@ -1,3 +1,30 @@
+Skip to content
+DISHDevEx
+/
+aEye
+
+Type / to search
+Command palette
+Create new...
+Issues
+Pull requests
+You have no unread notifications
+Code
+Issues
+Pull requests
+2
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+publish-to-ecr
+update lambda #124
+Jobs
+Run details
+Workflow file for this run
+.github/workflows/mp-to-ecr.yml at 6a6595a
 name: publish-to-ecr
 on: [push]
 env:
@@ -38,9 +65,10 @@ jobs:
       run: |
         # Build a docker container and push it to ECR
         echo "building version v0.0.11 ..."
-        docker build -f Dockerfile.reduction -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.11 .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.11 .
         echo "pushing image to ECR ..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.11
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.11"
 #    - name: create wheel file from source code
 #      run: python setup.py bdist_wheel
+update lambda · DISHDevEx/aEye@6a6595a 
