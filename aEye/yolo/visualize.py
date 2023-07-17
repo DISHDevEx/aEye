@@ -2,7 +2,6 @@
 Module contains the visualizer to annotate the frame with the yolo prediction.
 """
 
-
 import cv2
 import numpy as np
 
@@ -20,7 +19,7 @@ def visualize_yolo(image,detection_result) -> np.ndarray:
           The input RGB image.
       detection_result: 
           The list of all bounding boxes entities to be visualize from yolo.
-          
+
     Returns
     ---------
       image: cv2 image
@@ -31,7 +30,6 @@ def visualize_yolo(image,detection_result) -> np.ndarray:
     for i, _ in enumerate(detection_result[0].boxes.cls):
         # Draw bounding_box
         x,y,w,h = detection_result[0].boxes.xyxyn[i]
-
 
         start_point = int(x.item()*shape[1]), int(y.item()*shape[0])
         end_point = int(w.item()*shape[1]),  int(h.item()*shape[0])

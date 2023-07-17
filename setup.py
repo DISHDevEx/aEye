@@ -74,7 +74,6 @@ setup(
     ),
     include_package_data=True,
     install_requires=[
-        'pandas',
         'numpy',
         'boto3',
         'opencv-python',
