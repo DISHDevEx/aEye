@@ -46,7 +46,7 @@ class Extractor:
             if video.out != '':
                 file_path = video.out.strip("'")
             else:
-                file_path = video.get_presigned_url().strip("'")
+                file_path = video.get_presigned_url()
             ## Currently, if you try to run the same cv method with an input upstream, it wont work bc it changes the FP
             ## I would rather have you able to extract processed imgs instead tho. 98% of the time this wont be an issue.
             print(file_path)
@@ -88,7 +88,7 @@ class Extractor:
             if video.label != '':
                 print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
             if video.out == '':
-                file_path = video.get_presigned_url().strip("'")
+                file_path = video.get_presigned_url()
             else:
                 file_path = video.out.strip("'")
             cv_video = cv2.VideoCapture(file_path)
@@ -133,7 +133,7 @@ class Extractor:
             if video.label != '':
                 print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
             if video.out == '':
-                file_path = video.get_presigned_url().strip("'")
+                file_path = video.get_presigned_url()
             else:
                 file_path = video.out.strip("'")
             vid_obj = cv2.VideoCapture(file_path)

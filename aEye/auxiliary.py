@@ -191,7 +191,7 @@ class Aux:
         for video in video_list:
             # This if statement will skip over any untouched videos.
             if video.out == '':
-                source = video.get_presigned_url()
+                source = f"'{video.get_presigned_url()}'"
             else:
                 source = video.out
             if len(video.complex_filter) > 0:
