@@ -25,7 +25,7 @@ def pipeline(input_video,  model, output_video ):
     ---------
         None
     '''
-    
+
     cap = cv2.VideoCapture(input_video)
     fps = cap.get(cv2.CAP_PROP_FPS)
     frame_width = int(cap.get(3))
@@ -42,7 +42,7 @@ def pipeline(input_video,  model, output_video ):
             im2 = frame[..., ::-1]
 
             # Perform object detection on the video frame.
-            detection_result = model.predict_(im2, verbose = False, save=False, save_txt = False, device = 'cpu')
+            detection_result = model.predict_(im2, verbose = False, save=False, save_txt = False)
 
             copy_image = frame.copy()
             annotated_image = visualize_yolo(copy_image, detection_result)

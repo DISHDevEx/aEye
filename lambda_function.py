@@ -12,8 +12,13 @@ import urllib.parse
 import static_ffmpeg
 import os
 
-os.system("static_ffmpeg -i var/task/test_video.mp4  -ss 0 -t 2  video.mp4 ")
-
+try: 
+    os.system(f"static_ffmpeg -i var/task/test_video.mp4  -ss 0 -t 2  video.mp4 ")
+    ffmpeg = '/var/lang/lib/python3.10/site-packages/static_ffmpeg/bin/linux/ffmpeg'
+    os.system(f"{ffmpeg} -i var/task/test_video.mp4  -ss 0 -t 2  video.mp4 ")
+    print("both works")
+except:
+    print('nope')
 
 
 def handler(event, context):
