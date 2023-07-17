@@ -42,7 +42,7 @@ def pipeline(input_video,  model, output_video ):
             im2 = frame[..., ::-1]
 
             # Perform object detection on the video frame.
-            detection_result = model.predict_(im2, verbose = False, save=False, save_txt = False)
+            detection_result = model.predict_(im2, verbose = False)
 
             copy_image = frame.copy()
             annotated_image = visualize_yolo(copy_image, detection_result)
