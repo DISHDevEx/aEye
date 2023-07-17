@@ -75,6 +75,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'numpy',
+        'pandas',
         'boto3',
         'opencv-python',
         'static-ffmpeg'
