@@ -68,13 +68,10 @@ setup(
                  'aEye.auxiliary',
                  'aEye.processor',
                  'aEye.video',
-                 'aEye.mediapipe'
         ]
     ),
     include_package_data=True,
     install_requires=[
-        'pyspark',
-        'pandas',
         'numpy',
         'boto3',
         'opencv-python',
