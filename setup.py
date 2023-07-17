@@ -66,7 +66,8 @@ setup(
     packages=find_packages(
         include=['aEye',
                  'aEye.auxiliary',
-                 'aEye.processor',
+                 'aEye.extractor',
+                 'aEye.labeler',
                  'aEye.video',
         ]
     ),
