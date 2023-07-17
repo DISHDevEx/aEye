@@ -43,6 +43,8 @@ class Video:
         Returns the amount of frames in the video as a string (via OpenCV)
     getfile -> str:
         Returns video file path
+    get_title -> str:
+        Returns video title 
 
     """
 
@@ -242,7 +244,7 @@ class Video:
         """
         self.capture.release()
 
-    def get_presigned_url(self, time=6000):
+    def get_presigned_url(self, time=60):
         """
         This method will return the presigned url of video file from S3.
         If the video file is from local machine then it will return the local path of the video file.
@@ -395,6 +397,16 @@ class Video:
 
 
     def get_title(self):
+        '''
+        This method will return the video's title. 
+        This will also create the video title based on its key from s3
+
+        Returns
+        ----------
+            title: string
+                The video's title.
+        '''
+
         if not self.title and self.key:
             self.title = self.key.split('/')[-1]
         return self.title

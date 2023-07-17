@@ -1,5 +1,5 @@
 """
-Module contains the pipeline to faciliate and  apply a yolo model to predict frame by frame by using cv2.
+Module contains the pipeline to faciliate and apply a yolo model to predict frame by frame by using cv2.
 This pipeline will call visualize_yolo to visualize the result from the prediction.
 """
 
@@ -11,15 +11,32 @@ import os
 
 def pipeline(input_video,  model, output_video ):
 
+    '''  
+    This functions opens the video frame by frame and applies yolo model to each frame.
+    
+    Parameters
+    ----------
+        input_video: string
+            The path for the video file or its presigned url if video is in s3. 
+
+        model: YOLO
+            The desired yolo model with its weight.
+
+        output_video: string
+            The path name 
+    Returns
+    ---------
+        None
+    '''
+
+
     cap = cv2.VideoCapture(input_video)
-    x = cap.get(cv2.CAP_PROP_FPS)
+    fps = cap.get(cv2.CAP_PROP_FPS)
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_video, fourcc, x, (frame_width, frame_height))
+    out = cv2.VideoWriter(output_video, fourcc, fps, (frame_width, frame_height))
     
-    result = []
-
     while (cap.isOpened()):
 
         # Capture frame-by-frame
@@ -30,11 +47,10 @@ def pipeline(input_video,  model, output_video ):
 
             # Perform object detection on the video frame.
             detection_result = model.predict_(im2, verbose = False, save=False, save_txt = False, device = 'cpu')
-            result.append(detection_result)
 
             copy_image = frame.copy()
-            
             annotated_image = visualize_yolo(copy_image, detection_result)
+            
             out.write(annotated_image)
 
         # Break the loop
@@ -45,7 +61,7 @@ def pipeline(input_video,  model, output_video ):
     cap.release()
     out.release()
 
-    return result
+
 
 
 

@@ -14,11 +14,17 @@ TEXT_COLOR = (255, 0, 0)  # red
 
 def visualize_yolo(image,detection_result) -> np.ndarray:
     """Draws bounding boxes on the input image and return it.
-    Args:
-      image: The input RGB image.
-      detection_result: The list of all "Detection" entities to be visualize.
-    Returns:
-      Image with bounding boxes.
+    Parameters
+    ----------
+      image: cv2 image 
+          The input RGB image.
+      detection_result: 
+          The list of all bounding boxes entities to be visualize from yolo.
+          
+    Returns
+    ---------
+      image: cv2 image
+          Image with bounding boxes.
     """
 
     shape = detection_result[0].orig_shape
@@ -26,7 +32,7 @@ def visualize_yolo(image,detection_result) -> np.ndarray:
         # Draw bounding_box
         x,y,w,h = detection_result[0].boxes.xyxyn[i]
 
-        
+
         start_point = int(x.item()*shape[1]), int(y.item()*shape[0])
         end_point = int(w.item()*shape[1]),  int(h.item()*shape[0])
 
