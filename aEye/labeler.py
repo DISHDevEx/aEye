@@ -1,8 +1,7 @@
 import logging
-from static_ffmpeg import run
+import static_ffmpeg
 import math
 
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()  # May cause problems w Docker image creation
 
 
 class Labeler:
@@ -116,12 +115,10 @@ class Labeler:
         # Go to each video and add the resizing ffmpeg label.
         for video in video_list:
             try:
-                # assert x_ratio in range(0,1) and y_ratio in range(0,1)
+                assert x_ratio in range(0,1) and y_ratio in range(0,1)
                 video.extract_metadata()
                 new_width = int(video.get_width() * x_ratio)
                 new_height = int(video.get_height() * y_ratio)
-
-                # video.add_label(f"-vf scale={math.ceil(new_width / 2) * 2}:{math.ceil(new_height / 2) * 2},setsar=1:1 ")
                 video.complex_filter.append(
                     f"scale={math.ceil(new_width / 2) * 2}:{math.ceil(new_height / 2) * 2},setsar=1:1")
                 video.add_output_title(f"resized_ratio_{x_ratio}_{y_ratio}_")
