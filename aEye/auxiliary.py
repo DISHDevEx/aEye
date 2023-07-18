@@ -48,7 +48,7 @@ class Aux:
     def __init__(self):
 
         self._s3 = boto3.client('s3')
-        self._temp_folder = tempfile.mkdtemp(dir="")
+        self._temp_folder = None
         self._local_path = None
 
     def load_s3(self, bucket, prefix):
@@ -173,7 +173,11 @@ class Aux:
         # If the user prompts this method with a specific path, then this will save it into the internal variable.
         # This will check if there exists an local path internal. If there exists, then we will write video files there.
         if path is None:
-            path = self._local_path if self._local_path else self._temp_folder
+            if self._local_path:
+                path = self._local_path  
+            else: 
+                self._temp_folder = tempfile.mkdtemp(dir="")
+                path = self._temp_folder
 
         else:
             self.set_local_path(path)
