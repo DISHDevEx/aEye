@@ -153,6 +153,8 @@ class Video:
                 fp = self.file
             command = f"{probe_path} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
             out = subprocess.check_output(command, shell=True).decode("utf-8")
+            print(out)
+            test2 = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i "
             json_data = json.loads(out)
             self.meta_data = json_data
             return json_data
