@@ -159,6 +159,8 @@ class Video:
             self.meta_data = json_data
 
             return json_data
+        else:
+            return self.meta_data
 
     def get_codec(self):
         """
