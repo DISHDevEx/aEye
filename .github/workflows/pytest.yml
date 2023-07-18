@@ -1,13 +1,11 @@
 name: pytest
-on:
-  pull_request:
-    branches: [main]
+on: [push]
 env:
-  AWS_REGION : ${{ secrets.AWS_REGION }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
 # permission can be added at job level or workflow level
 permissions:
-      id-token: write   # This is required for requesting the JWT
-      contents: read    # This is required for actions/checkout
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
 jobs:
   Pytest:
     runs-on: ubuntu-latest
@@ -15,7 +13,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -31,11 +29,11 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with pytest
         env:
-           ROLE_TO_ASSUME: ${{ secrets.ROLE_TO_ASSUME }}
-           SAMPLE_ROLE_SESSION: ${{ secrets.SAMPLE_ROLE_SESSION }}
-           BUCKET_NAME_PYTEST: ${{ secrets.BUCKET_NAME_PYTEST }}
-           GZ_BUCKET_NAME: ${{ secrets.GZ_BUCKET_NAME }}
-           PYTEST_FLAG:  "True"
+          ROLE_TO_ASSUME: ${{ secrets.ROLE_TO_ASSUME }}
+          SAMPLE_ROLE_SESSION: ${{ secrets.SAMPLE_ROLE_SESSION }}
+          BUCKET_NAME_PYTEST: ${{ secrets.BUCKET_NAME_PYTEST }}
+          GZ_BUCKET_NAME: ${{ secrets.GZ_BUCKET_NAME }}
+          PYTEST_FLAG: "True"
         run: |
-           python --version
-           pytest
+          python --version
+          pytest
