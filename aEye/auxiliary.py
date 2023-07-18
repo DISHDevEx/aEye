@@ -9,11 +9,7 @@ import tempfile
 import os
 import subprocess
 import logging
-from static_ffmpeg import run
-
-#Please comment this out when setting up a docker image.
-#This will fail when we use the docker image in the lambda function on AWS.
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+import static_ffmpeg
 
 class Aux:
     """
@@ -113,7 +109,6 @@ class Aux:
         """
         video_list = []
 
-        # video_list = [Video(file=  path + i, title=i) for i in os.listdir(path) if Video(file=  path + i, title=i)]
 
         if os.path.isdir(path):
             for i in os.listdir(path):
@@ -195,7 +190,7 @@ class Aux:
                 source = video.out
             if len(video.complex_filter) > 0:
                 video.create_complex_filter(video)
-            command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
+            command = f"static_ffmpeg -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
             # print(command)  # REALLY useful for debug
