@@ -74,7 +74,7 @@ class Aux:
         video_list: list
             The list of all video files loaded from S3 bucket.
         """
-
+        
         video_list = []
         result = self._s3.list_objects(Bucket=bucket, Prefix=prefix)
         for i in result["Contents"]:
@@ -111,6 +111,10 @@ class Aux:
         video_list: list
             The list of all video files loaded from local bucket.
         """
+        
+        # Set a local path to enable upload and memory of where objects are coming from. 
+        self._local_path = path
+        
         video_list = []
 
         # video_list = [Video(file=  path + i, title=i) for i in os.listdir(path) if Video(file=  path + i, title=i)]
@@ -149,14 +153,14 @@ class Aux:
 
         """
 
-        s3 = boto3.client('s3')
+        
         for video in video_list:
             # if video.get_label() != "":
             if not self._local_path:
                 path = self._temp_folder + '/' + video.get_output_title()
             else:
                 path = self._local_path + '/' + video.get_output_title()
-            s3.upload_file(path, bucket, prefix + video.get_output_title())
+            self._s3.upload_file(path, bucket, prefix + video.get_output_title())
 
         logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
 
@@ -246,3 +250,4 @@ class Aux:
 
         """
         self._local_path = path
+        
