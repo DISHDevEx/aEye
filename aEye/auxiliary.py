@@ -10,6 +10,12 @@ import os
 import subprocess
 import logging
 import static_ffmpeg
+<<<<<<< HEAD
+=======
+
+#Please comment this out when setting up a docker image.
+#This will fail when we use the docker image in the lambda function on AWS.
+>>>>>>> 5950b08 (updated for pr)
 
 
 class Aux:
