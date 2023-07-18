@@ -6,8 +6,9 @@ import cv2
 import subprocess
 import json
 import boto3
-
+import static_ffmpeg
 s3 = boto3.client("s3")
+
 
 
 class Video:
@@ -114,7 +115,7 @@ class Video:
                 fp = self.out
             else:
                 fp = self.file
-            command = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
+            command = f"static_ffprobe -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
             out = subprocess.check_output(command, shell=True).decode("utf-8")
             json_data = json.loads(out)
             self.meta_data = json_data
