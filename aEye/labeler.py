@@ -463,3 +463,25 @@ class Labeler:
                 logging.error(f" Cannot adjust video {video} framerate to {new_framerate}!")
         return video_list
 
+    def greyscale(self, video_list):
+        """
+        Makes the video greyscale.
+
+        Parameters
+        ----------
+
+        video_list : List[Video]
+            List of all current videos to apply label to
+
+        Returns
+        ----------
+
+        List of videos with labels updated
+        """
+        for video in video_list:
+            try:
+                video.complex_filter.append(f"format=gray")
+                video.add_output_title(f"greyscale_")
+            except:
+                logging.error(f" Cannot apply greyscale to {video}")
+        return video_list
