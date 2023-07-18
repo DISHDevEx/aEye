@@ -113,8 +113,7 @@ class Aux:
         """
         
         # Set a local path to enable upload and memory of where objects are coming from. 
-        self._local_path = path
-        
+
         video_list = []
 
         # video_list = [Video(file=  path + i, title=i) for i in os.listdir(path) if Video(file=  path + i, title=i)]
