@@ -7,8 +7,9 @@ import os
 import subprocess
 import json
 import static_ffmpeg
-from static_ffmpeg import run
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
+import shlex
+# from static_ffmpeg import run
+# ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 # Please comment this out when setting up a docker image.
 # This will fail when we use the docker image in the lambda function on AWS.
@@ -152,11 +153,12 @@ class Video:
             else:
                 fp = self.file
             command = f"static_ffprobe -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
-            out = subprocess.check_output(command, shell=True).decode("utf-8")
-            #json_data = json.load(out)
+            out = subprocess.run(shlex.split(command), capture_output=True).stdout
+            # cmd2 = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
+            json_data = json.loads(out)
+            self.meta_data = json_data
 
-            self.meta_data = out
-            return out
+            return json_data
 
     def get_codec(self):
         """
