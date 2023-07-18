@@ -44,6 +44,10 @@ class Video:
     getfile -> str:
         Returns video file path
 
+    get_title -> str:
+        Returns video title 
+
+
     """
 
     def __init__(self, file=None, bucket=None, key=None, title=None) -> None:
@@ -389,7 +393,23 @@ class Video:
             out = self.title.split('.')
             out[0] += "_%02d."
             out = "".join(out)
-            self.title = out  # IMPORTANT FOR SOMETHING LMAO FIGURE OUT WHY
+            self.title = out  
         self.out = result + self.title
         return  self.out_title + self.title
 
+
+
+    def get_title(self):
+        '''
+        This method will return the video's title. 
+        This will also create the video title based on its key from s3
+
+        Returns
+        ----------
+            title: string
+                The video's title.
+        '''
+
+        if not self.title and self.key:
+            self.title = self.key.split('/')[-1]
+        return self.title
