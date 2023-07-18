@@ -2,6 +2,7 @@ name: pytest
 on:
   pull_request:
     branches: [main]
+  push:
 env:
   AWS_REGION : ${{ secrets.AWS_REGION }}
 # permission can be added at job level or workflow level
