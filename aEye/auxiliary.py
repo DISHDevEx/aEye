@@ -11,8 +11,6 @@ import subprocess
 import logging
 import static_ffmpeg
 
-#Please comment this out when setting up a docker image.
-#This will fail when we use the docker image in the lambda function on AWS.
 
 class Aux:
     """
@@ -133,6 +131,8 @@ class Aux:
             The list of all video files loaded from local bucket.
         """
         video_list = []
+
+
 
         if os.path.isdir(path):
             for i in os.listdir(path):

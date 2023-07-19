@@ -3,18 +3,14 @@ Module contains the Video class that stores and represents video files as object
 
 """
 import cv2
-import os
 import subprocess
 import json
 import static_ffmpeg
 from static_ffmpeg import run
-# ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
-
-# Please comment this out when setting up a docker image.
-# This will fail when we use the docker image in the lambda function on AWS.
 import boto3
-
+import static_ffmpeg
 s3 = boto3.client("s3")
+
 
 
 class Video:
@@ -77,6 +73,8 @@ class Video:
     create_complex_filter -> None:
         Creates a sequential exection label for modifications that use -vf tag. This
         way multiple -vf filters can be applied to the same video
+    get_title -> str:
+        Returns video title 
 
 
     """
@@ -156,6 +154,7 @@ class Video:
             else:
                 fp = self.file
             command = f"{probe_path} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
+
             out = subprocess.check_output(command, shell=True).decode("utf-8")
             json_data = json.loads(out)
             self.meta_data = json_data
@@ -422,6 +421,23 @@ class Video:
             out[0] += "_%02d."
             out = "".join(out)
             self.title = out
+
         self.out = result + self.title
         return  self.out_title + self.title
 
+
+
+    def get_title(self):
+        '''
+        This method will return the video's title. 
+        This will also create the video title based on its key from s3
+
+        Returns
+        ----------
+            title: string
+                The video's title.
+        '''
+
+        if not self.title and self.key:
+            self.title = self.key.split('/')[-1]
+        return self.title

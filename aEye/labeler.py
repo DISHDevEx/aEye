@@ -1,5 +1,4 @@
 import logging
-import static_ffmpeg
 import math
 
 

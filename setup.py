@@ -66,16 +66,13 @@ setup(
     packages=find_packages(
         include=['aEye',
                  'aEye.auxiliary',
-                 'aEye.processor',
+                 'aEye.extractor',
+                 'aEye.labeler',
                  'aEye.video',
-                 'aEye.mediapipe'
         ]
     ),
     include_package_data=True,
     install_requires=[
-        'pyspark',
-        'pandas',
-        'numpy',
         'boto3',
         'opencv-python',
         'static-ffmpeg'
