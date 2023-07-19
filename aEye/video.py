@@ -145,7 +145,6 @@ class Video:
         """
         paths = subprocess.check_output("static_ffmpeg_paths").decode('utf-8')
         paths = paths.split('\n')[1]
-        print(paths)
         probe_path = paths.split('=')[0]
         if self.meta_data is None:
             fp = None
@@ -160,7 +159,7 @@ class Video:
             json_data = json.loads(out)
             self.meta_data = json_data
             return json_data
-        return self.meta_data
+        return self.meta_data, subprocess.check_output("static_ffmpeg_paths").decode('utf-8')
 
     def get_codec(self):
         """
