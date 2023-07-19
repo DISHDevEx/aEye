@@ -218,7 +218,7 @@ class Aux:
             command = f"static_ffmpeg -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
-            #print(command)  # REALLY useful for debug
+            print(command)  # REALLY useful for debug
             new_path = video.get_output_title()
             video.reset_label()
             new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')
