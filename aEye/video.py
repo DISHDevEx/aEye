@@ -7,7 +7,6 @@ import os
 import subprocess
 import json
 import static_ffmpeg
-import shlex
 # from static_ffmpeg import run
 # ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
@@ -144,6 +143,9 @@ class Video:
                 The dictionary of metadata for all streams.
 
         """
+        paths = subprocess.check_output("static_ffmpeg_paths").decode('utf-8')
+        paths = paths.split('\n')[1]
+        probe_path = paths.split('=')[1]
         if self.meta_data is None:
             fp = None
             if self.file is None:
@@ -152,15 +154,12 @@ class Video:
                 fp = self.out
             else:
                 fp = self.file
-            command = f"static_ffprobe -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
-            out = subprocess.call(command,  shell=True)
-            # cmd2 = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
+            command = f"{probe_path} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
+            out = subprocess.check_output(command, shell=True).decode("utf-8")
             json_data = json.loads(out)
             self.meta_data = json_data
-
             return json_data
-        else:
-            return self.meta_data
+        return self.meta_data
 
     def get_codec(self):
         """
