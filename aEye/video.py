@@ -7,7 +7,7 @@ import os
 import subprocess
 import json
 import static_ffmpeg
-# from static_ffmpeg import run
+from static_ffmpeg import run
 # ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
 
 # Please comment this out when setting up a docker image.
@@ -143,9 +143,10 @@ class Video:
                 The dictionary of metadata for all streams.
 
         """
-        paths1 = subprocess.check_output("static_ffmpeg_paths", shell=True).decode('utf-8')
-        paths = paths1.split('\n')[1]
-        probe_path = paths.split('=')[0]
+        # paths1 = subprocess.check_output("static_ffmpeg_paths", shell=True).decode('utf-8')
+        # paths = paths1.split('\n')[1]
+        # probe_path = paths.split('=')[0]
+        probe_path = run.get_or_fetch_platform_executables_else_raise()
         if self.meta_data is None:
             fp = None
             if self.file is None:
