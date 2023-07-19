@@ -5,6 +5,7 @@ from aEye.auxiliary import Aux
 from aEye.labeler import Labeler
 from aEye.extractor import Extractor
 import time
+import os
 
 def handler(event, context):
     print("Running aEye lambda test!")
@@ -15,9 +16,9 @@ def handler(event, context):
     print("Videos and Util loaded")
     label.change_resolution(video_list, '720p')
     label.change_fps(video_list, 10)
-    out = aux.execute_label_and_write_local(video_list, '/tmp')
-    for video in out:
-        print(video.file)
+    out_path = os.path.join("/tmp")
+    out = aux.execute_label_and_write_local(video_list, out_path)
+    print(os.system('ls && pwd'))
     print("Videos executed")
     time.sleep(100)
     aux.upload_s3(out, bucket='aeye-data-bucket', prefix='modified/')
