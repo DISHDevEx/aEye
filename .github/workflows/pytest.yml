@@ -39,4 +39,4 @@ jobs:
            PYTEST_FLAG:  "True"
         run: |
            python --version
-           pytest
+           pytest --tb=auto
