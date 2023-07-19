@@ -2,6 +2,7 @@ import cv2
 import logging
 import os
 
+
 class Extractor:
     """
     The Extractor class is used for frame extractions using openCV. Any time the methods
@@ -20,7 +21,17 @@ class Extractor:
     multiple_frame_extractor(video_list, start_frame, num_frames) -> List[Video]
         Extract the next num_frames after start_frame and send ALL the images to the output folder. This has the
         capacity to create a HUGE amount of images per video, use with caution!
+
+    Examples
+    --------
+
+    frame_at_time_extractor(s3_videos, 10) -> Output images come from timestamp 10s
+
+    specific_frame_extractor(s3_videos, 320) -> Output image comes from frame 320
+
+    multiple_frame_extractor(s3_videos, 634, 10) -> Extract 10 contiguous frames starting from 634
     """
+
     def frame_at_time_extractor(self, video_list, time):
         """
         Given a time in seconds, this will extract the closest frame.
@@ -41,28 +52,30 @@ class Extractor:
         Returns a list of videos, but creates an image in the output folder
         """
         for video in video_list:
-            if video.label != '':
-                print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
-            if video.out != '':
-                file_path = video.out.strip("'")
-            else:
-                file_path = video.get_presigned_url().strip("'")
-            ## Currently, if you try to run the same cv method with an input upstream, it wont work bc it changes the FP
-            ## I would rather have you able to extract processed imgs instead tho. 98% of the time this wont be an issue.
-            print(file_path)
-            cv_video = cv2.VideoCapture(file_path)
-            fps = cv_video.get(cv2.CAP_PROP_FPS)
-            frame_id = int(fps * time)
-            cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
-            ret, frame = cv_video.read()
-            actual_title = os.path.splitext(video.title)[0]
-            if video.path is None:
-                path = file_path.split('/')[0]
-            else:
-                path = video.path
-            cv2.imwrite(f"{path}/output_cv_extract_frame_at_time_{time}_{actual_title}.png", frame)
-            cv_video.release()
-            logging.info(f"Extracted frame at time {time}")
+            try:
+                assert time <= float(video.get_duration()) and time >= 0
+                if video.label != '':
+                    logging.error(
+                        f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
+                if video.out != '':
+                    file_path = video.out.strip("'")
+                else:
+                    file_path = video.get_presigned_url().strip("'")
+                cv_video = cv2.VideoCapture(file_path)
+                fps = cv_video.get(cv2.CAP_PROP_FPS)
+                frame_id = int(fps * time)
+                cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
+                ret, frame = cv_video.read()
+                actual_title = os.path.splitext(video.title)[0]
+                if video.path is None:
+                    path = file_path.split('/')[0]
+                else:
+                    path = video.path
+                cv2.imwrite(f"{path}/output_cv_extract_frame_at_time_{time}_{actual_title}.png", frame)
+                cv_video.release()
+                logging.info(f"Extracted frame at time {time}")
+            except:
+                logging.error(f" Cannot extract frame at time {time} for video {video}")
         return video_list
 
     def specific_frame_extractor(self, video_list, frame):
@@ -85,23 +98,28 @@ class Extractor:
         Returns a list of video objects and outputs an image.
         """
         for video in video_list:
-            if video.label != '':
-                print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
-            if video.out == '':
-                file_path = video.get_presigned_url().strip("'")
-            else:
-                file_path = video.out.strip("'")
-            cv_video = cv2.VideoCapture(file_path)
-            cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
-            ret, output = cv_video.read()
-            actual_title = os.path.splitext(video.title)[0]
-            if video.path is None:
-                path = file_path.split('/')[0]
-            else:
-                path = video.path
-            cv2.imwrite(f"{path}/output_cv_extract_specific_frame_{frame}_{actual_title}.png", output)
-            logging.info(f"Frame #{frame} extracted ")
-            cv_video.release()
+            try:
+                assert frame <= int(video.get_num_frames()) and frame >= 0
+                if video.label != '':
+                    logging.error(
+                        f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
+                if video.out == '':
+                    file_path = video.get_presigned_url().strip("'")
+                else:
+                    file_path = video.out.strip("'")
+                cv_video = cv2.VideoCapture(file_path)
+                cv_video.set(cv2.CAP_PROP_POS_FRAMES, frame)
+                ret, output = cv_video.read()
+                actual_title = os.path.splitext(video.title)[0]
+                if video.path is None:
+                    path = file_path.split('/')[0]
+                else:
+                    path = video.path
+                cv2.imwrite(f"{path}/output_cv_extract_specific_frame_{frame}_{actual_title}.png", output)
+                logging.info(f"Frame #{frame} extracted ")
+                cv_video.release()
+            except:
+                logging.error(f" Cannot extract frame {frame} for video {video}")
         return video_list
 
     def multiple_frame_extractor(self, video_list, start_frame, num_frames):
@@ -121,7 +139,7 @@ class Extractor:
             Number of the frame at which to start all the frame grabs.
 
         num_frames  : Integer
-            Number of frames to extract. THIS IS THE AMOUNT OF IMAGES PER VIDEO YOU WANT
+            Number of frames to extract. THIS IS THE AMOUNT OF IMAGES PER VIDEO YOU WANT.
             UNLESS YOU NEED A TON OF CONTIGUOUS FRAMES, DO NOT SET THIS TO A HIGH NUMBER.
 
         Returns
@@ -130,22 +148,30 @@ class Extractor:
         Returns a list of Videos, and many frames are output as PNG's
         """
         for video in video_list:
-            if video.label != '':
-                print(f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
-            if video.out == '':
-                file_path = video.get_presigned_url().strip("'")
-            else:
-                file_path = video.out.strip("'")
-            vid_obj = cv2.VideoCapture(file_path)
-            actual_title = os.path.splitext(video.title)[0]
-            if video.path is None:
-                path = file_path.split('/')[0]
-            else:
-                path = video.path
-            for x in range(num_frames):
-                ret, frame = vid_obj.read()
-                fn = f"{path}/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}_{x}.png"
-                cv2.imwrite(fn, frame)
-            vid_obj.release()
-            logging.info(f"Extracted {num_frames} from video, saved as PNG's")
+            try:
+                assert start_frame >= 0 and start_frame < int(video.get_num_frames()) and int(
+                    start_frame + num_frames) <= int(video.get_num_frames())
+                if video.label != '':
+                    logging.error(
+                        f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
+                if video.out == '':
+                    file_path = video.get_presigned_url().strip("'")
+                else:
+                    file_path = video.out.strip("'")
+                vid_obj = cv2.VideoCapture(file_path)
+                actual_title = os.path.splitext(video.title)[0]
+                if video.path is None:
+                    path = file_path.split('/')[0]
+                else:
+                    path = video.path
+                #  Sets the relative file location
+                for x in range(num_frames):
+                    vid_obj.set(cv2.CAP_PROP_POS_FRAMES, start_frame + x)
+                    ret, frame = vid_obj.read()
+                    fn = f"{path}/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}_{x}.png"
+                    cv2.imwrite(fn, frame)
+                vid_obj.release()
+                logging.info(f"Extracted {num_frames} from video, saved as PNG's")
+            except:
+                logging.error(f" Cannot extract {num_frames} starting from frame {start_frame}!")
         return video_list

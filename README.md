@@ -56,6 +56,7 @@ from aEye.extractor import Extractor
 
 ```console
 aux = Aux()
+# This class can download and upload videos, as well as executing pending labels
 ```
 
 6. Load the video from the desired bucket and folder.
@@ -69,7 +70,10 @@ video_list_s3 = aux.load_s3(bucket = 'aeye-data-bucket', prefix = 'input_video/'
 
 ```console
 label = Labeler()
+# This is used to apply labels like 'crop', 'trim', etc to a video object
+
 extract = Extractor()
+# This is used to extract frames as PNG's 
 ```
 
 
@@ -142,15 +146,20 @@ trim_video_start_end(video_list, start, end) -> Given start and end times in sec
 
 trim_into_clips(video_list, interval) -> Splits the video into X second clips, sends all these clips to output folder.
 
-split_on_frame(video_list, frame) -> Given a specific frame, start the video there, removes any preceding frames.
+trim_on_frame(video_list, frame) -> Given a specific frame, start the video there, removes any preceding frames.
 
-split_num_frames(video_list, start_frame, num_frames) -> Given a start frame and the amount of frames that a user wants "
+trim_num_frames(video_list, start_frame, num_frames) -> Given a start frame and the amount of frames that a user wants "
 to copy, splits the video to all of the frames within that frame range.
 
 crop_video_section(video_list, start_x, start_y, width, height) -> Create a width x height crop of the input video starting at pixel values"\
 start_x, start_y and sends the smaller video to the modified file.
 
 blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video
+
+set_bitrate(video_list, desired_bitrate) -> Sets the bitrate at which the video will re-encode to 
+
+change_fps(video_list, new_framerate) -> Sets the framerate at which the video will re-encode. Note, reducing the 
+bitrate in comparison to the original will result in a loss of some i/b frames, but the output duration will remain the same. 
 ```
 
 All Extract Utility:
@@ -173,7 +182,9 @@ Here's an example of using the labeler utility to downsize, crop, and trim a vid
 
 ```console
 to_process = label.trim_video_start_end(video_list_s3, 1, 9)              #Trims from 1s to 9s
+
 to_process = label.change_resolution(to_process, "720p")                  #Converts to 720p
+
 final_video_list = label.crop_video_section(to_process, 0, 0, 150, 100)   #Creates a 150x100 crop at (0,0)
 ```
 

@@ -11,6 +11,7 @@ import subprocess
 import logging
 import static_ffmpeg
 
+
 class Aux:
     """
     Aux is the class that works as a pipeline to load, write, and upload all video from S3 bucket.
@@ -28,20 +29,42 @@ class Aux:
 
 
     Methods
-    -------
+    ---------
         load_s3(bucket, prefix) -> list[Video]:
             Loads in video files as Video classes into a list from S3.
 
         load_local(path) -> list[Video]:
             Loads in video files as Video classes into a list from local machine.
 
-        write() -> None:
-            Execute and run the video's labels and write the video to temp folder.
+        upload_s3(video_list, bucket, prefix) -> None:
+            Uploads the contents of the temp folder to S3. Bucket can be specifed, and the prefix is the path
+            to the folder within that bucket where the output videos should end up.
 
-        execute_label_and_write_local(video_list) -> List[Video]
+        execute_label_and_write_local(video_list) -> List[Video]:
             Super important function to execute any pending labels on video list. This is how the FFmpeg
             command is run, and if further processing is needed, it returns a processed video list.
 
+        clean() -> None:
+            Removes the temp directory and anything within it. Really useful for a debug, and everything
+            should be cleaned up after uploading to S3. (Unless you want to keep the files locally)
+
+        set_local_path(path) -> None:
+            If the local path is not set by the time the video is ready to be uploaded, set the path to the
+            output folder.
+    Examples
+    ---------
+        load_s3(bucket='aeye-data-bucket', prefix='input_video/') -> Loads everything from the aEye data bucket in the input_video
+        directory.
+
+        load_local('/documents/testVid.mp4') -> Loads video directly from the local file location
+
+        upload_s3(modified_video_list, 'aeye-data-bucket', 'output_videos/')
+
+        execute_label_and_write_local(list_of_videos) -> Executes the pending labels for all video objects in the list
+
+        clean() -> Cleans the temp folder
+
+        set_local_path(cur_path) -> sets the local path to whatever you pass it. Unlikely a user will need this
 
     """
 
@@ -65,7 +88,7 @@ class Aux:
             The folder name where the video files belong in the S3 bucket.
 
         Returns
-        -------
+        ----------
 
         video_list: list
             The list of all video files loaded from S3 bucket.
@@ -110,6 +133,7 @@ class Aux:
         video_list = []
 
 
+
         if os.path.isdir(path):
             for i in os.listdir(path):
                 new_vid = Video(file=path + i, title=i)
@@ -146,7 +170,6 @@ class Aux:
 
         s3 = boto3.client('s3')
         for video in video_list:
-            # if video.get_label() != "":
             if not self._local_path:
                 path = self._temp_folder + '/' + video.get_output_title()
             else:
@@ -181,9 +204,6 @@ class Aux:
         list_video = []
 
         for video in video_list:
-            # This if statement will skip over any untouched videos.
-            # if video.get_label() != "":
-
             if video.out == '':
                 source = video.get_presigned_url()
             else:
@@ -193,7 +213,7 @@ class Aux:
             command = f"static_ffmpeg -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
-            # print(command)  # REALLY useful for debug
+            #print(command)  # REALLY useful for debug
             new_path = video.get_output_title()
             video.reset_label()
             new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')
