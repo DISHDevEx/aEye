@@ -391,7 +391,6 @@ class Video:
             self.title = out  
         self.out = result + self.title
         return  self.out_title + self.title
-<<<<<<< HEAD
 
 
 
