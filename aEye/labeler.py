@@ -1,8 +1,6 @@
 import logging
-<<<<<<< HEAD
-=======
 import static_ffmpeg
->>>>>>> 5950b08 (updated for pr)
+
 import math
 
 
