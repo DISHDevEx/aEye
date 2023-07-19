@@ -146,7 +146,7 @@ class Video:
         paths = subprocess.check_output("static_ffmpeg_paths").decode('utf-8')
         paths = paths.split('\n')[1]
         print(paths)
-        probe_path = paths.split('=')[1]
+        probe_path = paths.split('=')[0]
         if self.meta_data is None:
             fp = None
             if self.file is None:
