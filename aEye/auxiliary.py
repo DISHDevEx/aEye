@@ -216,7 +216,8 @@ class Aux:
             if len(video.complex_filter) > 0:
                 video.create_complex_filter(video)
             command = f"static_ffmpeg -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
-            subprocess.run(command, shell=True)
+            out = subprocess.run(command, shell=True)
+            print("Should be zero: ",out)
             logging.info(command)
             print(command)  # REALLY useful for debug
             new_path = video.get_output_title()
