@@ -143,8 +143,8 @@ class Video:
                 The dictionary of metadata for all streams.
 
         """
-        paths = subprocess.check_output("static_ffmpeg_paths").decode('utf-8')
-        paths = paths.split('\n')[1]
+        paths1 = subprocess.check_output("static_ffmpeg_paths", shell=True).decode('utf-8')
+        paths = paths1.split('\n')[1]
         probe_path = paths.split('=')[0]
         if self.meta_data is None:
             fp = None
@@ -159,7 +159,7 @@ class Video:
             json_data = json.loads(out)
             self.meta_data = json_data
             return json_data
-        return self.meta_data, subprocess.check_output("static_ffmpeg_paths").decode('utf-8')
+        return subprocess.check_output("ls", shell=True)
 
     def get_codec(self):
         """
