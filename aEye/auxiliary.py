@@ -208,7 +208,6 @@ class Aux:
             self.set_local_path(path)
 
         list_video = []
-        ffmpeg, probe_path = run.get_or_fetch_platform_executables_else_raise()
 
         for video in video_list:
             if video.out == '':
@@ -217,7 +216,7 @@ class Aux:
                 source = video.out
             if len(video.complex_filter) > 0:
                 video.create_complex_filter(video)
-            command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
+            command = f"static_ffmpeg -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             out = subprocess.run(command, shell=True)
             print("Should be zero: ",out)
             logging.info(command)
