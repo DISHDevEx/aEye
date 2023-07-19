@@ -5,10 +5,9 @@ Module contains the Video class that stores and represents video files as object
 import cv2
 import subprocess
 import json
-import static_ffmpeg
-from static_ffmpeg import run
 import boto3
 import static_ffmpeg
+from static_ffmpeg import run
 s3 = boto3.client("s3")
 
 
@@ -50,6 +49,9 @@ class Video:
 
     get_file -> str:
         Returns video file path
+
+    get_title -> str:
+        Returns video title
 
     get_width -> str:
         Returns video width as a string
@@ -139,10 +141,10 @@ class Video:
                 The dictionary of metadata for all streams.
 
         """
-        #paths1 = subprocess.check_output("static_ffmpeg_paths", shell=True).decode('utf-8')
+        # paths1 = subprocess.check_output("static_ffmpeg_paths", shell=True).decode('utf-8')
         # paths = paths1.split('\n')[1]
         # probe_path = paths.split('=')[0]
-        ffmpeg, probe_path = run.get_or_fetch_platform_executables_else_raise()
+        probe_path = run.get_or_fetch_platform_executables_else_raise()
         if self.meta_data is None:
             fp = None
             if self.file is None:
@@ -153,13 +155,10 @@ class Video:
                 fp = self.file
             command = f"{probe_path} -hide_banner -show_streams -v error -print_format json -show_format -i {fp}"
             out = subprocess.check_output(command, shell=True).decode("utf-8")
-            print(out)
-            test2 = f"{ffprobe} -hide_banner -show_streams -v error -print_format json -show_format -i "
             json_data = json.loads(out)
             self.meta_data = json_data
             return json_data
-        else:
-            return self.meta_data
+        return subprocess.check_output("ls", shell=True)
 
     def get_codec(self):
         """
@@ -428,7 +427,7 @@ class Video:
 
     def get_title(self):
         '''
-        This method will return the video's title.
+        This method will return the video's title. 
         This will also create the video title based on its key from s3
 
         Returns
