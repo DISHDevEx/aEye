@@ -114,12 +114,10 @@ class Labeler:
         # Go to each video and add the resizing ffmpeg label.
         for video in video_list:
             try:
-                # assert x_ratio in range(0,1) and y_ratio in range(0,1)
                 video.extract_metadata()
                 new_width = int(video.get_width() * x_ratio)
                 new_height = int(video.get_height() * y_ratio)
 
-                # video.add_label(f"-vf scale={math.ceil(new_width / 2) * 2}:{math.ceil(new_height / 2) * 2},setsar=1:1 ")
                 video.complex_filter.append(
                     f"scale={math.ceil(new_width / 2) * 2}:{math.ceil(new_height / 2) * 2},setsar=1:1")
                 video.add_output_title(f"resized_ratio_{x_ratio}_{y_ratio}_")
@@ -268,7 +266,7 @@ class Labeler:
         """
         for video in video_list:
             try:
-                assert frame >= 0 and frame <= int(video.get_num_frames())
+                assert 0 <= frame <= int(video.get_num_frames())
                 fps = float(video.get_num_frames()) / float(video.get_duration())
                 time_stamp = frame / fps
                 video.add_label(f"-ss {time_stamp} ")
@@ -462,4 +460,28 @@ class Labeler:
             except:
                 logging.error(f" Cannot adjust video {video} framerate to {new_framerate}!")
         return video_list
+
+    def grayscale(self, video_list):
+        """
+        Applies grayscale to all videos in the queue
+
+        Parameters
+        ----------
+
+        video_list : List[Video]
+            List of all videos to apply grayscale to
+
+        Returns
+        ----------
+
+        List of all videos with complex filter applied
+        """
+        for video in video_list:
+            try:
+                video.complex_filter.append(f"format=gray")
+                video.add_output_title(f"grayscale_")
+            except:
+                logging.error(f"Cannot apply grayscale to video {video}")
+        return video_list
+
 

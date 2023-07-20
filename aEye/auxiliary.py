@@ -69,9 +69,8 @@ class Aux:
     """
 
     def __init__(self):
-
         self._s3 = boto3.client('s3')
-        self._temp_folder = tempfile.mkdtemp(dir="")
+        self._temp_folder = None
         self._local_path = None
 
     def load_s3(self, bucket, prefix):
@@ -132,8 +131,6 @@ class Aux:
         """
         video_list = []
 
-
-
         if os.path.isdir(path):
             for i in os.listdir(path):
                 new_vid = Video(file=path + i, title=i)
@@ -188,7 +185,7 @@ class Aux:
             video_list: list
                 The list of video that needs to be executed and wrote as output files.
 
-            local: string
+            path: string
                 The path to write the output videos to.
 
         """
@@ -196,8 +193,11 @@ class Aux:
         # If the user prompts this method with a specific path, then this will save it into the internal variable.
         # This will check if there exists an local path internal. If there exists, then we will write video files there.
         if path is None:
-            path = self._local_path if self._local_path else self._temp_folder
-
+            if self._local_path:
+                path = self._local_path
+            else:
+                self._temp_folder = tempfile.mkdtemp(dir="")
+                path = self._temp_folder
         else:
             self.set_local_path(path)
 
@@ -213,7 +213,7 @@ class Aux:
             command = f"static_ffmpeg -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
-            #print(command)  # REALLY useful for debug
+            # print(command)  # REALLY useful for debug
             new_path = video.get_output_title()
             video.reset_label()
             new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')
