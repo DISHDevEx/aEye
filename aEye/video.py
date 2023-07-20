@@ -6,10 +6,9 @@ import cv2
 import subprocess
 import json
 import boto3
-import static_ffmpeg
 from static_ffmpeg import run
-s3 = boto3.client("s3")
 
+s3 = boto3.client("s3")
 
 
 class Video:
@@ -141,9 +140,6 @@ class Video:
                 The dictionary of metadata for all streams.
 
         """
-        # paths1 = subprocess.check_output("static_ffmpeg_paths", shell=True).decode('utf-8')
-        # paths = paths1.split('\n')[1]
-        # probe_path = paths.split('=')[0]
         ffmpeg, probe_path = run.get_or_fetch_platform_executables_else_raise()
         if self.meta_data is None:
             fp = None
@@ -420,12 +416,10 @@ class Video:
             out = "".join(out)
             self.title = out
         self.out = result + self.title
-        return  self.out_title + self.title
-
-
+        return self.out_title + self.title
 
     def get_title(self):
-        '''
+        """
         This method will return the video's title.
         This will also create the video title based on its key from s3
 
@@ -433,7 +427,7 @@ class Video:
         ----------
             title: string
                 The video's title.
-        '''
+        """
 
         if not self.title and self.key:
             self.title = self.key.split('/')[-1]

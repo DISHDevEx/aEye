@@ -53,7 +53,7 @@ class Extractor:
         """
         for video in video_list:
             try:
-                assert time <= float(video.get_duration()) and time >= 0
+                assert float(video.get_duration()) >= time >= 0
                 if video.label != '':
                     logging.error(
                         f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
@@ -99,7 +99,7 @@ class Extractor:
         """
         for video in video_list:
             try:
-                assert frame <= int(video.get_num_frames()) and frame >= 0
+                assert int(video.get_num_frames()) >= frame >= 0
                 if video.label != '':
                     logging.error(
                         f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
@@ -149,7 +149,7 @@ class Extractor:
         """
         for video in video_list:
             try:
-                assert start_frame >= 0 and start_frame < int(video.get_num_frames()) and int(
+                assert 0 <= start_frame < int(video.get_num_frames()) and int(
                     start_frame + num_frames) <= int(video.get_num_frames())
                 if video.label != '':
                     logging.error(

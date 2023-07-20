@@ -154,12 +154,14 @@ to copy, splits the video to all of the frames within that frame range.
 crop_video_section(video_list, start_x, start_y, width, height) -> Create a width x height crop of the input video starting at pixel values"\
 start_x, start_y and sends the smaller video to the modified file.
 
-blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video
+blur_video(video_list, blur_level, blur_steps) -> Adds the blur_level amount of blur blur_steps amount of times to a video.
 
-set_bitrate(video_list, desired_bitrate) -> Sets the bitrate at which the video will re-encode to 
+set_bitrate(video_list, desired_bitrate) -> Sets the bitrate at which the video will re-encode to.
 
 change_fps(video_list, new_framerate) -> Sets the framerate at which the video will re-encode. Note, reducing the 
 bitrate in comparison to the original will result in a loss of some i/b frames, but the output duration will remain the same. 
+
+grayscale(video_list) -> Applies a grayscale filter to all videos in video_list.
 ```
 
 All Extract Utility:
