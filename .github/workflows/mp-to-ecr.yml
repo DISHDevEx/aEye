@@ -22,10 +22,6 @@ jobs:
         role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
         role-session-name: samplerolesession
         aws-region: ${{ env.AWS_REGION }}
-    - name: create wheel file from source code
-      run: |
-        pip install wheel
-        python setup.py bdist_wheel --version v0.0.1
     - name: login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
@@ -37,10 +33,10 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
       run: |
         # Build a docker container and push it to ECR
-        echo "building version v0.0.11 ..."
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.11 .
+        echo "building version v0.0.42 ..."
+        docker build downstream_model/mediapipe/Dockerfile_mp -t $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.42 .
         echo "pushing image to ECR ..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.11
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.11"
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:v0.0.42
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:v0.0.42"
 #    - name: create wheel file from source code
 #      run: python setup.py bdist_wheel
