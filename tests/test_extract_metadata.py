@@ -15,5 +15,4 @@ def test_extract_metadata():
     for video in video_list_2:
         x = video.extract_metadata()
         codec = x['streams'][0]['codec_name']
-        aux.clean()
         assert codec == "h264"  # Basic check. Will fail for some more wacky formats (ex DVD's -> MPEG2)
