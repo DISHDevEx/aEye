@@ -12,7 +12,7 @@ def object_detection(model_path, input_video, output_video):
     Parameters
     ----------
     model_path  : string
-        Path of the model weight (mediapipe specific).
+        Path of the model weight (mediapipe_model specific).
     input_video : string
         The path to the video to object detect.
     output_video: string
