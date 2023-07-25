@@ -1,7 +1,8 @@
 import cv2
 import logging
 import os
-
+import tempfile
+from aEye.auxiliary import Aux
 
 class Extractor:
     """
@@ -12,33 +13,35 @@ class Extractor:
     Methods
     --------
 
-    frame_at_time_extractor(video_list, time) -> List[Video]
+    frame_at_time_extractor(aux, video_list, time) -> List[Video]
         Given a time as a float, extract the frame at that point and put it in the temp output folder
 
-    specific_frame_extractor(video_list, frame) -> List[Video]
+    specific_frame_extractor(aux, video_list, frame) -> List[Video]
         Will extract the frame # that is passed in and store it as a PNG in the temp folder
 
-    multiple_frame_extractor(video_list, start_frame, num_frames) -> List[Video]
+    multiple_frame_extractor(aux, video_list, start_frame, num_frames) -> List[Video]
         Extract the next num_frames after start_frame and send ALL the images to the output folder. This has the
         capacity to create a HUGE amount of images per video, use with caution!
 
     Examples
     --------
 
-    frame_at_time_extractor(s3_videos, 10) -> Output images come from timestamp 10s
+    frame_at_time_extractor(aux, s3_videos, 10) -> Output images come from timestamp 10s
 
-    specific_frame_extractor(s3_videos, 320) -> Output image comes from frame 320
+    specific_frame_extractor(aux, s3_videos, 320) -> Output image comes from frame 320
 
-    multiple_frame_extractor(s3_videos, 634, 10) -> Extract 10 contiguous frames starting from 634
+    multiple_frame_extractor(aux, s3_videos, 634, 10) -> Extract 10 contiguous frames starting from 634
     """
 
-    def frame_at_time_extractor(self, video_list, time):
+    def frame_at_time_extractor(self, aux, video_list, time):
         """
         Given a time in seconds, this will extract the closest frame.
         Img extraction that takes less than half as long as the FFMpeg version.
 
         Parameters
         -------
+        aux         : Auxiliary Loader
+            Sets the output path and creates tmp folder
 
         video_list : List[Video]
             List of all video objects loaded for processing.
@@ -68,9 +71,16 @@ class Extractor:
                 ret, frame = cv_video.read()
                 actual_title = os.path.splitext(video.title)[0]
                 if video.path is None:
-                    path = file_path.split('/')[0]
-                else:
+                    video.path = tempfile.mkdtemp(dir="")
                     path = video.path
+                    aux._local_path = path
+                    aux._temp_folder = path
+                else:
+                    path = file_path.split('/')[0]
+                # if video.path is None:
+                #     path = file_path.split('/')[0]
+                # else:
+                #     path = video.path
                 cv2.imwrite(f"{path}/output_cv_extract_frame_at_time_{time}_{actual_title}.png", frame)
                 cv_video.release()
                 logging.info(f"Extracted frame at time {time}")
@@ -78,13 +88,16 @@ class Extractor:
                 logging.error(f" Cannot extract frame at time {time} for video {video}")
         return video_list
 
-    def specific_frame_extractor(self, video_list, frame):
+    def specific_frame_extractor(self, aux, video_list, frame):
         """
         OpenCv method to grab a single frame as a PNG. Passed argument frame is the frame that
         will be extracted. (No decimals please)
 
         Parameters
         -------
+
+        aux         : Auxiliary Loader
+            Sets the output path and creates tmp folder
 
         video_list : List[Video]
             List of all video objects loaded for processing.
@@ -112,9 +125,16 @@ class Extractor:
                 ret, output = cv_video.read()
                 actual_title = os.path.splitext(video.title)[0]
                 if video.path is None:
-                    path = file_path.split('/')[0]
-                else:
+                    video.path = tempfile.mkdtemp(dir="")
                     path = video.path
+                    aux._local_path = path
+                    aux._temp_folder = path
+                else:
+                    path = file_path.split('/')[0]
+                # if video.path is None:
+                #     path = file_path.split('/')[0]
+                # else:
+                #     path = video.path
                 cv2.imwrite(f"{path}/output_cv_extract_specific_frame_{frame}_{actual_title}.png", output)
                 logging.info(f"Frame #{frame} extracted ")
                 cv_video.release()
@@ -122,7 +142,7 @@ class Extractor:
                 logging.error(f" Cannot extract frame {frame} for video {video}")
         return video_list
 
-    def multiple_frame_extractor(self, video_list, start_frame, num_frames):
+    def multiple_frame_extractor(self, aux, video_list, start_frame, num_frames):
         """
         Given a start_frame, extract the next num_frames from the video, and store the resulting
         collection of frames in the output folder. num_Frames is the number of frames to be returned
@@ -131,6 +151,9 @@ class Extractor:
 
         Parameters
         -------
+
+        aux         : Auxiliary Loader
+            Sets the output path and creates tmp folder
 
         video_list  : List[Video]
             List of all video objects loaded for processing.
@@ -149,8 +172,6 @@ class Extractor:
         """
         for video in video_list:
             try:
-                assert 0 <= start_frame < int(video.get_num_frames()) and int(
-                    start_frame + num_frames) <= int(video.get_num_frames())
                 if video.label != '':
                     logging.error(
                         f"WARNING: Video {video} has processing to execute still! Resulting images will NOT have these modifications applied!")
@@ -161,14 +182,22 @@ class Extractor:
                 vid_obj = cv2.VideoCapture(file_path)
                 actual_title = os.path.splitext(video.title)[0]
                 if video.path is None:
-                    path = file_path.split('/')[0]
-                else:
+                    video.path = tempfile.mkdtemp(dir="")
                     path = video.path
+                    aux._local_path = path
+                    aux._temp_folder = path
+                else:
+                    path = file_path.split('/')[0]
+                # if video.path is None:
+                #     path = file_path.split('/')[0]
+                # else:
+                #     path = video.path
                 #  Sets the relative file location
                 for x in range(num_frames):
                     vid_obj.set(cv2.CAP_PROP_POS_FRAMES, start_frame + x)
                     ret, frame = vid_obj.read()
                     fn = f"{path}/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}_{x}.png"
+                    #fn = f"images/output_extract_many_frames_{start_frame}_{num_frames}_{actual_title}_{x}.png"
                     cv2.imwrite(fn, frame)
                 vid_obj.release()
                 logging.info(f"Extracted {num_frames} from video, saved as PNG's")

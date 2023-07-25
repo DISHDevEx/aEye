@@ -9,7 +9,7 @@ import tempfile
 import os
 import subprocess
 import logging
-import static_ffmpeg
+from static_ffmpeg import run
 
 
 class Aux:
@@ -193,7 +193,7 @@ class Aux:
         # If the user prompts this method with a specific path, then this will save it into the internal variable.
         # This will check if there exists an local path internal. If there exists, then we will write video files there.
         if path is None:
-            if self._local_path:
+            if self._local_path is not None:
                 path = self._local_path
             else:
                 self._temp_folder = tempfile.mkdtemp(dir="")
@@ -202,7 +202,7 @@ class Aux:
             self.set_local_path(path)
 
         list_video = []
-
+        ffmpeg, probe_path = run.get_or_fetch_platform_executables_else_raise()
         for video in video_list:
             if video.out == '':
                 source = video.get_presigned_url()
@@ -210,13 +210,14 @@ class Aux:
                 source = video.out
             if len(video.complex_filter) > 0:
                 video.create_complex_filter(video)
-            command = f"static_ffmpeg -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
+            command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
-            # print(command)  # REALLY useful for debug
+            print(command)  # REALLY useful for debug
             new_path = video.get_output_title()
             video.reset_label()
             new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')
+            new_video.path = path
             new_video.set_output(f"'{path}/{new_path}'")
             list_video.append(new_video)
 
