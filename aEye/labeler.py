@@ -1,6 +1,6 @@
 import logging
 import math
-
+import subprocess
 
 
 class Labeler:
@@ -384,7 +384,7 @@ class Labeler:
         for video in video_list:
             try:
                 assert blur_level in range(0, 52) and blur_steps in range(1, 6)
-                video.complex_filter.append(f"gblur=sigma={blur_level}:steps={blur_steps} ")
+                video.complex_filter.append(f"gblur=sigma={blur_level}:steps={blur_steps}")
                 video.add_output_title(f"blurred_{blur_level}x{blur_steps}_")
                 logging.info(f"Created a blur of strength {blur_level} and applied it {blur_steps} times")
             except:
@@ -461,15 +461,15 @@ class Labeler:
                 logging.error(f" Cannot adjust video {video} framerate to {new_framerate}!")
         return video_list
 
-    def grayscale(self, video_list):
+    def greyscale(self, video_list):
         """
-        Applies grayscale to all videos in the queue
+        Applies greyscale to all videos in the queue
 
         Parameters
         ----------
 
         video_list : List[Video]
-            List of all videos to apply grayscale to
+            List of all videos to apply greyscale to
 
         Returns
         ----------
@@ -479,9 +479,9 @@ class Labeler:
         for video in video_list:
             try:
                 video.complex_filter.append(f"format=gray")
-                video.add_output_title(f"grayscale_")
+                video.add_output_title(f"greyscale_")
             except:
-                logging.error(f"Cannot apply grayscale to video {video}")
+                logging.error(f"Cannot apply greyscale to video {video}")
         return video_list
 
 

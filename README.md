@@ -122,13 +122,13 @@ Example:
 
 
 ```console
-to_process = process.add_label_change_resolution(video_list_s3, "720p")
-process.cv_extract_specific_frame(to_process, 42)  # These screenshots will NOT be in 720p
-aux.execute_label_and_write_local(to_process)
+label.change_resolution(video_list_s3, "720p")
+extract.specific_frame_extractor(aux, video_list_s3, 42)  # These screenshots will NOT be in 720p
+aux.execute_label_and_write_local(video_list_s3)
 
 # Because the video modifications have not been executed, the images will come from the original video.
 
-to_process = process.add_label_change_resolution(video_list_s3, "720p")
+label.change_resolution(video_list_s3, "720p")
 output_list = aux.execute_label_and_write_local(to_process)
 process.cv_extract_specific_frame(output_list, 42)  # These screenshots WILL be in 720p!
 
@@ -166,11 +166,11 @@ grayscale(video_list) -> Applies a grayscale filter to all videos in video_list.
 
 All Extract Utility:
 ```console
-frame_at_time_extractor(video_list, time) -> Given a time (can be a float), find the closest B-Frame and extract it
+frame_at_time_extractor(aux, video_list, time) -> Given a time (can be a float), find the closest B-Frame and extract it
 
-specific_frame_extractor(video_list, frame) -> Extract the exact frame you pass as a PNG
+specific_frame_extractor(aux, video_list, frame) -> Extract the exact frame you pass as a PNG
 
-multiple_frame_extractor(video_list, start_frame, num_frames) -> Beginning at start_frame, extract the next num_frames
+multiple_frame_extractor(aux, video_list, start_frame, num_frames) -> Beginning at start_frame, extract the next num_frames
 ```
 
 Limitations:
