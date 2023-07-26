@@ -190,6 +190,7 @@ class Labeler:
             "480p": [640, 480],
             "360p": [480, 360],
             "240p": [426, 240],
+            '256s':  [256, 192]
         }
 
         try:
@@ -198,7 +199,7 @@ class Labeler:
             # Generate the desired target list of videos to add label.
             # Add the scale ffmpeg label to all desired videos.
             for video in video_list:
-                video.add_label("-c:v libx264 -preset slow -crf 28 ")
+                video.add_label("-c:v libx264 -preset slow ")
                 video.complex_filter.append(f"scale={width_height[0]}x{width_height[1]}:flags=lanczos")
                 video.add_output_title(f"resized_{width_height[0]}x{width_height[1]}_")
 
