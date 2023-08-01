@@ -168,12 +168,6 @@ class Aux:
                 The subfolder name that the video list will be uploaded to.
 
         """
-
-            # When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
-            # This if-statement is to skip over the folder object since we are only interested in the video files.
-
-
-
         s3 = boto3.client('s3')
         for video in video_list:
             if not self._local_path:
