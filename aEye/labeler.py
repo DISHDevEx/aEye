@@ -198,7 +198,7 @@ class Labeler:
             # Generate the desired target list of videos to add label.
             # Add the scale ffmpeg label to all desired videos.
             for video in video_list:
-                video.add_label("-c:v libx264 -preset slow -crf 28 ")
+                video.add_label("-preset slow -crf 28 ")
                 video.complex_filter.append(f"scale={width_height[0]}x{width_height[1]}:flags=lanczos")
                 video.add_output_title(f"resized_{width_height[0]}x{width_height[1]}_")
 
@@ -483,5 +483,13 @@ class Labeler:
             except:
                 logging.error(f"Cannot apply greyscale to video {video}")
         return video_list
+
+    def change_codec(self, video_list):
+        for video in video_list:
+            try:
+                video.add_label(f"-c:v rawvideo -pix_fmt yuv420p ")
+                video.add_output_title(f"converted_to_raw_")
+            except:
+                logging.error(f" Cannot convert {video} to raw!")
 
 
