@@ -143,8 +143,9 @@ class Aux:
             dummy = path.replace('/', ' ').strip()
             title = dummy.split(' ')[-1]
             new_vid = Video(file=path, title=title)
-            new_vid.path = path
-            self._local_path = path
+            new_vid.path = dummy.split(' ')[0]
+            #print("PATH",dummy.split(' ')[0])
+            self._local_path = dummy.split(' ')[0]
             new_vid.get_presigned_url()
             video_list.append(new_vid)
 
@@ -167,6 +168,12 @@ class Aux:
                 The subfolder name that the video list will be uploaded to.
 
         """
+
+            # When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
+            # This if-statement is to skip over the folder object since we are only interested in the video files.
+
+
+
         s3 = boto3.client('s3')
         for video in video_list:
             if not self._local_path:
@@ -264,3 +271,4 @@ class Aux:
 
         """
         self._local_path = path
+
