@@ -213,6 +213,7 @@ class Aux:
                 source = video.out
             if len(video.complex_filter) > 0:
                 video.create_complex_filter(video)
+            video.get_output_title()
             command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
