@@ -167,12 +167,6 @@ class Aux:
                 The subfolder name that the video list will be uploaded to.
 
         """
-
-            # When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
-            # This if-statement is to skip over the folder object since we are only interested in the video files.
-
-
-
         s3 = boto3.client('s3')
         for video in video_list:
             if not self._local_path:
@@ -270,11 +264,3 @@ class Aux:
 
         """
         self._local_path = path
-
-
-if __name__ == '__main__':
-    aux = Aux()
-    video_l = aux.load_local('/Users/James.Fagan/Documents/Video_Benchmark_Car.mp4')
-    video = video_l[0]
-    print(video)
-    aux.upload_s3(video_l, 'aeye-data-bucket','modified/')
