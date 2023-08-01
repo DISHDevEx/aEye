@@ -143,8 +143,9 @@ class Aux:
             dummy = path.replace('/', ' ').strip()
             title = dummy.split(' ')[-1]
             new_vid = Video(file=path, title=title)
-            new_vid.path = path
-            self._local_path = path
+            new_vid.path = dummy.split(' ')[0]
+            #print("PATH",dummy.split(' ')[0])
+            self._local_path = dummy.split(' ')[0]
             new_vid.get_presigned_url()
             video_list.append(new_vid)
 
@@ -264,3 +265,4 @@ class Aux:
 
         """
         self._local_path = path
+
