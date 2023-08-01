@@ -135,6 +135,8 @@ class Aux:
             for i in os.listdir(path):
                 new_vid = Video(file=path + i, title=i)
                 new_vid.path = path
+                self._local_path = path
+
                 video_list.append(new_vid)
 
         else:
@@ -142,6 +144,8 @@ class Aux:
             title = dummy.split(' ')[-1]
             new_vid = Video(file=path, title=title)
             new_vid.path = path
+            self._local_path = path
+
             video_list.append(new_vid)
 
         logging.info(f"successfully load the video files from local path: {path}")
@@ -264,10 +268,3 @@ class Aux:
         self._local_path = path
 
 
-if __name__ == '__main__':
-    aux = Aux()
-    video_list = aux.load_local('/Users/James.Fagan/Documents/Video_Benchmark_Car.mp4')
-    video = video_list[0]
-    print(video)
-    video.extract_metadata()
-    print(video.title, video.path, video.meta_data)
