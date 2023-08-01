@@ -136,7 +136,7 @@ class Aux:
                 new_vid = Video(file=path + i, title=i)
                 new_vid.path = path
                 self._local_path = path
-
+                new_vid.get_presigned_url()
                 video_list.append(new_vid)
 
         else:
@@ -145,11 +145,10 @@ class Aux:
             new_vid = Video(file=path, title=title)
             new_vid.path = path
             self._local_path = path
-
+            new_vid.get_presigned_url()
             video_list.append(new_vid)
 
         logging.info(f"successfully load the video files from local path: {path}")
-        print(f"Loaded from {path}")
         return video_list
 
     def upload_s3(self, video_list, bucket, prefix='modified/'):
@@ -169,12 +168,17 @@ class Aux:
 
         """
 
+            # When we request from S3 with the input parameters, the prefix folder will also pop up as a object.
+            # This if-statement is to skip over the folder object since we are only interested in the video files.
+
+
+
         s3 = boto3.client('s3')
         for video in video_list:
             if not self._local_path:
                 path = self._temp_folder + '/' + video.get_output_title()
             else:
-                path = self._local_path + '/' + video.get_output_title()
+                path = self._local_path #+ '/' + video.get_output_title()
             s3.upload_file(path, bucket, prefix + video.get_output_title())
 
         logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
@@ -217,7 +221,7 @@ class Aux:
             command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)
-            print(command)  # REALLY useful for debug
+            #print(command)  # REALLY useful for debug
             new_path = video.get_output_title()
             video.reset_label()
             new_video = Video(f'{path}/{video.get_output_title()}', title=f'{video.get_output_title()}')
@@ -268,3 +272,9 @@ class Aux:
         self._local_path = path
 
 
+if __name__ == '__main__':
+    aux = Aux()
+    video_l = aux.load_local('/Users/James.Fagan/Documents/Video_Benchmark_Car.mp4')
+    video = video_l[0]
+    print(video)
+    aux.upload_s3(video_l, 'aeye-data-bucket','modified/')
