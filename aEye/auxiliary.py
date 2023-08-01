@@ -136,6 +136,7 @@ class Aux:
                 new_vid = Video(file=path + i, title=i)
                 new_vid.path = path
                 self._local_path = path
+
                 video_list.append(new_vid)
 
         else:
@@ -144,6 +145,7 @@ class Aux:
             new_vid = Video(file=path, title=title)
             new_vid.path = path
             self._local_path = path
+
             video_list.append(new_vid)
 
         logging.info(f"successfully load the video files from local path: {path}")
@@ -264,4 +266,5 @@ class Aux:
 
         """
         self._local_path = path
+
 
