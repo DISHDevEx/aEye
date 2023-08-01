@@ -136,7 +136,7 @@ class Aux:
                 new_vid = Video(file=path + i, title=i)
                 new_vid.path = path
                 self._local_path = path
-
+                new_vid.get_presigned_url()
                 video_list.append(new_vid)
 
         else:
@@ -145,11 +145,10 @@ class Aux:
             new_vid = Video(file=path, title=title)
             new_vid.path = path
             self._local_path = path
-
+            new_vid.get_presigned_url()
             video_list.append(new_vid)
 
         logging.info(f"successfully load the video files from local path: {path}")
-        print(f"Loaded from {path}")
         return video_list
 
     def upload_s3(self, video_list, bucket, prefix='modified/'):
