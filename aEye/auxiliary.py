@@ -265,11 +265,3 @@ class Aux:
         """
         self._local_path = path
 
-
-if __name__ == '__main__':
-    aux = Aux()
-    video_list = aux.load_local('/Users/James.Fagan/Documents/Video_Benchmark_Car.mp4')
-    video = video_list[0]
-    print(video)
-    video.extract_metadata()
-    print(video.title, video.path, video.meta_data)
