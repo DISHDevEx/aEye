@@ -485,11 +485,28 @@ class Labeler:
         return video_list
 
     def change_codec(self, video_list):
+        """
+        Converts videos to RAW format, as a .yuv file. *Note these files will
+        be larger than anyone could reasonably need, and will not make something
+        "watchable". Don't use this if you don't need to!
+
+        Parameters
+        ----------
+
+        video_list : List[Video]
+            List of all videos to convert
+
+        Returns
+        ----------
+
+        List of all videos to apply label to
+        """
         for video in video_list:
             try:
                 video.add_label(f"-c:v rawvideo -pix_fmt yuv420p ")
                 video.add_output_title(f"converted_to_raw_")
             except:
                 logging.error(f" Cannot convert {video} to raw!")
+        return video_list
 
 
