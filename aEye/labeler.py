@@ -176,6 +176,9 @@ class Labeler:
         desired_resolution: string
             The desired resolution for the videos. Values: 1080p,720p,480p,360p,240p
 
+        algorithm: string
+            Type of algorithm to change res by, like lanczos, bicubic, etc
+
         Returns
         ---------
 
