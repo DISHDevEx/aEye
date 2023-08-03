@@ -161,7 +161,7 @@ class Labeler:
                 logging.error(f" Video {video} cannot be cut with constaints {start},{end}")
         return video_list
 
-    def change_resolution(self, video_list, desired_resolution):
+    def change_resolution(self, video_list, desired_resolution,algorithm = "lanczos"):
         """
         Add the label for resizing a video according to desired resolution.
         Height is what determines: 420p, 720p, etc.
@@ -199,7 +199,7 @@ class Labeler:
             # Add the scale ffmpeg label to all desired videos.
             for video in video_list:
                 video.add_label("-preset slow -crf 28 ")
-                video.complex_filter.append(f"scale={width_height[0]}x{width_height[1]}:flags=lanczos")
+                video.complex_filter.append(f"scale={width_height[0]}x{width_height[1]}:flags={algorithm}")
                 video.add_output_title(f"resized_{width_height[0]}x{width_height[1]}_")
 
             logging.info(f"successfully added resize label for desired_resolution")
