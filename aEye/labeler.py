@@ -161,7 +161,7 @@ class Labeler:
                 logging.error(f" Video {video} cannot be cut with constaints {start},{end}")
         return video_list
 
-    def change_resolution(self, video_list, desired_resolution):
+    def change_resolution(self, video_list, desired_resolution,algorithm = "lanczos"):
         """
         Add the label for resizing a video according to desired resolution.
         Height is what determines: 420p, 720p, etc.
@@ -199,7 +199,7 @@ class Labeler:
             # Add the scale ffmpeg label to all desired videos.
             for video in video_list:
                 video.add_label("-preset slow -crf 28 ")
-                video.complex_filter.append(f"scale={width_height[0]}x{width_height[1]}:flags=lanczos")
+                video.complex_filter.append(f"scale={width_height[0]}x{width_height[1]}:flags={algorithm}")
                 video.add_output_title(f"resized_{width_height[0]}x{width_height[1]}_")
 
             logging.info(f"successfully added resize label for desired_resolution")
@@ -485,11 +485,28 @@ class Labeler:
         return video_list
 
     def change_codec(self, video_list):
+        """
+        Converts videos to RAW format, as a .yuv file. *Note these files will
+        be larger than anyone could reasonably need, and will not make something
+        "watchable". Don't use this if you don't need to!
+
+        Parameters
+        ----------
+
+        video_list : List[Video]
+            List of all videos to convert
+
+        Returns
+        ----------
+
+        List of all videos to apply label to
+        """
         for video in video_list:
             try:
                 video.add_label(f"-c:v rawvideo -pix_fmt yuv420p ")
                 video.add_output_title(f"converted_to_raw_")
             except:
                 logging.error(f" Cannot convert {video} to raw!")
+        return video_list
 
 

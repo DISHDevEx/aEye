@@ -167,12 +167,13 @@ class Aux:
                 The subfolder name that the video list will be uploaded to.
 
         """
+
         s3 = boto3.client('s3')
         for video in video_list:
             if not self._local_path:
                 path = self._temp_folder + '/' + video.get_output_title()
             else:
-                path = self._local_path #+ '/' + video.get_output_title()
+                path = self._local_path + '/' + video.get_output_title()
             s3.upload_file(path, bucket, prefix + video.get_output_title())
 
         logging.info(f"successfully upload the output files S3 bucket: s3://{bucket}/{prefix}/")
@@ -212,6 +213,7 @@ class Aux:
                 source = video.out
             if len(video.complex_filter) > 0:
                 video.create_complex_filter(video)
+            video.get_output_title()
             command = f"{ffmpeg} -y -i {source} {video.get_label()} {path}/{video.get_output_title()}"
             subprocess.run(command, shell=True)
             logging.info(command)

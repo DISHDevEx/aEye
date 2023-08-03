@@ -415,6 +415,11 @@ class Video:
             out[0] += "_%02d."
             out = "".join(out)
             self.title = out
+        if 'rawvideo' in self.label:
+            out = self.title.split('.')
+            out[1] = '.yuv'
+            out = "".join(out)
+            self.title = out
         self.out = result + self.title
         return self.out_title + self.title
 
