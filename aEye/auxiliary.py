@@ -251,12 +251,8 @@ class Aux:
                     os.remove(f'{path}/{video}')
         except Exception as e:
             print(e)
-            pass
-
-        try:
+        finally:
             shutil.rmtree(path)
-        except Exception as e:
-            print(e)
 
 
         logging.info("successfully remove the temp folder from local machine")
