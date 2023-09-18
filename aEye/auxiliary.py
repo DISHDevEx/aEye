@@ -3,6 +3,7 @@ Module contains the Aux class that handles the loading and uploading of videos. 
 
 """
 
+import shutil
 from aEye.video import Video
 import boto3
 import tempfile
@@ -244,11 +245,15 @@ class Aux:
         if path is None:
             path = self._local_path if self._local_path else self._temp_folder
 
-        for (path, _, files) in os.walk(path, topdown=True):
-            for video in files:
-                os.remove(f'{path}/{video}')
+        try:
+            for (path, _, files) in os.walk(path, topdown=True):
+                for video in files:
+                    os.remove(f'{path}/{video}')
+        except Exception as e:
+            print(e)
+        finally:
+            shutil.rmtree(path)
 
-        os.rmdir(path)
 
         logging.info("successfully remove the temp folder from local machine")
 
