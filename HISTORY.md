@@ -1,10 +1,10 @@
 Release History
 ===============
 
-dev
+1.2.4
 ---
-
-- \[Short description of non-trivial change.\]
+- Bug fix in Aux.clean()
+    - Added exception handling and changed implementation to ```shutil.rmtree(path)```
 
 1.1.0 Additional Features
 ---
